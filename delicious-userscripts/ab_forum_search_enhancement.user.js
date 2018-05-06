@@ -397,6 +397,7 @@ if ((/^http.*:\/\/animebytes\.tv\/forums\.php/i.test(document.URL)) && !/action=
         if (showFastSearchLinks) {
             forumid = document.URL.match(/forumid=(\d+)/i);
             if (forumid != null) {
+                /*
                 forumid = parseInt(forumid[1], 10);
                 quickLink = document.createElement('a');
                 quickLink.textContent = ' [Search this forum] ';
@@ -409,6 +410,7 @@ if ((/^http.*:\/\/animebytes\.tv\/forums\.php/i.test(document.URL)) && !/action=
                 linkbox1.parentNode.insertBefore(newLinkBox, linkbox1);
                 newLinkBox.appendChild(quickLink);
                 forumIds = document.querySelectorAll('table a[href^="/forums.php?action=viewforum&forumid="]');
+                */
                 forumIds = (function () {
                     var j, len1, results;
                     results = [];

@@ -254,7 +254,7 @@ Version history (TheFallingMan)
             addBooleanSetting('ABSortTorrents', 'Sort torrents', 'Allows torrent tables to be sorted.', 'true', 'false', 'true');
             addBooleanSetting('ABHistDynLoad', 'Dynamic history tables', 'Dynamically load more pages into transfer history tables.', 'true', 'false', 'true');
             document.getElementById('pose_list').appendChild(document.createElement('hr'));
-            addBooleanSetting('ABForumEnhFastSearch', 'Create links to search forums', 'Add links to search forums (including or excluding direct subforums) at the top of a forums page.', 'true', 'false', 'true');
+            //addBooleanSetting('ABForumEnhFastSearch', 'Create links to search forums', 'Add links to search forums (including or excluding direct subforums) at the top of a forums page.', 'true', 'false', 'true');
             addBooleanSetting('ABForumSearchWorkInFS', 'Load posts into search results', 'Allows you to load posts and threads into search results, slide through posts and filter for authors.', 'true', 'false', 'true');
             addBooleanSetting('ABForumSearchHideSubfor', 'Hide subforum selection in search', 'This will hide the subforum selection in the search until a checkbox is clicked.', 'true', 'false', 'true');
             addColorSetting('ABForumSearchHighlightBG', 'Color for search terms', 'Background color for search terms within posts and headers.', '#FFC000', 'true', 'none');
