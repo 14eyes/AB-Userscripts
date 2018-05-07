@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name AnimeBytes delicious user scripts (updated)
 // @author aldy, potatoe, alpha, Megure
-// @version 2.0.1.2
+// @version 2.0.1.3
 // @description Variety of userscripts to fully utilise the site and stylesheet. (Updated by TheFallingMan)
 // @grant GM_getValue
 // @grant GM_setValue
@@ -10,18 +10,6 @@
 // @match https://*.animebytes.tv/*
 // @icon http://animebytes.tv/favicon.ico
 // ==/UserScript==
-
-/*
-Version history (TheFallingMan)
-2018-04-15  1.964   Fixed capping seeding duration bonus to user's age. (start of changelog)
-2018-04-15  1.965   Fixed compatibility with non-ES2015 compatible browsers.
-2018-04-20  1.966   Updated to recognise and use IEC (KiB, MiB, etc.) byte prefixes.
-2018-04-20  1.967   Fixed inserting (CTRL + ALT + Y) too many times on Youtube buttons.
-                    Refactored code of keyboard shortcuts (near function 'insert').
-2018-04-21  1.968   Uploaded to GitLab. Split into individual userscripts which are
-                    assembled into the delicious bundle by a Python script.
-            2.0.0+  See https://gitlab.com/momentary/ab-userscripts/tree/master/delicious-userscripts
-*/
 
 (function AnimeBytesDeliciousUserScripts() {
 
@@ -189,22 +177,18 @@ Version history (TheFallingMan)
         /* === Inserted from ab_hyper_quote.user.js === */
         // ==UserScript==
         // @name        AB - HYPER QUOTE!
-        // @author      Megure
+        // @author      Megure, TheFallingMan
         // @description Select text and press CTRL+V to quote
         // @include     https://animebytes.tv/*
-        // @version     0.1.1.2
+        // @version     0.2.1
         // @icon        http://animebytes.tv/favicon.ico
         // ==/UserScript==
         
-        // HYPER QUOTE by Megure
-        // Select text and press CTRL+V to quote
         (function ABHyperQuote() {
             if (document.getElementById('quickpost') === null)
-            {
                 return;
-            }
         
-            var _debug = true;
+            var _debug = false;
         
             function formattedUTCString(date, timezone) {
                 var creation = new Date(date);
@@ -218,6 +202,7 @@ Version history (TheFallingMan)
         
             function QUOTEALL() {
                 var sel = window.getSelection();
+                if (sel.rangeCount === 0) return;
                 // If there's only one range, happy days.
                 if (sel.rangeCount === 1) {
                     _debug && console.log('Quoting one range:');
@@ -349,109 +334,273 @@ Version history (TheFallingMan)
                 }
             }
         
+            function bbcodePostDiv(postDiv) {
+                return bbcodeChildren(postDiv).trim();
+            }
         
-            function QUOTEONE(post) {
-                function HTMLtoBB(str) {
-                    // Order is somewhat relevant.
-                    // We can be certain that < and > denote HTML tags because 'str'
-                    // is obtained from .innerHTML; < and similar are HTML escaped.
-                        // Eliminates insignificant whitespace between HTML elements.
-                    var ret = str.replace(/>\s+</ig, '><').
-                        // Quotes of a specific user.
-                        replace(/<strong><a.*?>.*?<\/a><\/strong> <a.*?href="(.*?)#(?:msg|post)(.*?)".*?>wrote(?: on )?(.*?)<\/a>:?\s*<blockquote class="blockquote">([\s\S]*?)<\/blockquote>/ig, function (html, href, id, dateString, quote) {
-                            var type = '';
-                            _debug && console.log('inner quote href: ' +href);
-                            if (/\/forums\.php/i.test(href)) type = '#';
-                            if (/\/user\.php/i.test(href)) type = '*';
-                            if (/\/torrents\.php/i.test(href)) type = '-1';
-                            if (/\/torrents2\.php/i.test(href)) type = '-2';
-                            if (type !== '')
-                                return '[quote=' + type + id + ']' + quote + '[/quote]';
-                            else
-                                return html.replace(dateString, formattedUTCString(dateString));
-                        }).
-                        replace(/<strong>Added on (.*?):?<\/strong>/ig, function (html, dateString) {
-                            return html.replace(dateString, formattedUTCString(dateString));
-                        }).
-                        // Currently only :shitpizza:
-                        replace(/<img.* alt="(:[^:]+:)" .*class="bbcode_smiley">/ig, '$1').
-                        // Searches for BBCode input buttons to find string to insert.
-                        replace(/<span class="smiley-.+?" title="(.+?)"><\/span>/ig, function (html, smiley) {
-                            var smileyNode = document.querySelector('span[alt="' + smiley + '"]');
-                            if (smileyNode === null)
-                                smileyNode = document.querySelector('span[style*="/' + smiley + '.png"]');
-                            if (smileyNode === null)
-                                smileyNode = document.querySelector('span[style*="/' + smiley.replace(/-/g, '_') + '.png"]');
-                            if (smileyNode === null)
-                                smileyNode = document.querySelector('span[style*="/' +
-                                    smiley.replace(/-/g, '_').toLowerCase() + '.png"]');
-                            if (smileyNode === null)
-                                smileyNode = document.querySelector('span[style*="/' + smiley.replace(/face/g, '~_~') + '.png"]');
-                            if (smileyNode !== null && smileyNode.parentNode !== null) {
-                                smileyNode = smileyNode.getAttribute('onclick').match(/'(.+?)'/i);
-                                if (smileyNode !== null)
-                                    return smileyNode[1];
-                            }
-                            return ':' + smiley + ':';
-                        }).
-                        replace(/<iframe.*?src="([^?"]*).*?".*?><\/iframe>/ig, '[youtube]$1[/youtube]').
-                        // Eliminates empty HTML tags.
-                        replace(/<([^\s>\/]+)[^>]*>\s*<\/([^>]+)>/ig, function (html, match1, match2) {
-                            if (match1 === match2)
-                                return '';
-                            return html;
-                        }).
-                        replace(/<ul><li>(.+?)<\/li><\/ul>/ig, '[*]$1').
-                        replace(/<a.*?href="torrents\.php\?.*?torrentid=([0-9]*?)".*?>([\s\S]*?)<\/a>/ig, '[torrent=$1]$2[/torrent]').
-                        replace(/<a.*?href="(.*?)".*?>([\s\S]*?)<\/a>/ig, function (html, match1, match2) {
-                            if (match1.indexOf('://') === -1 && match1.length > 0 && match1[0] !== '/')
-                                return '[url=/' + match1 + ']' + match2 + '[/url]'
-                            else
-                                return '[url=' + match1 + ']' + match2 + '[/url]'
-                        }).
-                        replace(/<strong>([\s\S]*?)<\/strong>/ig, '[b]$1[/b]').
-                        replace(/<em>([\s\S]*?)<\/em>/ig, '[i]$1[/i]').
-                        replace(/<u>([\s\S]*?)<\/u>/ig, '[u]$1[/u]').
-                        replace(/<s>([\s\S]*?)<\/s>/ig, '[s]$1[/s]').
-                        replace(/<div style="text-align: center;">([\s\S]*?)<\/div>/ig, '[align=center]$1[/align]').
-                        replace(/<div style="text-align: left;">([\s\S]*?)<\/div>/ig, '[align=left]$1[/align]').
-                        replace(/<div style="text-align: right;">([\s\S]*?)<\/div>/ig, '[align=right]$1[/align]').
-                        replace(/<span style="color:\s*(.*?);?">([\s\S]*?)<\/span>/ig, '[color=$1]$2[/color]').
-                        replace(/<span class="size(.*?)">([\s\S]*?)<\/span>/ig, '[size=$1]$2[/size]').
-                        replace(/<blockquote class="blockquote">([\s\S]*?)<\/blockquote>/ig, '[quote]$1[/quote]').
-                        replace(/<div.*?class=".*?spoilerContainer.*?hideContainer.*?".*?><input.*?value="(?:Show\s*|Hide\s*)(.*?)".*?><div.*?class=".*?spoiler.*?".*?>([\s\S]*?)<\/div><\/div>/ig, function (html, button, content) {
-                            if (button !== '')
-                                return '[hide=' + button + ']' + content + '[/hide]';
-                            else
-                                return '[hide]' + content + '[/hide]';
-                        }).
-                        replace(/<div class="spoilerContainer"><input type="button" class="spoilerButton" value="(?:Show|Hide) ([^"]+) spoiler"><div class="spoiler"[^>]*>([^<]*)<\/div><\/div>/ig, function (html, button, content) {
-                            if (button !== '')
-                                return '[spoiler=' + button + ']' + content + '[/spoiler]';
-                            else
-                                return '[spoiler]' + content + '[/spoiler]';
-                        }).
-                        replace(/<img.*?src="(.*?)".*?>/ig, '[img]$1[/img]').
-                        replace(/<div class="codeBox"><pre>([^<]*)<\/pre><\/div>/ig, '[code]$1[/code]').
-                        replace(/<span class="last-edited">[\s\S]*$/ig, '');
-                    if (ret !== str) return HTMLtoBB(ret);
-                    else {
-                        // We cannot replace <br> earlier because the \n
-                        // would be deleted by the whitespace replacement.
-                        ret = ret.replace(/<br[^>]*>/ig, '\n');
-                        _debug && console.log(ret);
-                        // Decode HTML
-                        var tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = ret;
-                        // Note: textContent has the effect of removing all unmatched
-                        // HTML tags from the string.
-                        return tempDiv.textContent.trim();
+            /**
+             *
+             * @param {Node} parentNode
+             */
+            function bbcodeChildren(parentNode) {
+                _debug && console.log('parentNode: ');
+                _debug && console.log(parentNode);
+                if (!(parentNode.childNodes && parentNode.childNodes.length))
+                    return '';
+                var bbcodeString = '';
+                for (var i = 0; i < parentNode.childNodes.length; i++) {
+                    var thisNode = parentNode.childNodes[i];
+                    if (thisNode.nodeType === Node.TEXT_NODE) {
+                        var text = thisNode.nodeValue;
+                        if (i > 0 && parentNode.childNodes[i-1].nodeType === Node.ELEMENT_NODE
+                            && parentNode.childNodes[i-1].tagName.toUpperCase() === 'BR')
+                            text = text.replace(/^\s+/, '');
+                        if (i+1 < parentNode.childNodes.length
+                            && parentNode.childNodes[i+1].nodeType === Node.ELEMENT_NODE
+                            && parentNode.childNodes[i+1].tagName.toUpperCase() === 'BR')
+                            text = text.replace(/\s+$/, '');
+                        bbcodeString += text;
+                        continue;
+                    }
+                    var isQuote = false;
+                    try {
+                        // We fully expect this to throw exceptions if the element
+                        // is not a quote block, as the surrounding structure
+                        // will not be there.
+                        //debugger;
+                        isQuote = (
+                            (i+4 < parentNode.childNodes.length)
+                            && thisNode.nodeType === Node.ELEMENT_NODE
+                            && thisNode.tagName.toUpperCase() === 'STRONG'
+                            && thisNode.firstElementChild.href.indexOf('user.php?id=') !== -1
+                            && parentNode.childNodes[i+2].textContent.indexOf('wrote') !== -1
+                            && parentNode.childNodes[i+2].firstElementChild.tagName.toUpperCase() === 'SPAN'
+                            && parentNode.childNodes[i+2].firstElementChild.title
+                            && parentNode.childNodes[i+3].nodeValue.indexOf(':') !== -1
+                            && parentNode.childNodes[i+4].classList.contains('blockquote')
+                        );
+                    } catch (exception) { _debug && console.log(exception); }
+                    _debug && console.log('isQuote: ' + isQuote);
+                    if (isQuote) {
+                        bbcodeString += bbcodeQuote(thisNode,
+                            parentNode.childNodes[i+2], parentNode.childNodes[i+4]);
+                        i += 4;
+                    } else {
+                        bbcodeString += bbcodeOneElement(thisNode);
                     }
                 }
+                return bbcodeString;
+            }
+            /**
+             *
+             * @param {HTMLElement} strongNode
+             * @param {HTMLAnchorElement} wroteLink
+             * @param {HTMLQuoteElement} quoteNode
+             */
+            function bbcodeQuote(strongNode, wroteLink, quoteNode) {
+                var quoteType = '';
+                var href = wroteLink.href;
+                if (href.indexOf('/forums.php') !== -1) quoteType = '#';
+                else if (href.indexOf('/user.php') !== -1) quoteType = '*';
+                else if (href.indexOf('/torrents.php') !== -1) quoteType = '-1';
+                else if (href.indexOf('/torrents2.php') !== -1) quoteType = '-2';
+                if (quoteType !== '') {
+                    var id = /#(?:msg|post)?(\d+)$/.exec(href);
+                    if (id)
+                        return '[quote=' + quoteType + id[1] + ']' + bbcodeChildren(quoteNode) + '[/quote]\n';
+                }
+                return ('[url='+wroteLink.href+']Unknown quote[/url][quote]'
+                    +bbcodeChildren(quoteNode)+'[/quote]');
+            }
         
-                _debug && console.log(post.querySelector('div.post,div.body').innerHTML);
-                var res = HTMLtoBB(post.querySelector('div.post,div.body').innerHTML),
-                    author, creation, postid, type = '';
+            function bbcodeStrong(strongNode) {
+                if (strongNode.childNodes.length === 1
+                    && strongNode.firstChild.nodeType === Node.TEXT_NODE
+                    && strongNode.firstChild.nodeValue.startsWith('Added on ')) {
+                    var dateString = strongNode.firstChild.nodeValue.slice(9);
+                    var end = '';
+                    if (dateString.charAt(dateString.length-1) === ':') {
+                        dateString = dateString.slice(0, -1);
+                        end = ':';
+                    }
+                    return '[b]Added on '+formattedUTCString(dateString)+end+'[/b]';
+                } else {
+                    return '[b]'+bbcodeChildren(strongNode)+'[/b]';
+                }
+            }
+        
+            /**
+             *
+             * @param {HTMLDivElement} divNode
+             */
+            function bbcodeDiv(divNode) {
+                if (divNode.style.textAlign) {
+                    var align = divNode.style.textAlign;
+                    return '[align='+align+']'+bbcodeChildren(divNode)+'[/align]\n';
+                }
+                if (divNode.classList.contains('codeBox')) {
+                    return '[code]'+divNode.firstElementChild.firstChild.nodeValue+'[/code]\n';
+                }
+                if (divNode.classList.contains('spoilerContainer')) {
+                    return bbcodeSpoiler(divNode);
+                }
+            }
+        
+            /**
+             *
+             * @param {HTMLDivElement} spoilerDiv
+             */
+            function bbcodeSpoiler(spoilerDiv) {
+                var isSpoiler = !spoilerDiv.classList.contains('hideContainer');
+                var bbcodeTag = isSpoiler ? 'spoiler' : 'hide';
+                var label = spoilerDiv.firstElementChild.value.replace(/(Hide|Show)/, '');
+                if (label.length !== 0) {
+                    if (isSpoiler)
+                       label = label.replace(/ spoiler$/, '');
+                    label = label.substr(1);
+                }
+                return '['+bbcodeTag + (label.length!==0 ? '='+label : '') + ']' +
+                    bbcodeChildren(spoilerDiv.children[1]) + '[/'+bbcodeTag+']';
+            }
+        
+            /**
+             *
+             * @param {HTMLUListElement} listNode
+             */
+            function bbcodeList(listNode, bbcodeTag) {
+                var str = '';
+                for (var c = 0; c < listNode.childElementCount; c++) {
+                    str += bbcodeTag + bbcodeChildren(listNode.children[c]);
+                    if (c < listNode.childElementCount-1)
+                        str += '\n';
+                }
+                return str;
+            }
+        
+            function bbcodeImage(imgNode) {
+                if (imgNode.classList.contains('bbcode_smiley')) {
+                    return imgNode.alt;
+                }
+                return '[img]'+imgNode.src+'[/img]';
+            }
+        
+            var rgbRegex = /^rgb\((\d{1,3}), (\d{1,3}), (\d{1,3})\)$/i;
+        
+            /**
+             *
+             * @param {HTMLSpanElement} spanNode
+             */
+            function bbcodeSpan(spanNode) {
+                if (spanNode.className.indexOf('smiley-') !== -1) {
+                    return bbcodeSmiley(spanNode);
+                }
+                var colour = spanNode.style.color;
+                if (colour) {
+                    var rgbMatch = rgbRegex.exec(colour);
+                    if (rgbMatch)
+                        colour = ('#' + parseInt(rgbMatch[1]).toString(16)
+                        +parseInt(rgbMatch[2]).toString(16)
+                        +parseInt(rgbMatch[3]).toString(16));
+                    return '[color='+colour+']' + bbcodeChildren(spanNode) + '[/color]';
+                }
+                if (spanNode.className.startsWith('size')) {
+                    var size = spanNode.className.replace('size', '');
+                    return '[size='+size+']'+bbcodeChildren(spanNode)+'[/size]';
+                }
+                if (spanNode.className === 'last-edited') {
+                    return '';
+                }
+                if (spanNode.title)
+                    return formattedUTCString(spanNode.title);
+                return bbcodeChildren(spanNode);
+            }
+        
+            function bbcodeSmiley(smileySpan) {
+                var smiley = smileySpan.title;
+                var smileyNode = document.querySelector('span[alt="' + smiley + '"]');
+                if (smileyNode === null)
+                    smileyNode = document.querySelector('span[style*="/' + smiley + '.png"]');
+                if (smileyNode === null)
+                    smileyNode = document.querySelector('span[style*="/' + smiley.replace(/-/g, '_') + '.png"]');
+                if (smileyNode === null)
+                    smileyNode = document.querySelector('span[style*="/' +
+                        smiley.replace(/-/g, '_').toLowerCase() + '.png"]');
+                if (smileyNode === null)
+                    smileyNode = document.querySelector('span[style*="/' + smiley.replace(/face/g, '~_~') + '.png"]');
+                if (smileyNode !== null && smileyNode.parentNode !== null) {
+                    smileyNode = smileyNode.getAttribute('onclick').match(/'(.+?)'/i);
+                    if (smileyNode !== null)
+                        return smileyNode[1];
+                }
+                return ':' + smiley + ':';
+            }
+        
+        
+            var userRegex = /\/user\.php\?id=(\d+)$/;
+            var torrentRegex = /^torrents2?\.php\?id=\d+&torrentid=(\d+)$/;
+        
+            /**
+             *
+             * @param {HTMLAnchorElement} linkElement
+             */
+            function bbcodeLink(linkElement) {
+                var href = linkElement.href;
+                var realHref = linkElement.getAttribute('href');
+                var userMatch = userRegex.exec(href);
+                if (userMatch)
+                    return '[user]'+linkElement.textContent+'[/user]';
+                var torrentMatch = torrentRegex.exec(realHref);
+                if (torrentMatch) {
+                    return '[torrent]'+href+'[/torrent]';
+                }
+                return ('[url='+realHref+']'+ bbcodeChildren(linkElement) + '[/url]');
+            }
+        
+            var youtubeRegex = /\/embed\/([^?]+)\?/i;
+            var soundcloudRegex = /\/player\/\?url=([^&]+)&/i;
+        
+            /**
+             *
+             * @param {HTMLIFrameElement} iframeNode
+             */
+            function bbcodeIframe(iframeNode) {
+                var src = iframeNode.src;
+                if (src.indexOf('youtube.com/embed') !== -1) {
+                    return '[youtube]https://youtube.com/watch?v='+youtubeRegex.exec(src)[1]+'[/youtube]';
+                }
+                if (src.indexOf('soundcloud.com/player') !== -1) {
+                    return '[soundcloud]'+decodeURIComponent(soundcloudRegex.exec(src)[1])+'[/soundcloud]';
+                }
+                return 'Embedded media: ' + src;
+            }
+        
+            function bbcodeOneElement(node) {
+                if (node.nodeType !== Node.ELEMENT_NODE)
+                    return '';
+                switch (node.tagName.toUpperCase()) {
+                    case 'DIV': return bbcodeDiv(node);
+                    case 'SPAN': return bbcodeSpan(node);
+                    case 'BR': return '\n';
+                    case 'STRONG': return bbcodeStrong(node);
+                    case 'EM': return '[i]'+bbcodeChildren(node)+'[/i]';
+                    case 'U': return '[u]'+bbcodeChildren(node)+'[/u]';
+                    case 'S': return '[s]'+bbcodeChildren(node)+'[/s]';
+                    case 'OL': return bbcodeList(node, '[#]');
+                    case 'UL': return bbcodeList(node, '[*]');
+                    case 'A': return bbcodeLink(node);
+                    case 'IMG': return bbcodeImage(node);
+                    case 'IFRAME': return bbcodeIframe(node);
+                    case 'BLOCKQUOTE': return '[quote]'+bbcodeChildren(node)+'[/quote]\n';
+                    default:
+                        return node.tagName+': ' + bbcodeChildren(node);
+                }
+            }
+        
+            function QUOTEONE(post) {
+                //_debug && console.log(post.querySelector('div.post,div.body').innerHTML);
+                //var res = HTMLtoBB(post.querySelector('div.post,div.body').innerHTML),
+                var res = bbcodePostDiv(post.querySelector('div.post, div.body'));
+                var author, creation, postid, type = '';
                 if (res === '') return;
         
                 postid = post.id.match(/(?:msg|post)(\d+)/i);
@@ -463,7 +612,7 @@ Version history (TheFallingMan)
                 if (window.location.pathname === '/torrents.php') type = '-1';
                 if (window.location.pathname === '/torrents2.php') type = '-2';
                 if (type !== '')
-                    res = '[quote=' + type + postid[1] + ']' + res + '[/quote]';
+                    res = '[quote=' + type + postid[1] + ']' + res + '[/quote]\n';
                 else {
                     author = post.className.match(/user_(\d+)/i);
                     if (author !== null)
@@ -2296,7 +2445,7 @@ Version history (TheFallingMan)
     // @description Load posts into search results; highlight search terms; filter authors; slide through posts
     // @include     http*://animebytes.tv/forums.php*
     // @exclude     *action=viewthread*
-    // @version     0.72
+    // @version     0.72.1
     // @grant       GM_getValue
     // @icon        http://animebytes.tv/favicon.ico
     // ==/UserScript==
@@ -2667,61 +2816,7 @@ Version history (TheFallingMan)
                         return results;
                     }
                 }, true);
-                if (hideSubSelection) {
-                    searchForumsNew = searchForums.cloneNode(true);
-                    searchForums.style.visibility = 'collapse';
-                    searchForumsCB = searchForumsNew.cells[1];
-                    while (searchForumsCB.hasChildNodes()) {
-                        searchForumsCB.removeChild(searchForumsCB.lastChild);
-                    }
-                    newCheckbox = document.createElement('input');
-                    newCheckbox.type = 'checkbox';
-                    searchForumsCB.appendChild(newCheckbox);
-                    searchForumsCB.appendChild(document.createTextNode(' Show forum selection: select (sub-) forums to search in.'));
-                    searchForums.parentNode.insertBefore(searchForumsNew, searchForums);
-                    newCheckbox.addEventListener('change', function (event) {
-                        searchForums.style.visibility = 'visible';
-                        return searchForumsNew.style.visibility = 'collapse';
-                    }, true);
-                }
             }
-    
-            if (showFastSearchLinks) {
-                forumid = document.URL.match(/forumid=(\d+)/i);
-                if (forumid != null) {
-                    /*
-                    forumid = parseInt(forumid[1], 10);
-                    quickLink = document.createElement('a');
-                    quickLink.textContent = ' [Search this forum] ';
-                    quickLink.href = "/forums.php?action=search&forums[]=" + forumid;
-                    linkbox1 = document.querySelector('div.linkbox');
-                    newLinkBox = linkbox1.cloneNode(true);
-                    while (newLinkBox.hasChildNodes()) {
-                        newLinkBox.removeChild(newLinkBox.lastChild);
-                    }
-                    linkbox1.parentNode.insertBefore(newLinkBox, linkbox1);
-                    newLinkBox.appendChild(quickLink);
-                    forumIds = document.querySelectorAll('table a[href^="/forums.php?action=viewforum&forumid="]');
-                    */
-                    forumIds = (function () {
-                        var j, len1, results;
-                        results = [];
-                        for (j = 0, len1 = forumIds.length; j < len1; j++) {
-                            myLINK = forumIds[j];
-                            results.push(parseInt((myLINK.href.match(/forumid=(\d*)/i))[1], 10));
-                        }
-                        return results;
-                    })();
-                    if (forumIds.length > 0) {
-                        forumIds.push(forumid);
-                        quickLinkSubs = document.createElement('a');
-                        quickLinkSubs.textContent = ' [Search this forum and all direct subforums] ';
-                        quickLinkSubs.href = "/forums.php?action=search&forums[]=" + forumIds.join('&forums[]=');
-                        newLinkBox.appendChild(quickLinkSubs);
-                    }
-                }
-            }
-    
         }).call(this);
     }
     /* === End ab_forum_search_enhancement.user.js === */
@@ -2812,9 +2907,7 @@ Version history (TheFallingMan)
             addBooleanSetting('ABSortTorrents', 'Sort torrents', 'Allows torrent tables to be sorted.', 'true', 'false', 'true');
             addBooleanSetting('ABHistDynLoad', 'Dynamic history tables', 'Dynamically load more pages into transfer history tables.', 'true', 'false', 'true');
             document.getElementById('pose_list').appendChild(document.createElement('hr'));
-            //addBooleanSetting('ABForumEnhFastSearch', 'Create links to search forums', 'Add links to search forums (including or excluding direct subforums) at the top of a forums page.', 'true', 'false', 'true');
             addBooleanSetting('ABForumSearchWorkInFS', 'Load posts into search results', 'Allows you to load posts and threads into search results, slide through posts and filter for authors.', 'true', 'false', 'true');
-            addBooleanSetting('ABForumSearchHideSubfor', 'Hide subforum selection in search', 'This will hide the subforum selection in the search until a checkbox is clicked.', 'true', 'false', 'true');
             addColorSetting('ABForumSearchHighlightBG', 'Color for search terms', 'Background color for search terms within posts and headers.', '#FFC000', 'true', 'none');
             addColorSetting('ABForumSearchHighlightFG', 'Color for search terms', 'Text color for search terms within posts and headers.', '#000000', 'true', 'none');
             addBooleanSetting('ABForumEnhWorkInRest', 'Load posts into forum view', 'Allows you to load posts and threads into the general forum view.', 'true', 'false', 'false');
