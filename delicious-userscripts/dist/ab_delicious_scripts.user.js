@@ -192,7 +192,7 @@ Version history (TheFallingMan)
         // @author      Megure
         // @description Select text and press CTRL+V to quote
         // @include     https://animebytes.tv/*
-        // @version     0.1.1.1
+        // @version     0.1.1.2
         // @icon        http://animebytes.tv/favicon.ico
         // ==/UserScript==
         
@@ -204,7 +204,7 @@ Version history (TheFallingMan)
                 return;
             }
         
-            var _debug = false;
+            var _debug = true;
         
             function formattedUTCString(date, timezone) {
                 var creation = new Date(date);
@@ -218,8 +218,65 @@ Version history (TheFallingMan)
         
             function QUOTEALL() {
                 var sel = window.getSelection();
-                for (var i = 0; i < sel.rangeCount; i++)
-                    QUOTEMANY(sel.getRangeAt(i));
+                // If there's only one range, happy days.
+                if (sel.rangeCount === 1) {
+                    _debug && console.log('Quoting one range:');
+                    _debug && console.log(sel.getRangeAt(0));
+                    QUOTEMANY(sel.getRangeAt(0));
+                } else {
+                    _debug && console.log('Dealing with multiple ranges.');
+                    // Ohhh boy.... firefox, why...?
+                    var allRanges = [];
+                    // Start range of the current "range group".
+                    // The aim of this code is to join contiguous ranges into one range
+                    // so they can be parsed properly, without being split into multiple
+                    // quotes.
+                    var startRange = sel.getRangeAt(0);
+                    // Previous range we encountered.
+                    var previousRange = startRange;
+                    // Current range. Set in loop.
+                    var thisRange = null;
+                    // rangeCount+1 to make it loop one time after list is exhausted, to append
+                    // last range to list.
+                    // Start at 2nd range, because we have already set startRange
+                    // and previousRange above. Also, first range has no previous
+                    // range to compare to.
+                    for (var i = 1; i < sel.rangeCount+1; i++) {
+                        if (i < sel.rangeCount)
+                            thisRange = sel.getRangeAt(i);
+                        else
+                            thisRange = null;
+                        // If this range starts at the beginning and picks up
+                        // exactly where the previous range left off.
+                        // After trial/error, this code should work.
+                        // endOffset+1 is to get the childNode _after_ the previous
+                        // range ends, since ranges don't overlap (hopefully)
+                        if (thisRange !== null && thisRange.startOffset === 0 &&
+                            previousRange.endContainer.childNodes[previousRange.endOffset+1] === thisRange.startContainer) {
+                            // Store this range as the previous and continue looping.
+                            previousRange = thisRange;
+                        } else {
+                            // In this case, the current range does not continue from
+                            // the previous one.
+                            if (startRange !== previousRange) {
+                                // Create and append a new, more sensible, range.
+                                var newRange = document.createRange();
+                                newRange.setStart(startRange.startContainer, startRange.startOffset);
+                                newRange.setEnd(previousRange.endContainer, previousRange.endOffset);
+                                allRanges.push(newRange);
+                            } else {
+                                // They're both the same, append one.
+                                allRanges.push(previousRange);
+                            }
+                            // Set these for the next iteration.
+                            startRange = thisRange;
+                            previousRange = thisRange;
+                        }
+                    }
+                    for (var j = 0; j < allRanges.length; j++) {
+                        QUOTEMANY(allRanges[j]);
+                    }
+                }
             }
         
             function QUOTEMANY(range) {
@@ -857,10 +914,10 @@ Version history (TheFallingMan)
                 if (GM_getValue('delicousnavbarpiechart', 'false') === 'true') {
                     li.innerHTML = pieChart;
                 }
-                p2.innerHTML = 'There is currently ' + niceNumber(parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' / ' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10)) + ' yen in the donation box.<br/>';
-                p2.innerHTML += '(That means we are ' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10) - parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' yen away from getting sitewide freeleech!)<br/>';
-                p2.innerHTML += 'In total, you\'ve donated ' + niceNumber(parseInt(GM_getValue('FLPoolContribution', '0'), 10)) + ' yen to the freeleech pool.<br/>';
-                p2.innerHTML += 'Last updated ' + Math.round((Date.now() - parseInt(GM_getValue('FLPoolLastUpdate', Date.now()), 10)) / 60000) + ' minutes ago.';
+                p2.innerHTML = 'We currently have ¥' + niceNumber(parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' / ¥' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10)) + ' in our donation box.<br/>';
+                p2.innerHTML += '(That means we\'re ¥' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10) - parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' away from getting sitewide freeleech!)<br/>';
+                p2.innerHTML += '<br>In total, you\'ve donated ¥' + niceNumber(parseInt(GM_getValue('FLPoolContribution', '0'), 10)) + ' to the freeleech pool.<br/>';
+                p2.innerHTML += 'Last Update: ' + Math.round((Date.now() - parseInt(GM_getValue('FLPoolLastUpdate', Date.now()), 10)) / 60000) + ' minutes ago.';
                 a.textContent = 'FL: ' + (100 * parseInt(GM_getValue('FLPoolCurrent', '0'), 10) / parseInt(GM_getValue('FLPoolMax', '50000000'), 10)).toFixed(1) + '%';
                 nav.replaceChild(a, nav.firstChild);
             }
@@ -2632,6 +2689,7 @@ Version history (TheFallingMan)
             if (showFastSearchLinks) {
                 forumid = document.URL.match(/forumid=(\d+)/i);
                 if (forumid != null) {
+                    /*
                     forumid = parseInt(forumid[1], 10);
                     quickLink = document.createElement('a');
                     quickLink.textContent = ' [Search this forum] ';
@@ -2644,6 +2702,7 @@ Version history (TheFallingMan)
                     linkbox1.parentNode.insertBefore(newLinkBox, linkbox1);
                     newLinkBox.appendChild(quickLink);
                     forumIds = document.querySelectorAll('table a[href^="/forums.php?action=viewforum&forumid="]');
+                    */
                     forumIds = (function () {
                         var j, len1, results;
                         results = [];
@@ -2753,7 +2812,7 @@ Version history (TheFallingMan)
             addBooleanSetting('ABSortTorrents', 'Sort torrents', 'Allows torrent tables to be sorted.', 'true', 'false', 'true');
             addBooleanSetting('ABHistDynLoad', 'Dynamic history tables', 'Dynamically load more pages into transfer history tables.', 'true', 'false', 'true');
             document.getElementById('pose_list').appendChild(document.createElement('hr'));
-            addBooleanSetting('ABForumEnhFastSearch', 'Create links to search forums', 'Add links to search forums (including or excluding direct subforums) at the top of a forums page.', 'true', 'false', 'true');
+            //addBooleanSetting('ABForumEnhFastSearch', 'Create links to search forums', 'Add links to search forums (including or excluding direct subforums) at the top of a forums page.', 'true', 'false', 'true');
             addBooleanSetting('ABForumSearchWorkInFS', 'Load posts into search results', 'Allows you to load posts and threads into search results, slide through posts and filter for authors.', 'true', 'false', 'true');
             addBooleanSetting('ABForumSearchHideSubfor', 'Hide subforum selection in search', 'This will hide the subforum selection in the search until a checkbox is clicked.', 'true', 'false', 'true');
             addColorSetting('ABForumSearchHighlightBG', 'Color for search terms', 'Background color for search terms within posts and headers.', '#FFC000', 'true', 'none');
