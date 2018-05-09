@@ -3039,6 +3039,27 @@
     }
     /* === End ab_forum_search_enhancement.user.js === */
 
+    // Opens drop down menu when hovering.
+    /* === Inserted from ab_hoverin.user.js === */
+    // ==UserScript==
+    // @name           AB Hoverin'
+    // @namespace      http://animebytes.tv
+    // @include        animebytes.tv*
+    // ==/UserScript==
+    function Hoverin(css) {
+        var head, style;
+        head = document.getElementsByTagName('head')[0];
+        if (!head) {
+            return;
+        }
+        style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = css;
+        head.appendChild(style);
+    }
+    Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
+    /* === End ab_hoverin.user.js === */
+    
     // Add settings
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
         (function () {
