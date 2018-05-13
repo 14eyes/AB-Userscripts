@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name AnimeBytes delicious user scripts (updated)
 // @author aldy, potatoe, alpha, Megure
-// @version 2.0.1.5
+// @version 2.0.1.7
 // @description Variety of userscripts to fully utilise the site and stylesheet. (Updated by TheFallingMan)
 // @grant GM_getValue
 // @grant GM_setValue
@@ -28,6 +28,16 @@
     
     // Debug flag. Used to enable/disable some verbose console logging.
     var _debug = false;
+    
+    // jQuery, just for Pale Moon.
+    // Note: this doesn't actually import jQuery successfully,
+    // but for whatever reason, it lets PM load the script.
+    if ((typeof jQuery) === 'undefined') {
+        _debug && console.log('setting window.jQuery');
+        jQuery = window.jQuery;
+        $ = window.$;
+        $j = window.$j;
+    }
     
     // Super duper important functions
     // Do not delete or something might break and stuff!! :(
@@ -180,7 +190,7 @@
         // @author      Megure, TheFallingMan
         // @description Select text and press CTRL+V to quote
         // @include     https://animebytes.tv/*
-        // @version     0.2.2
+        // @version     0.2.2.2
         // @icon        http://animebytes.tv/favicon.ico
         // ==/UserScript==
         
@@ -645,6 +655,19 @@
                 return '[img]'+imgNode.src+'[/img]';
             }
         
+            /**
+             * Returns a string containing the hex representation of a number,
+             * padded to 2 hex digits.
+             *
+             * @param {Number} num
+             */
+            function numToHex(num) {
+                var h = num.toString(16);
+                while (h.length < 2)
+                    h = '0' + h;
+                return h;
+            }
+        
             /** Regex matching colour in rgb(x, y, z) format. */
             var rgbRegex = /^rgb\((\d{1,3}), (\d{1,3}), (\d{1,3})\)$/i;
             /**
@@ -668,9 +691,9 @@
                     var rgbMatch = rgbRegex.exec(colour);
                     // Check for rgb() format colours.
                     if (rgbMatch)
-                        colour = ('#' + parseInt(rgbMatch[1]).toString(16)
-                        +parseInt(rgbMatch[2]).toString(16)
-                        +parseInt(rgbMatch[3]).toString(16));
+                        colour = ('#' + numToHex(parseInt(rgbMatch[1]))
+                        +numToHex(parseInt(rgbMatch[2]))
+                        +numToHex(parseInt(rgbMatch[3])));
                     return '[color='+colour+']' + bbcodeChildren(spanNode) + '[/color]';
                 }
                 if (spanNode.className.slice(0, 4) === 'size') {
@@ -780,7 +803,11 @@
              */
             function bbcodeOneElement(node) {
                 if (node.nodeType !== Node.ELEMENT_NODE) {
-                    if (node.nodeType === Node.TEXT_NODE) return node.nodeValue;
+                    // Text nodes should be handled in bbcodeChildren.
+                    if (node.nodeType === Node.TEXT_NODE)
+                        return node.nodeValue;
+                    if (node.nodeType === Node.COMMENT_NODE && node.nodeValue === 'n')
+                        return '[n]';
                     return '';
                 }
                 switch (node.tagName.toUpperCase()) {
@@ -1104,7 +1131,7 @@
         // @author      Megure (inspired by Lemma, Alpha, NSC)
         // @description Shows current freeleech pool status in navbar with a pie-chart
         // @include     https://animebytes.tv/*
-        // @version     0.1.1
+        // @version     0.1.1.1
         // @icon        http://animebytes.tv/favicon.ico
         // @grant       GM_getValue
         // @grant       GM_setValue
@@ -1303,46 +1330,16 @@
                 nav.appendChild(a);
                 if (GM_getValue('delicousnavbarpiechart', 'false') === 'true') {
         
-        
-                    function dropPie(navMenu, downArrow) {
-                        // UNUSED
-        
-                        // navMenu is the li.navmenu containing the button and dropdown
-                        // downArrow is the outer span of the down arrow
-        
-                        // for some reason, creating the span .dropit element no longer binds the default dropdown
-                        // click handler, so i've hacked together a simple replacement here.
-        
-                        var subPie = downArrow.nextSibling; // this seems to be how the default script works
-                        //console.log(subPie.style.display);
-                        if (subPie.style.display !== "block") {
-                            navMenu.className += " selected";
-                            subPie.style.display = "block";
-                        }
-                        else {
-                            navMenu.className = navMenu.className.replace("selected", "");
-                            subPie.style.display = "none";
-        
-                        }
-                        return false;
-                    }
-        
                     function dropPie2(event) {
                         // because who doesn't love dropping their pies
-                        var e;
-                        if (typeof $ === 'undefined') {
-                            e = $j;
-                        } else {
-                            e = $;
+                        if ((typeof $j).toString() !== 'undefined') {
+                            // below copied from https://animebytes.tv/static/functions/global-2acd7ec19a.js
+                            $j(event.target).parent().find("ul.subnav").is(":hidden") ?
+                                ($j("ul.subnav").hide(),
+                                    $j("li.navmenu").removeClass("selected"),
+                                    $j(this).parent().addClass("selected").find("ul.subnav").show())
+                                : $j(event.target).parent().removeClass("selected").find("ul.subnav").hide();
                         }
-        
-                        // below copied from https://animebytes.tv/static/functions/global-2acd7ec19a.js
-                        e(event.target).parent().find("ul.subnav").is(":hidden") ?
-                            (e("ul.subnav").hide(),
-                                e("li.navmenu").removeClass("selected"),
-                                e(this).parent().addClass("selected").find("ul.subnav").show())
-                            : e(event.target).parent().removeClass("selected").find("ul.subnav").hide();
-                        // end copy
         
                         // prevents global click handler from immediately closing the menu
                         event.stopPropagation();
@@ -1351,13 +1348,7 @@
         
                     var outerSpan = document.createElement('span');
                     outerSpan.className += "dropit hover clickmenu";
-                    var e;
-                    if (typeof $ === 'undefined') {
-                        e = $j;
-                    } else {
-                        e = $;
-                    }
-                    e(outerSpan).click(dropPie2);
+                    outerSpan.onclick = (dropPie2);
                     outerSpan.innerHTML += '<span class="stext">▼</span>';
         
                     // nav is the li.navmenu
