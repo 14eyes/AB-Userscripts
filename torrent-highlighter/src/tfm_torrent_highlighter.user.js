@@ -237,8 +237,7 @@
         [AnimeStates.DUAL_AUDIO]: newFlagHandler('Dual Audio', 'dualAudio', AnimeStates.REMASTER),
         [AnimeStates.REMASTER]: function REMASTER() {
             let node = this.peekNext();
-            if (node.tagName === 'IMG'
-            && node.alt === 'Remastered') {
+            if (node.tagName === 'IMG' && node.alt === 'Remastered') {
                 this.index++;
                 this.appendDelim();
                 this.appendSpan(node, 'remastered', '');
@@ -440,7 +439,6 @@
                     this.appendSpan(node, 'misc', node.textContent || '');
                 }
                 return GlobalStates.COMMON_TRAILING_FIELDS;
-                break;
             default:
                 this.index++;
                 if (node.indexOf('- Snatched') !== -1) {
@@ -452,7 +450,6 @@
                     this.appendSpan(node, 'misc', node);
                 }
                 return GlobalStates.COMMON_TRAILING_FIELDS;
-                break;
             }
         },
         [GlobalStates.INSERT_DOCFRAG]: function INSERT_DOCFRAG() {

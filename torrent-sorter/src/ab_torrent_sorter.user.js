@@ -275,8 +275,7 @@
             // (There must be a better way.)
             // If it is not a pad or group_torrent, then it is a subheading
             // and we sort all torrents above this header.
-            } else if (!row.classList.contains('pad')
-                    && current_torrent_group.length) {
+            } else if (!row.classList.contains('pad') && current_torrent_group.length) {
                 ///console.log('sorting!');
                 let docFrag = sort_rows(current_torrent_group);
                 if (docFrag) {

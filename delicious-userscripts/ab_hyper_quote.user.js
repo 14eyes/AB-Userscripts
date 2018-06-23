@@ -549,7 +549,7 @@
             // We have to be careful with newlines otherwise too much whitespace
             // will be added.
             if (id)
-                return bbcodeQuote(quoteType + id[1], quoteNode)
+                return bbcodeQuote(quoteType + id[1], quoteNode);
         }
         // We shouldn't ever reach this.
         return ('[url='+wroteLink.href+']Unknown quote[/url][quote]'
