@@ -1,0 +1,112 @@
+/* ==UserStyle==
+@name AnimeBytes Torrent Page Stylesheet
+@author Shaver
+@namespace Shaver
+@description Depends on torrent highlighter script.
+@version 0.0.3
+==/UserStyle== */
+
+@-moz-document domain("animebytes.tv") {
+.torrent-page > .torrent-field {
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    color: #ececec;
+    word-spacing: normal;
+}
+.torrent_table .group_torrent > td:first-child {
+    word-spacing: -0.6ex;
+}
+.torrent-page > [data-audio-codec] {
+    margin-right: -0.03ex;
+}
+.torrent-page > [data-group],
+.torrent-page > [data-region] {
+    margin-left: 0;
+    margin-right: 0;
+}
+.torrent-page > [data-audio-channels] {
+    margin-left: -0.03ex;
+}
+.torrent-page > [data-group] {
+    color: #00FF6E;
+    white-space: nowrap;
+}
+.torrent-page > [data-source="Web"],
+.torrent-page > [data-source="TV"],
+.torrent-page > [data-codec="h264 10-bit"],
+.torrent-page > [data-dual-audio] {
+    color: orange;
+}
+.torrent-page > [data-container],
+.torrent-page > [data-resolution] {
+    color: #fea5a5;
+}
+.torrent-page > [data-audio-codec="AC3"],
+.torrent-page > [data-source="DVD"],
+.torrent-page > [data-resolution="480p"],
+.torrent-page > [data-audio-channels="2.0"],
+.torrent-page > [data-codec="h264"],
+.torrent-page > [data-audio-codec="AAC"],
+.torrent-page > [data-bitrate="V0 (VBR)"],
+.torrent-page > [data-audio-channels] {
+    color: yellow;
+}
+.torrent-page > [data-freeleech] > img {
+    display: none;
+}
+.torrent-page > [data-snatched],
+.torrent-page > [data-subbing="Hardsubs"],
+.torrent-page > [data-group="HorribleSubs"],
+.torrent-page > [data-subbing="RAW"],
+.torrent-page > [data-codec="h265"],
+.torrent-page > [data-translation="Raw"] {
+    color: red;
+}
+.torrent-page > [data-encoding="FLAC"],
+.torrent-page > [data-audio-codec="PCM"],
+.torrent-page > [data-audio-codec^="DTS"],
+.torrent-page > [data-source="Blu-ray"],
+.torrent-page > [data-resolution="720p"],
+.torrent-page > [data-audio-codec="TrueHD"],
+.torrent-page > [data-subbing="Softsubs"],
+.torrent-page > [data-bitrate="Lossless"],
+.torrent-page > [data-translation="Translated"] {
+    color: #00C0FF;
+}
+.torrent-page > [data-source="UHD Blu-ray"],
+.torrent-page > [data-container="MKV"],
+.torrent-page > [data-codec="h265 10-bit"],
+.torrent-page > [data-resolution="1080p"],
+.torrent-page > [data-resolution="4K"],
+.torrent-page > [data-bitrate="Lossless 24-bit"],
+.torrent-page > [data-log],
+.torrent-page > [data-bitrate="320"],
+.torrent-page > [data-cue],
+.torrent-page > [data-encoding="MP3"],
+.torrent-page > [data-source="CD"] {
+    color: #39FF00;
+}
+.torrent-page > [data-audio-codec="FLAC"],
+.torrent-page > [data-audio-channels="5.1"],
+.torrent-page > [data-source="Vinyl"] {
+    color: #F0F
+}
+.torrent-page[data-group="HorribleSubs"],
+.torrent-page[data-subbing="Hardsubs"],
+.torrent-page[data-subbing="RAW"],
+.torrent-page[data-snatched] {
+    opacity: .2;
+    transition: opacity .3s;
+}
+.torrent-page[data-group="HorribleSubs"]:hover,
+.torrent-page[data-subbing="Hardsubs"]:hover,
+.torrent-page[data-subbing="RAW"]:hover,
+.torrent-page[data-snatched]:hover {
+    opacity: 1;
+}
+.torrent-page[data-freeleech] {
+    border-bottom: 1px solid #CFB53B;
+}
+}
