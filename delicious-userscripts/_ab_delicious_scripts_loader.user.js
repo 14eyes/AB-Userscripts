@@ -202,7 +202,7 @@
                     " <button type='button'>Reset</button> <label for='Setting_" + key + "'>" + description + "</label></span>";
                 __temp.addEventListener('change', function (e) {
                     var a = e.target;
-                    if (a.type === "checkbox") { a.checked === false ? GM_setValue(key, deactiveDefault) : GM_setValue(key, document.getElementById('Setting_' + key).value) }
+                    if (a.type === "checkbox") { a.checked === false ? GM_setValue(key, deactiveDefault) : GM_setValue(key, document.getElementById('Setting_' + key).value); }
                     else if (a.type === "color") { GM_setValue(key, a.value); document.getElementById('ColorCheckBox_' + key).checked = true; }
                 });
                 __temp.addEventListener('click', function (e) {

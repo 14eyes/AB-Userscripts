@@ -1785,9 +1785,9 @@
         
                 function printBuffer(u, d, r) {
                     if (u / r - d >= 0)
-                        return '\n' + r.toFixed(1) + '\t' + (humancount(u / r - d)).slice(-10) + '    \tcan be downloaded'
+                        return '\n' + r.toFixed(1) + '\t' + (humancount(u / r - d)).slice(-10) + '    \tcan be downloaded';
                     else
-                        return '\n' + r.toFixed(1) + '\t' + (humancount(d * r - u)).slice(-10) + '    \tmust be uploaded'
+                        return '\n' + r.toFixed(1) + '\t' + (humancount(d * r - u)).slice(-10) + '    \tmust be uploaded';
                 }
                 for (var i = 0; i < 10; i++) {
                     var myRatio = [0.2, 0.5, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 5.0, 10.0][i];
@@ -1943,8 +1943,8 @@
                         });
                     }
                 }
+            };
             }
-        }
     
         // Add to user script settings
         if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
@@ -3284,7 +3284,7 @@
     }
     Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
     /* === End ab_hoverin.user.js === */
-    
+
     // Add settings
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
         (function () {
@@ -3328,7 +3328,7 @@
                     " <button type='button'>Reset</button> <label for='Setting_" + key + "'>" + description + "</label></span>";
                 __temp.addEventListener('change', function (e) {
                     var a = e.target;
-                    if (a.type === "checkbox") { a.checked === false ? GM_setValue(key, deactiveDefault) : GM_setValue(key, document.getElementById('Setting_' + key).value) }
+                    if (a.type === "checkbox") { a.checked === false ? GM_setValue(key, deactiveDefault) : GM_setValue(key, document.getElementById('Setting_' + key).value); }
                     else if (a.type === "color") { GM_setValue(key, a.value); document.getElementById('ColorCheckBox_' + key).checked = true; }
                 });
                 __temp.addEventListener('click', function (e) {
