@@ -158,7 +158,10 @@
 
     // Opens drop down menu when hovering.
     importScriptFile('ab_hoverin.user.js');
-    
+
+    // Opens Adds the top new unread forum posts to AnimeBytes index page.
+    importScriptFile('ab_unread_index.user.js');
+
     // Add settings
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
         (function () {
