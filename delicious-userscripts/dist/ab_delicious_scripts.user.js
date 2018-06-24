@@ -3283,7 +3283,7 @@
     Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
     /* === End ab_hoverin.user.js === */
 
-    // Opens Adds the top new unread forum posts to AnimeBytes index page.
+    // Adds the top new unread forum posts to AnimeBytes index page.
     /* === Inserted from ab_unread_index.user.js === */
     // ==UserScript==
     // @name AnimeBytes Unread Index
