@@ -549,7 +549,7 @@
             // We have to be careful with newlines otherwise too much whitespace
             // will be added.
             if (id)
-                return bbcodeQuote(quoteType + id[1], quoteNode)
+                return bbcodeQuote(quoteType + id[1], quoteNode);
         }
         // We shouldn't ever reach this.
         return ('[url='+wroteLink.href+']Unknown quote[/url][quote]'
@@ -838,28 +838,28 @@
             return '';
         }
         switch (node.tagName.toUpperCase()) {
-            case 'DIV': return bbcodeDiv(node);
-            case 'SPAN': return bbcodeSpan(node);
-            case 'BR': return '\n';
-            case 'STRONG': return bbcodeStrong(node);
-            case 'EM': return '[i]'+bbcodeChildren(node)+'[/i]';
-            case 'U': return '[u]'+bbcodeChildren(node)+'[/u]';
-            case 'S': return '[s]'+bbcodeChildren(node)+'[/s]';
-            case 'OL': return bbcodeList(node, '[#] ');
-            case 'UL': return bbcodeList(node, '[*] ');
-            case 'A': return bbcodeLink(node);
-            case 'IMG': return bbcodeImage(node);
-            case 'IFRAME': return bbcodeIframe(node);
-            case 'BLOCKQUOTE': return bbcodeQuote('', node);
-            case 'HR': return '[hr]';
-            case 'TABLE': return bbcodeChildren(node); // crude representation of a table
-            case 'CAPTION': return '[b]'+bbcodeChildren(node)+'[/b]\n';
-            case 'TBODY': return bbcodeChildren(node);
-            case 'TH': return bbcodeChildren(node) + '\n';
-            case 'TR': return bbcodeChildren(node) + '\n';
-            case 'TD': return bbcodeChildren(node) + '\t';
-            default:
-                return '<'+node.tagName+'>' + bbcodeChildren(node) + '</'+node.tagName+'>';
+        case 'DIV': return bbcodeDiv(node);
+        case 'SPAN': return bbcodeSpan(node);
+        case 'BR': return '\n';
+        case 'STRONG': return bbcodeStrong(node);
+        case 'EM': return '[i]'+bbcodeChildren(node)+'[/i]';
+        case 'U': return '[u]'+bbcodeChildren(node)+'[/u]';
+        case 'S': return '[s]'+bbcodeChildren(node)+'[/s]';
+        case 'OL': return bbcodeList(node, '[#] ');
+        case 'UL': return bbcodeList(node, '[*] ');
+        case 'A': return bbcodeLink(node);
+        case 'IMG': return bbcodeImage(node);
+        case 'IFRAME': return bbcodeIframe(node);
+        case 'BLOCKQUOTE': return bbcodeQuote('', node);
+        case 'HR': return '[hr]';
+        case 'TABLE': return bbcodeChildren(node); // crude representation of a table
+        case 'CAPTION': return '[b]'+bbcodeChildren(node)+'[/b]\n';
+        case 'TBODY': return bbcodeChildren(node);
+        case 'TH': return bbcodeChildren(node) + '\n';
+        case 'TR': return bbcodeChildren(node) + '\n';
+        case 'TD': return bbcodeChildren(node) + '\t';
+        default:
+            return '<'+node.tagName+'>' + bbcodeChildren(node) + '</'+node.tagName+'>';
         }
     }
 

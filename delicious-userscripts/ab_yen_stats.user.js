@@ -27,26 +27,26 @@
         // by the original author, but newer KiB style prefixes have
         // a lowercase. Keeping both for compatibility.
         switch (unit) {
-            case 'B':
-                return num * Math.pow(1024, 0);
-            case 'KiB':
-            case 'KIB':
-                return num * Math.pow(1024, 1);
-            case 'MiB':
-            case 'MIB':
-                return num * Math.pow(1024, 2);
-            case 'GiB':
-            case 'GIB':
-                return num * Math.pow(1024, 3);
-            case 'TiB':
-            case 'TIB':
-                return num * Math.pow(1024, 4);
-            case 'PiB':
-            case 'PIB':
-                return num * Math.pow(1024, 5);
-            case 'EiB':
-            case 'EIB':
-                return num * Math.pow(1024, 6);
+        case 'B':
+            return num * Math.pow(1024, 0);
+        case 'KiB':
+        case 'KIB':
+            return num * Math.pow(1024, 1);
+        case 'MiB':
+        case 'MIB':
+            return num * Math.pow(1024, 2);
+        case 'GiB':
+        case 'GIB':
+            return num * Math.pow(1024, 3);
+        case 'TiB':
+        case 'TIB':
+            return num * Math.pow(1024, 4);
+        case 'PiB':
+        case 'PIB':
+            return num * Math.pow(1024, 5);
+        case 'EiB':
+        case 'EIB':
+            return num * Math.pow(1024, 6);
         }
     }
     function humancount(num) {
@@ -54,22 +54,22 @@
         var i = Math.floor(Math.log(Math.abs(num)) / Math.log(1024));
         num = (num / Math.pow(1024, i)).toFixed(2);
         switch (i) {
-            case 0:
-                return num + ' B';
-            case 1:
-                return num + ' KiB';
-            case 2:
-                return num + ' MiB';
-            case 3:
-                return num + ' GiB';
-            case 4:
-                return num + ' TiB';
-            case 5:
-                return num + ' PiB';
-            case 6:
-                return num + ' EiB';
-            default:
-                return num + ' × 1024^' + i + ' B';
+        case 0:
+            return num + ' B';
+        case 1:
+            return num + ' KiB';
+        case 2:
+            return num + ' MiB';
+        case 3:
+            return num + ' GiB';
+        case 4:
+            return num + ' TiB';
+        case 5:
+            return num + ' PiB';
+        case 6:
+            return num + ' EiB';
+        default:
+            return num + ' × 1024^' + i + ' B';
         }
     }
     function addDefinitionAfter(after, definition, value, cclass) {

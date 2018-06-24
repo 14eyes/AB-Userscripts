@@ -45,8 +45,7 @@
         document.body.appendChild(script);
         return script;
     }
-    if (typeof GM_getValue === 'undefined'
-            || (GM_getValue.toString && GM_getValue.toString().indexOf("not supported") > -1)) {
+    if (typeof GM_getValue === 'undefined'  || (GM_getValue.toString && GM_getValue.toString().indexOf("not supported") > -1)) {
         _debug && console.log('Setting fallback localStorage GM_* functions');
         // There is some difference between this.GM_getValue and just GM_getValue.
         _debug && console.log(this.GM_getValue);
@@ -209,7 +208,7 @@
                 }
             }
         };
-        }
+    }
 
     // Add to user script settings
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) {

@@ -45,8 +45,7 @@
         document.body.appendChild(script);
         return script;
     }
-    if (typeof GM_getValue === 'undefined'
-            || (GM_getValue.toString && GM_getValue.toString().indexOf("not supported") > -1)) {
+    if (typeof GM_getValue === 'undefined'  || (GM_getValue.toString && GM_getValue.toString().indexOf("not supported") > -1)) {
         _debug && console.log('Setting fallback localStorage GM_* functions');
         // There is some difference between this.GM_getValue and just GM_getValue.
         _debug && console.log(this.GM_getValue);
@@ -133,22 +132,22 @@
         if (typeof prefix === 'undefined') return 1 / 1073741824;
         // This is called with only the prefix of the byte unit
         switch (prefix.toUpperCase()) {
-            case '':
-                return 1 / 1073741824;
-            case 'K':
-                return 1 / 1048576;
-            case 'M':
-                return 1 / 1024;
-            case 'G':
-                return 1;
-            case 'T':
-                return 1024;
-            case 'P':
-                return 1048576;
-            case 'E':
-                return 1073741824;
-            default:
-                return 0;
+        case '':
+            return 1 / 1073741824;
+        case 'K':
+            return 1 / 1048576;
+        case 'M':
+            return 1 / 1024;
+        case 'G':
+            return 1;
+        case 'T':
+            return 1024;
+        case 'P':
+            return 1048576;
+        case 'E':
+            return 1073741824;
+        default:
+            return 0;
         }
     }
     function get_column(row, cell) {
@@ -378,14 +377,14 @@
         match = text_content_no_comma.match(ratio_RegExp);
         if (match !== null) {
             switch (match[1]) {
-                case '∞':
-                    return Infinity;
-                case '--':
-                    return -0.2;
-                case '0':
-                    return -0.1;
-                default:
-                    return parseFloat(match[1]);
+            case '∞':
+                return Infinity;
+            case '--':
+                return -0.2;
+            case '0':
+                return -0.1;
+            default:
+                return parseFloat(match[1]);
             }
         }
         if (/^Never(\s*\([^)]*\)\s*)*$/i.test(text_content_no_comma)) {
@@ -965,7 +964,7 @@
                         var timezone_re = /( \d\d:\d\d) [A-Z]+$/;
                         GM_setValue('creation', JSON.stringify(Date.parse(join_date.replace(timezone_re, '$1'))));
                     }
-                    catch (error) { }
+                    catch (error) { console.error(error);}
                 }
             }
         }

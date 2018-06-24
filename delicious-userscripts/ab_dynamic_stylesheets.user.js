@@ -121,7 +121,7 @@
                 }
             }
         };
-        }
+    }
 
     // Add to user script settings
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) {

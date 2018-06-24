@@ -54,8 +54,7 @@
         document.body.appendChild(script);
         return script;
     }
-    if (typeof GM_getValue === 'undefined'
-            || (GM_getValue.toString && GM_getValue.toString().indexOf("not supported") > -1)) {
+    if (typeof GM_getValue === 'undefined'  || (GM_getValue.toString && GM_getValue.toString().indexOf("not supported") > -1)) {
         _debug && console.log('Setting fallback localStorage GM_* functions');
         // There is some difference between this.GM_getValue and just GM_getValue.
         _debug && console.log(this.GM_getValue);
@@ -736,7 +735,7 @@
                     // We have to be careful with newlines otherwise too much whitespace
                     // will be added.
                     if (id)
-                        return bbcodeQuote(quoteType + id[1], quoteNode)
+                        return bbcodeQuote(quoteType + id[1], quoteNode);
                 }
                 // We shouldn't ever reach this.
                 return ('[url='+wroteLink.href+']Unknown quote[/url][quote]'
@@ -1025,28 +1024,28 @@
                     return '';
                 }
                 switch (node.tagName.toUpperCase()) {
-                    case 'DIV': return bbcodeDiv(node);
-                    case 'SPAN': return bbcodeSpan(node);
-                    case 'BR': return '\n';
-                    case 'STRONG': return bbcodeStrong(node);
-                    case 'EM': return '[i]'+bbcodeChildren(node)+'[/i]';
-                    case 'U': return '[u]'+bbcodeChildren(node)+'[/u]';
-                    case 'S': return '[s]'+bbcodeChildren(node)+'[/s]';
-                    case 'OL': return bbcodeList(node, '[#] ');
-                    case 'UL': return bbcodeList(node, '[*] ');
-                    case 'A': return bbcodeLink(node);
-                    case 'IMG': return bbcodeImage(node);
-                    case 'IFRAME': return bbcodeIframe(node);
-                    case 'BLOCKQUOTE': return bbcodeQuote('', node);
-                    case 'HR': return '[hr]';
-                    case 'TABLE': return bbcodeChildren(node); // crude representation of a table
-                    case 'CAPTION': return '[b]'+bbcodeChildren(node)+'[/b]\n';
-                    case 'TBODY': return bbcodeChildren(node);
-                    case 'TH': return bbcodeChildren(node) + '\n';
-                    case 'TR': return bbcodeChildren(node) + '\n';
-                    case 'TD': return bbcodeChildren(node) + '\t';
-                    default:
-                        return '<'+node.tagName+'>' + bbcodeChildren(node) + '</'+node.tagName+'>';
+                case 'DIV': return bbcodeDiv(node);
+                case 'SPAN': return bbcodeSpan(node);
+                case 'BR': return '\n';
+                case 'STRONG': return bbcodeStrong(node);
+                case 'EM': return '[i]'+bbcodeChildren(node)+'[/i]';
+                case 'U': return '[u]'+bbcodeChildren(node)+'[/u]';
+                case 'S': return '[s]'+bbcodeChildren(node)+'[/s]';
+                case 'OL': return bbcodeList(node, '[#] ');
+                case 'UL': return bbcodeList(node, '[*] ');
+                case 'A': return bbcodeLink(node);
+                case 'IMG': return bbcodeImage(node);
+                case 'IFRAME': return bbcodeIframe(node);
+                case 'BLOCKQUOTE': return bbcodeQuote('', node);
+                case 'HR': return '[hr]';
+                case 'TABLE': return bbcodeChildren(node); // crude representation of a table
+                case 'CAPTION': return '[b]'+bbcodeChildren(node)+'[/b]\n';
+                case 'TBODY': return bbcodeChildren(node);
+                case 'TH': return bbcodeChildren(node) + '\n';
+                case 'TR': return bbcodeChildren(node) + '\n';
+                case 'TD': return bbcodeChildren(node) + '\t';
+                default:
+                    return '<'+node.tagName+'>' + bbcodeChildren(node) + '</'+node.tagName+'>';
                 }
             }
         
@@ -1132,7 +1131,7 @@
         // Inverts the forums titles.
         (function ABTitleInverter() {
             if (document.title.indexOf(' > ') !== -1) {
-            document.title = document.title.split(" :: ")[0].split(" > ").reverse().join(" < ") + " :: AnimeBytes";
+                document.title = document.title.split(" :: ")[0].split(" > ").reverse().join(" < ") + " :: AnimeBytes";
             }
         })();
         /* === End ab_title_inverter.user.js === */
@@ -1155,8 +1154,8 @@
         // Hide treats by Alpha
         // Hide treats on profile.
         (function ABHideTreats(){
-        var treatsnode = document.evaluate('//*[@id="user_leftcol"]/div[@class="box" and div[@class="head" and .="Treats"]]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-        if (treatsnode) treatsnode.style.display = "none";
+            var treatsnode = document.evaluate('//*[@id="user_leftcol"]/div[@class="box" and div[@class="head" and .="Treats"]]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            if (treatsnode) treatsnode.style.display = "none";
         })();
         /* === End ab_hide_treats.user.js === */
     }
@@ -1339,14 +1338,14 @@
         // Title Notifications by Megure
         // Will prepend the number of notifications to the title
         (function ABTitleNotifications() {
-        var new_count = 0, _i, cnt, notifications = document.querySelectorAll('#alerts .new_count'), _len = notifications.length;
-        for (_i = 0; _i < _len; _i++) {
-            cnt = parseInt(notifications[_i].textContent, 10);
-            if (!isNaN(cnt))
-                new_count += cnt;
-        }
-        if (new_count > 0)
-            document.title = '(' + new_count + ') ' + document.title;
+            var new_count = 0, _i, cnt, notifications = document.querySelectorAll('#alerts .new_count'), _len = notifications.length;
+            for (_i = 0; _i < _len; _i++) {
+                cnt = parseInt(notifications[_i].textContent, 10);
+                if (!isNaN(cnt))
+                    new_count += cnt;
+            }
+            if (new_count > 0)
+                document.title = '(' + new_count + ') ' + document.title;
         })();
         /* === End ab_title_notifications.user.js === */
     }
@@ -1413,7 +1412,6 @@
         
                     // The third box holds the top 10 donators for the current box
                     var box = boxes[2],
-                        firstP = box.querySelector('p'),
                         tr = box.querySelector('table').querySelectorAll('tbody > tr');
         
                     var titles = [], hrefs = [], amounts = [], colors = [], sum = 0;
@@ -1528,7 +1526,7 @@
                     for (var i = 0; i < titles.length; i++) {
                         str += circlePart(amounts[i], titles[i], hrefs[i], colors[i]);
                     }
-                } catch (e) { }
+                } catch (e) {console.error(e); }
                 return str + '</svg>';
             }
         
@@ -1567,8 +1565,8 @@
                             // below copied from https://animebytes.tv/static/functions/global-2acd7ec19a.js
                             $j(event.target).parent().find("ul.subnav").is(":hidden") ?
                                 ($j("ul.subnav").hide(),
-                                    $j("li.navmenu").removeClass("selected"),
-                                    $j(this).parent().addClass("selected").find("ul.subnav").show())
+                                $j("li.navmenu").removeClass("selected"),
+                                $j(this).parent().addClass("selected").find("ul.subnav").show())
                                 : $j(event.target).parent().removeClass("selected").find("ul.subnav").hide();
                         }
         
@@ -1625,7 +1623,7 @@
                 }
         
                 if (/konbini\/pool/i.test(document.URL)) {
-                    var tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Most Donated to This Box\s*$/i.test(node.data); } });
+                    let tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Most Donated to This Box\s*$/i.test(node.data); } });
                     if (tw.nextNode() !== null) {
                         tw.currentNode.parentNode.insertBefore(p, tw.currentNode.nextSibling);
                     }
@@ -1668,26 +1666,26 @@
                 // by the original author, but newer KiB style prefixes have
                 // a lowercase. Keeping both for compatibility.
                 switch (unit) {
-                    case 'B':
-                        return num * Math.pow(1024, 0);
-                    case 'KiB':
-                    case 'KIB':
-                        return num * Math.pow(1024, 1);
-                    case 'MiB':
-                    case 'MIB':
-                        return num * Math.pow(1024, 2);
-                    case 'GiB':
-                    case 'GIB':
-                        return num * Math.pow(1024, 3);
-                    case 'TiB':
-                    case 'TIB':
-                        return num * Math.pow(1024, 4);
-                    case 'PiB':
-                    case 'PIB':
-                        return num * Math.pow(1024, 5);
-                    case 'EiB':
-                    case 'EIB':
-                        return num * Math.pow(1024, 6);
+                case 'B':
+                    return num * Math.pow(1024, 0);
+                case 'KiB':
+                case 'KIB':
+                    return num * Math.pow(1024, 1);
+                case 'MiB':
+                case 'MIB':
+                    return num * Math.pow(1024, 2);
+                case 'GiB':
+                case 'GIB':
+                    return num * Math.pow(1024, 3);
+                case 'TiB':
+                case 'TIB':
+                    return num * Math.pow(1024, 4);
+                case 'PiB':
+                case 'PIB':
+                    return num * Math.pow(1024, 5);
+                case 'EiB':
+                case 'EIB':
+                    return num * Math.pow(1024, 6);
                 }
             }
             function humancount(num) {
@@ -1695,22 +1693,22 @@
                 var i = Math.floor(Math.log(Math.abs(num)) / Math.log(1024));
                 num = (num / Math.pow(1024, i)).toFixed(2);
                 switch (i) {
-                    case 0:
-                        return num + ' B';
-                    case 1:
-                        return num + ' KiB';
-                    case 2:
-                        return num + ' MiB';
-                    case 3:
-                        return num + ' GiB';
-                    case 4:
-                        return num + ' TiB';
-                    case 5:
-                        return num + ' PiB';
-                    case 6:
-                        return num + ' EiB';
-                    default:
-                        return num + ' × 1024^' + i + ' B';
+                case 0:
+                    return num + ' B';
+                case 1:
+                    return num + ' KiB';
+                case 2:
+                    return num + ' MiB';
+                case 3:
+                    return num + ' GiB';
+                case 4:
+                    return num + ' TiB';
+                case 5:
+                    return num + ' PiB';
+                case 6:
+                    return num + ' EiB';
+                default:
+                    return num + ' × 1024^' + i + ' B';
                 }
             }
             function addDefinitionAfter(after, definition, value, cclass) {
@@ -1944,7 +1942,7 @@
                     }
                 }
             };
-            }
+        }
     
         // Add to user script settings
         if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
@@ -2038,22 +2036,22 @@
             if (typeof prefix === 'undefined') return 1 / 1073741824;
             // This is called with only the prefix of the byte unit
             switch (prefix.toUpperCase()) {
-                case '':
-                    return 1 / 1073741824;
-                case 'K':
-                    return 1 / 1048576;
-                case 'M':
-                    return 1 / 1024;
-                case 'G':
-                    return 1;
-                case 'T':
-                    return 1024;
-                case 'P':
-                    return 1048576;
-                case 'E':
-                    return 1073741824;
-                default:
-                    return 0;
+            case '':
+                return 1 / 1073741824;
+            case 'K':
+                return 1 / 1048576;
+            case 'M':
+                return 1 / 1024;
+            case 'G':
+                return 1;
+            case 'T':
+                return 1024;
+            case 'P':
+                return 1048576;
+            case 'E':
+                return 1073741824;
+            default:
+                return 0;
             }
         }
         function get_column(row, cell) {
@@ -2283,14 +2281,14 @@
             match = text_content_no_comma.match(ratio_RegExp);
             if (match !== null) {
                 switch (match[1]) {
-                    case '∞':
-                        return Infinity;
-                    case '--':
-                        return -0.2;
-                    case '0':
-                        return -0.1;
-                    default:
-                        return parseFloat(match[1]);
+                case '∞':
+                    return Infinity;
+                case '--':
+                    return -0.2;
+                case '0':
+                    return -0.1;
+                default:
+                    return parseFloat(match[1]);
                 }
             }
             if (/^Never(\s*\([^)]*\)\s*)*$/i.test(text_content_no_comma)) {
@@ -2870,7 +2868,7 @@
                             var timezone_re = /( \d\d:\d\d) [A-Z]+$/;
                             GM_setValue('creation', JSON.stringify(Date.parse(join_date.replace(timezone_re, '$1'))));
                         }
-                        catch (error) { }
+                        catch (error) { console.error(error);}
                     }
                 }
             }
@@ -3284,7 +3282,7 @@
     }
     Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
     /* === End ab_hoverin.user.js === */
-
+    
     // Add settings
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
         (function () {

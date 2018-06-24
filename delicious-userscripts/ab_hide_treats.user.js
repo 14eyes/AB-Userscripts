@@ -10,6 +10,6 @@
 // Hide treats by Alpha
 // Hide treats on profile.
 (function ABHideTreats(){
-var treatsnode = document.evaluate('//*[@id="user_leftcol"]/div[@class="box" and div[@class="head" and .="Treats"]]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-if (treatsnode) treatsnode.style.display = "none";
+    var treatsnode = document.evaluate('//*[@id="user_leftcol"]/div[@class="box" and div[@class="head" and .="Treats"]]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    if (treatsnode) treatsnode.style.display = "none";
 })();

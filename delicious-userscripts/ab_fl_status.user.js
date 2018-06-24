@@ -54,7 +54,6 @@
 
             // The third box holds the top 10 donators for the current box
             var box = boxes[2],
-                firstP = box.querySelector('p'),
                 tr = box.querySelector('table').querySelectorAll('tbody > tr');
 
             var titles = [], hrefs = [], amounts = [], colors = [], sum = 0;
@@ -169,7 +168,7 @@
             for (var i = 0; i < titles.length; i++) {
                 str += circlePart(amounts[i], titles[i], hrefs[i], colors[i]);
             }
-        } catch (e) { }
+        } catch (e) {console.error(e); }
         return str + '</svg>';
     }
 
@@ -208,8 +207,8 @@
                     // below copied from https://animebytes.tv/static/functions/global-2acd7ec19a.js
                     $j(event.target).parent().find("ul.subnav").is(":hidden") ?
                         ($j("ul.subnav").hide(),
-                            $j("li.navmenu").removeClass("selected"),
-                            $j(this).parent().addClass("selected").find("ul.subnav").show())
+                        $j("li.navmenu").removeClass("selected"),
+                        $j(this).parent().addClass("selected").find("ul.subnav").show())
                         : $j(event.target).parent().removeClass("selected").find("ul.subnav").hide();
                 }
 
@@ -266,7 +265,7 @@
         }
 
         if (/konbini\/pool/i.test(document.URL)) {
-            var tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Most Donated to This Box\s*$/i.test(node.data); } });
+            let tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Most Donated to This Box\s*$/i.test(node.data); } });
             if (tw.nextNode() !== null) {
                 tw.currentNode.parentNode.insertBefore(p, tw.currentNode.nextSibling);
             }

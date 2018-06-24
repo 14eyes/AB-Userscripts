@@ -13,6 +13,6 @@
 // Inverts the forums titles.
 (function ABTitleInverter() {
     if (document.title.indexOf(' > ') !== -1) {
-    document.title = document.title.split(" :: ")[0].split(" > ").reverse().join(" < ") + " :: AnimeBytes";
+        document.title = document.title.split(" :: ")[0].split(" > ").reverse().join(" < ") + " :: AnimeBytes";
     }
 })();
