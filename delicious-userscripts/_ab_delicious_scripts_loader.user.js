@@ -62,6 +62,7 @@
         //addCheckbox("Delicious Better Quote", "Enable/Disable delicious better <span style='color: green; font-family: Courier New;'>&gt;quoting</span>", 'deliciousquote');
         addCheckbox("Unread forums in index(News Page)", "Enable/Disable Unread Inded script.", 'unreadindx');
         addCheckbox("Hoverin", "Enable/Disable Auto dropdown menus when hovering.", 'hoverdrop');
+        addCheckbox("PM the staff", "Hide/Unhide PM the Staff link on the main menu", 'hidepmstaff');
         addCheckbox("Delicious HYPER Quote", "Enable/Disable experimental HYPER quoting: select text and press CTRL+V to instant-quote. [EXPERIMENTAL]", 'delicioushyperquote');
         addCheckbox("Delicious Title Flip", "Enable/Disable delicious flipping of Forum title tags.", 'delicioustitleflip');
         addCheckbox("Disgusting Treats", "Hide/Unhide those hideous treats!", 'delicioustreats');
@@ -93,6 +94,8 @@
     var gm_deliciousdynamicstylesheets = initGM('deliciousdynamicstylesheets', 'false', false);
     var gm_unreadindx = initGM('unreadindx', 'false', false);
     var gm_hoverdrop = initGM('hoverdrop', 'false', false);
+    var gm_hidepmstaff = initGM('hidepmstaff', 'false', false);
+
 
     // Better Quote no longer necessary.
 
@@ -168,7 +171,10 @@
     if (GM_getValue('unreadindx') === 'true') {
         importScriptFile('ab_unread_index.user.js');
     }
-
+    // Hide PM staff link
+    if (GM_getValue('hidepmstaff') === 'true') {
+        importScriptFile('ab_hide_pmstaff.user.js');
+    }
 
     // Add settings
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
