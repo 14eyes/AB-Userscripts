@@ -147,6 +147,8 @@
         var linksNode = document.getElementsByClassName('ue_tabs')[0];
         if (document.getElementById('potatoes_settings') == null) { tabsNode.insertBefore(pose, tabsNode.childNodes[tabsNode.childNodes.length - 2]); linksNode.appendChild(poseanc); document.body.removeChild(injectScript('(' + relink.toString() + ')();', 'settings_relink')); }
         //addCheckbox("Delicious Better Quote", "Enable/Disable delicious better <span style='color: green; font-family: Courier New;'>&gt;quoting</span>", 'deliciousquote');
+        addCheckbox("Unread forums in index(News Page)", "Enable/Disable Unread Inded script.", 'unreadindx');
+        addCheckbox("Hoverin", "Enable/Disable Auto dropdown menus when hovering.", 'hoverdrop');
         addCheckbox("Delicious HYPER Quote", "Enable/Disable experimental HYPER quoting: select text and press CTRL+V to instant-quote. [EXPERIMENTAL]", 'delicioushyperquote');
         addCheckbox("Delicious Title Flip", "Enable/Disable delicious flipping of Forum title tags.", 'delicioustitleflip');
         addCheckbox("Disgusting Treats", "Hide/Unhide those hideous treats!", 'delicioustreats');
@@ -159,7 +161,6 @@
         addCheckbox("Delicious Freeleech Pie Chart", "Adds a dropdown with pie-chart to the freeleech pool progress in the navbar.", 'delicousnavbarpiechart');
         document.getElementById('pose_list').appendChild(document.createElement('hr'));
         addCheckbox("Delicious Dynamic Stylesheets", "Define rules below for which hour to show what stylesheet.", 'deliciousdynamicstylesheets');
-        document.getElementById('pose_list').appendChild(document.createElement('hr'));
     }
 
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) createSettingsPage();
@@ -177,6 +178,8 @@
     var gm_deliciousfreeleechpool = initGM('deliciousfreeleechpool', 'true', false);
     var gm_delicousnavbarpiechart = initGM('delicousnavbarpiechart', 'false', false);
     var gm_deliciousdynamicstylesheets = initGM('deliciousdynamicstylesheets', 'false', false);
+    var gm_unreadindx = initGM('unreadindx', 'false', false);
+    var gm_hoverdrop = initGM('hoverdrop', 'false', false);
 
     // Better Quote no longer necessary.
 
@@ -3263,6 +3266,7 @@
     /* === End ab_forum_search_enhancement.user.js === */
 
     // Opens drop down menu when hovering.
+    if (GM_getValue('hoverdrop') === 'true'){
     /* === Inserted from ab_hoverin.user.js === */
     // ==UserScript==
     // @name           AB Hoverin'
@@ -3282,131 +3286,76 @@
     }
     Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
     /* === End ab_hoverin.user.js === */
+    }
 
     // Adds the top new unread forum posts to AnimeBytes index page.
-    /* === Inserted from ab_unread_index.user.js === */
-    // ==UserScript==
-    // @name AnimeBytes Unread Index
-    // @author potatoe
-    // @version 1.12.0.1
-    // @description Adds the top new unread forum posts to AnimeBytes index page.
-    // @icon https://animebytes.tv/favicon.ico
-    // @include https://animebytes.tv/
-    // @include https://animebytes.tv/index.php
-    // @include https://animebytes.tv/user.php?action=edit
-    // @match https://animebytes.tv/
-    // @match https://animebytes.tv/index.php
-    // @match https://animebytes.tv/user.php?action=edit
-    // @downloadURL https://ab.nope.bz/userscripts/unread_index/ab_unread_index.user.js
-    // @updateURL https://ab.nope.bz/userscripts/unread_index/ab_unread_index.user.js
-    // @grant GM_getValue
-    // @grant GM_setValue
-    // @grant GM_deleteValue
-    // ==/UserScript==
-    
-    var notSupported = false;
-    try {
-        notSupported = (this.GM_getValue.toString && this.GM_getValue.toString().indexOf("not supported") > -1);
-    } catch (e) {console.error(e);}
-    if (!this.GM_getValue || notSupported) {
-        this.GM_getValue = function (key, def) {
-            return localStorage[key] || def;
-        };
-        this.GM_setValue = function (key, value) {
-            return localStorage[key] = value;
-        };
-        this.GM_deleteValue = function (key) {
-            return delete localStorage[key];
-        };
-    }
-    var showforumgames = GM_getValue('showforumgames');
-    if (showforumgames == null) {
-        GM_setValue('showforumgames', 'true');
-        showforumgames = 'true';
-    }
-    if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
-        function injectScript(c, id) {
-            var s = document.createElement('script');
-            if (id) s.setAttribute('id', id);
-            s.textContent = c.toString();
-            document.body.appendChild(s);
-            return s;
-        }
-    
-        function relink() {
-            $j(function () {
-                var stuff = $j('#tabs > div');
-                $j('ul.ue_tabs a').click(function () {
-                    stuff.hide().filter(this.hash).show();
-                    $j('ul.ue_tabs a').removeClass('selected');
-                    $j(this).addClass('selected');
-                    return false;
-                }).filter(':first,a[href="' + window.location.hash + '"]').slice(-1)[0].click();
-            });
-        }
-        var pose = document.createElement('div');
-        pose.id = "potatoes_settings";
-        pose.innerHTML = '<div class="head colhead_dark strong">User Script Settings</div><ul id="pose_list" class="nobullet ue_list"></ul>';
-        var poseanc = document.createElement('li');
-        poseanc.innerHTML = '&bull;<a href="#potatoes_settings">User Script Settings</a>';
-        var tabsNode = document.getElementById('tabs');
-        var linksNode = document.getElementsByClassName('ue_tabs')[0];
-        if (document.getElementById('potatoes_settings') == null) {
-            tabsNode.insertBefore(pose, tabsNode.childNodes[tabsNode.childNodes.length - 2]);
-            linksNode.appendChild(poseanc);
-            document.body.removeChild(injectScript('(' + relink.toString() + ')();', 'settings_relink'));
-        }
-        var newLi = document.createElement('li');
-        newLi.innerHTML = "<span class='ue_left strong'>Unread Index Userscript</span>\n<span class='ue_right'><input onvalue='true' offvalue='false' type='checkbox' name='showforumgames' id='showforumgames'" + ((showforumgames === 'true') ? " checked='checked'" : " ") + ">\n<label for='showforumgames'>Tick/untick to Show/hide posts from the Forum Games subforum on the index.</label></span>";
-        newLi.addEventListener('click', function (e) {
-            var t = e.target;
-            if (typeof t.checked === "boolean") {
-                if (t.checked) {
-                    GM_setValue(t.id, t.getAttribute('onvalue'));
-                } else {
-                    GM_setValue(t.id, t.getAttribute('offvalue'));
-                }
+    if (GM_getValue('unreadindx') === 'true') {
+        /* === Inserted from ab_unread_index.user.js === */
+        // ==UserScript==
+        // @name AnimeBytes Unread Index
+        // @author potatoe
+        // @version 1.12.0.1
+        // @description Adds the top new unread forum posts to AnimeBytes index page.
+        // @icon https://animebytes.tv/favicon.ico
+        // @include https://animebytes.tv/
+        // @include https://animebytes.tv/index.php
+        // @include https://animebytes.tv/user.php?action=edit
+        // @match https://animebytes.tv/
+        // @match https://animebytes.tv/index.php
+        // @match https://animebytes.tv/user.php?action=edit
+        // @downloadURL https://ab.nope.bz/userscripts/unread_index/ab_unread_index.user.js
+        // @updateURL https://ab.nope.bz/userscripts/unread_index/ab_unread_index.user.js
+        // @grant GM_getValue
+        // @grant GM_setValue
+        // @grant GM_deleteValue
+        // ==/UserScript==
+        
+        
+        if (!(/\/user\.php\?.*action=edit/i.test(document.URL))){
+            var ABGamesForum = GM_getValue('ABGamesForum');
+            if (ABGamesForum == null) {
+                GM_setValue('ABGamesForum', 'true');
+                ABGamesForum = 'true';
             }
-        });
-        document.getElementById('pose_list').appendChild(newLi);
-    } else {
-        var unread_tablenode;
-        var dividernode = document.createElement('div');
-        dividernode.className = 'divider';
-        var newsnode = document.getElementById('news');
-        var unread_doc = document.implementation.createHTMLDocument('');
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function () {
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                unread_doc.documentElement.innerHTML = xmlhttp.responseText;
-                unread_tablenode = unread_doc.evaluate("//div[@id='content']/div[@class='thin']/table[@width='100%']", unread_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-                var unread_posts = 0;
-                for (let j = 0; j < 2; j++) unread_tablenode.rows[0].cells[j].style.padding = '8px';
-                unread_tablenode.rows[0].cells[0].style.width = '30%';
-                unread_tablenode.rows[0].cells[1].style.width = '70%';
-                unread_tablenode.rows[0].deleteCell(2);
-                for (let i = 1; row = unread_tablenode.rows[i]; i++) {
-                    if (row == null) break;
-                    if ((showforumgames === 'false' && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === 5)) {
-                        unread_tablenode.deleteRow(i);
-                        i--;
-                    } else if (unread_posts < 5) {
-                        for (let j = 0; j < 2; j++) row.cells[j].style.padding = '0px';
-                        //row.cells[0].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>&nbsp;</div>";
-                        row.cells[1].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>" + row.cells[2].getElementsByTagName('p')[0].innerHTML + '</div>';
-                        row.deleteCell(2);
-                        unread_posts++;
+            var unread_tablenode;
+            var dividernode = document.createElement('div');
+            dividernode.className = 'divider';
+            var newsnode = document.getElementById('news');
+            var unread_doc = document.implementation.createHTMLDocument('');
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    unread_doc.documentElement.innerHTML = xmlhttp.responseText;
+                    unread_tablenode = unread_doc.evaluate("//div[@id='content']/div[@class='thin']/table[@width='100%']", unread_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                    var unread_posts = 0;
+                    for (let j = 0; j < 2; j++) unread_tablenode.rows[0].cells[j].style.padding = '8px';
+                    unread_tablenode.rows[0].cells[0].style.width = '30%';
+                    unread_tablenode.rows[0].cells[1].style.width = '70%';
+                    unread_tablenode.rows[0].deleteCell(2);
+                    for (let i = 1; row = unread_tablenode.rows[i]; i++) {
+                        if (row == null) break;
+                        if ((ABGamesForum === 'false' && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === 5)) {
+                            unread_tablenode.deleteRow(i);
+                            i--;
+                        } else if (unread_posts < 5) {
+                            for (let j = 0; j < 2; j++) row.cells[j].style.padding = '0px';
+                            //row.cells[0].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>&nbsp;</div>";
+                            row.cells[1].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>" + row.cells[2].getElementsByTagName('p')[0].innerHTML + '</div>';
+                            row.deleteCell(2);
+                            unread_posts++;
+                        }
                     }
+                    unread_tablenode.style.marginBottom = '20px';
+                    newsnode.parentNode.insertBefore(unread_tablenode, newsnode);
+                    newsnode.parentNode.insertBefore(dividernode, newsnode);
                 }
-                unread_tablenode.style.marginBottom = '20px';
-                newsnode.parentNode.insertBefore(unread_tablenode, newsnode);
-                newsnode.parentNode.insertBefore(dividernode, newsnode);
-            }
-        };
-        xmlhttp.open('GET', '/forums.php?action=viewunread', true);
-        xmlhttp.send();
+            };
+            xmlhttp.open('GET', '/forums.php?action=viewunread', true);
+            xmlhttp.send();
+        }
+        /* === End ab_unread_index.user.js === */
     }
-    /* === End ab_unread_index.user.js === */
+
 
     // Add settings
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
@@ -3488,6 +3437,7 @@
 
             document.getElementById('pose_list').appendChild(document.createElement('hr'));
             addBooleanSetting('ABTorrentsShowYen', 'Show Yen generation', 'Show Yen generation for torrents, with detailed information when hovered.', 'true', 'false', 'true');
+            addBooleanSetting('ABGamesForum', 'Show Forum Games in index', 'Tick/untick to Show/hide posts from the Forum Games subforum on the index.', 'true', 'false', 'true');
             addSelectSetting('ABTorrentsYenTimeFrame', 'Yen generation time frame', 'The amount of generated Yen per selected time frame.', '1', [["1", "Hour"], ["24", "Day"], ["168", "Week"]]);
             addBooleanSetting('ABTorrentsReqTime', 'Show required seeding time', 'Shows minimal required seeding time for torrents in their description and when size is hovered.', 'true', 'false', 'true');
             addBooleanSetting('ABTorrentsFilter', 'Filter torrents', 'Shows a box above torrent tables, where you can filter the torrents from that table.', 'true', 'false', 'true');

@@ -17,72 +17,13 @@
 // @grant GM_deleteValue
 // ==/UserScript==
 
-var notSupported = false;
-try {
-    notSupported = (this.GM_getValue.toString && this.GM_getValue.toString().indexOf("not supported") > -1);
-} catch (e) {console.error(e);}
-if (!this.GM_getValue || notSupported) {
-    this.GM_getValue = function (key, def) {
-        return localStorage[key] || def;
-    };
-    this.GM_setValue = function (key, value) {
-        return localStorage[key] = value;
-    };
-    this.GM_deleteValue = function (key) {
-        return delete localStorage[key];
-    };
-}
-var showforumgames = GM_getValue('showforumgames');
-if (showforumgames == null) {
-    GM_setValue('showforumgames', 'true');
-    showforumgames = 'true';
-}
-if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
-    function injectScript(c, id) {
-        var s = document.createElement('script');
-        if (id) s.setAttribute('id', id);
-        s.textContent = c.toString();
-        document.body.appendChild(s);
-        return s;
-    }
 
-    function relink() {
-        $j(function () {
-            var stuff = $j('#tabs > div');
-            $j('ul.ue_tabs a').click(function () {
-                stuff.hide().filter(this.hash).show();
-                $j('ul.ue_tabs a').removeClass('selected');
-                $j(this).addClass('selected');
-                return false;
-            }).filter(':first,a[href="' + window.location.hash + '"]').slice(-1)[0].click();
-        });
+if (!(/\/user\.php\?.*action=edit/i.test(document.URL))){
+    var ABGamesForum = GM_getValue('ABGamesForum');
+    if (ABGamesForum == null) {
+        GM_setValue('ABGamesForum', 'true');
+        ABGamesForum = 'true';
     }
-    var pose = document.createElement('div');
-    pose.id = "potatoes_settings";
-    pose.innerHTML = '<div class="head colhead_dark strong">User Script Settings</div><ul id="pose_list" class="nobullet ue_list"></ul>';
-    var poseanc = document.createElement('li');
-    poseanc.innerHTML = '&bull;<a href="#potatoes_settings">User Script Settings</a>';
-    var tabsNode = document.getElementById('tabs');
-    var linksNode = document.getElementsByClassName('ue_tabs')[0];
-    if (document.getElementById('potatoes_settings') == null) {
-        tabsNode.insertBefore(pose, tabsNode.childNodes[tabsNode.childNodes.length - 2]);
-        linksNode.appendChild(poseanc);
-        document.body.removeChild(injectScript('(' + relink.toString() + ')();', 'settings_relink'));
-    }
-    var newLi = document.createElement('li');
-    newLi.innerHTML = "<span class='ue_left strong'>Unread Index Userscript</span>\n<span class='ue_right'><input onvalue='true' offvalue='false' type='checkbox' name='showforumgames' id='showforumgames'" + ((showforumgames === 'true') ? " checked='checked'" : " ") + ">\n<label for='showforumgames'>Tick/untick to Show/hide posts from the Forum Games subforum on the index.</label></span>";
-    newLi.addEventListener('click', function (e) {
-        var t = e.target;
-        if (typeof t.checked === "boolean") {
-            if (t.checked) {
-                GM_setValue(t.id, t.getAttribute('onvalue'));
-            } else {
-                GM_setValue(t.id, t.getAttribute('offvalue'));
-            }
-        }
-    });
-    document.getElementById('pose_list').appendChild(newLi);
-} else {
     var unread_tablenode;
     var dividernode = document.createElement('div');
     dividernode.className = 'divider';
@@ -100,7 +41,7 @@ if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
             unread_tablenode.rows[0].deleteCell(2);
             for (let i = 1; row = unread_tablenode.rows[i]; i++) {
                 if (row == null) break;
-                if ((showforumgames === 'false' && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === 5)) {
+                if ((ABGamesForum === 'false' && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === 5)) {
                     unread_tablenode.deleteRow(i);
                     i--;
                 } else if (unread_posts < 5) {

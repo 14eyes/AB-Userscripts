@@ -60,6 +60,8 @@
         var linksNode = document.getElementsByClassName('ue_tabs')[0];
         if (document.getElementById('potatoes_settings') == null) { tabsNode.insertBefore(pose, tabsNode.childNodes[tabsNode.childNodes.length - 2]); linksNode.appendChild(poseanc); document.body.removeChild(injectScript('(' + relink.toString() + ')();', 'settings_relink')); }
         //addCheckbox("Delicious Better Quote", "Enable/Disable delicious better <span style='color: green; font-family: Courier New;'>&gt;quoting</span>", 'deliciousquote');
+        addCheckbox("Unread forums in index(News Page)", "Enable/Disable Unread Inded script.", 'unreadindx');
+        addCheckbox("Hoverin", "Enable/Disable Auto dropdown menus when hovering.", 'hoverdrop');
         addCheckbox("Delicious HYPER Quote", "Enable/Disable experimental HYPER quoting: select text and press CTRL+V to instant-quote. [EXPERIMENTAL]", 'delicioushyperquote');
         addCheckbox("Delicious Title Flip", "Enable/Disable delicious flipping of Forum title tags.", 'delicioustitleflip');
         addCheckbox("Disgusting Treats", "Hide/Unhide those hideous treats!", 'delicioustreats');
@@ -72,7 +74,6 @@
         addCheckbox("Delicious Freeleech Pie Chart", "Adds a dropdown with pie-chart to the freeleech pool progress in the navbar.", 'delicousnavbarpiechart');
         document.getElementById('pose_list').appendChild(document.createElement('hr'));
         addCheckbox("Delicious Dynamic Stylesheets", "Define rules below for which hour to show what stylesheet.", 'deliciousdynamicstylesheets');
-        document.getElementById('pose_list').appendChild(document.createElement('hr'));
     }
 
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) createSettingsPage();
@@ -90,6 +91,8 @@
     var gm_deliciousfreeleechpool = initGM('deliciousfreeleechpool', 'true', false);
     var gm_delicousnavbarpiechart = initGM('delicousnavbarpiechart', 'false', false);
     var gm_deliciousdynamicstylesheets = initGM('deliciousdynamicstylesheets', 'false', false);
+    var gm_unreadindx = initGM('unreadindx', 'false', false);
+    var gm_hoverdrop = initGM('hoverdrop', 'false', false);
 
     // Better Quote no longer necessary.
 
@@ -157,10 +160,15 @@
     importScriptFile('ab_forum_search_enhancement.user.js');
 
     // Opens drop down menu when hovering.
+    if (GM_getValue('hoverdrop') === 'true'){
     importScriptFile('ab_hoverin.user.js');
+    }
 
     // Adds the top new unread forum posts to AnimeBytes index page.
-    importScriptFile('ab_unread_index.user.js');
+    if (GM_getValue('unreadindx') === 'true') {
+        importScriptFile('ab_unread_index.user.js');
+    }
+
 
     // Add settings
     if (/\/user\.php\?.*action=edit/i.test(document.URL)) {
@@ -242,6 +250,7 @@
 
             document.getElementById('pose_list').appendChild(document.createElement('hr'));
             addBooleanSetting('ABTorrentsShowYen', 'Show Yen generation', 'Show Yen generation for torrents, with detailed information when hovered.', 'true', 'false', 'true');
+            addBooleanSetting('ABGamesForum', 'Show Forum Games in index', 'Tick/untick to Show/hide posts from the Forum Games subforum on the index.', 'true', 'false', 'true');
             addSelectSetting('ABTorrentsYenTimeFrame', 'Yen generation time frame', 'The amount of generated Yen per selected time frame.', '1', [["1", "Hour"], ["24", "Day"], ["168", "Week"]]);
             addBooleanSetting('ABTorrentsReqTime', 'Show required seeding time', 'Shows minimal required seeding time for torrents in their description and when size is hovered.', 'true', 'false', 'true');
             addBooleanSetting('ABTorrentsFilter', 'Filter torrents', 'Shows a box above torrent tables, where you can filter the torrents from that table.', 'true', 'false', 'true');
