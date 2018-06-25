@@ -3310,13 +3310,12 @@
         // @grant GM_deleteValue
         // ==/UserScript==
         
-        
+        var ABGamesForum = GM_getValue('ABGamesForum');
+        if (ABGamesForum == null) {
+            GM_setValue('ABGamesForum', 'true');
+            ABGamesForum = 'true';
+        }
         if (!(/\/user\.php\?.*action=edit/i.test(document.URL))){
-            var ABGamesForum = GM_getValue('ABGamesForum');
-            if (ABGamesForum == null) {
-                GM_setValue('ABGamesForum', 'true');
-                ABGamesForum = 'true';
-            }
             var unread_tablenode;
             var dividernode = document.createElement('div');
             dividernode.className = 'divider';
