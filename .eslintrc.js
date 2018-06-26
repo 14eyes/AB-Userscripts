@@ -2,13 +2,17 @@ module.exports = {
     "env": {
         "browser": true,
         "node": true,
-        "es6": true
+        "es6": true,
+        "greasemonkey": true,
     },
     "parserOptions": {
         "ecmaVersion": 6
     },
     "extends": "eslint:recommended",
     "rules": {
+        "no-unused-vars": [
+            0
+        ],
         "indent": [
             "warn",
             4
@@ -22,12 +26,22 @@ module.exports = {
         ],
         "no-console": [
             "off"
+        ],
+        "no-cond-assign": [
+            1
+        ],
+        "no-useless-escape":[
+            1
         ]
     },
     "globals": {
-        "GM_getValue": true,
-        "GM_setValue": true,
         "initGM": true,
-        "importDeliciousCommon": true
+        "importDeliciousCommon": true,
+        "injectScript": true,
+        "$j": true,
+        "$": true,
+        "jQuery": true,
+        "_debug": true,
+        "XPCNativeWrapper":true
     }
 };
