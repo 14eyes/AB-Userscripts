@@ -232,11 +232,11 @@
     // Do we have to set the stylesheet?
     if (GM_getValue('deliciousdynamicstylesheets', 'false') === 'true') {
         var current_hour = (new Date()).getHours();
-        var rules = JSON.parse(GM_getValue('deliciousdynamicstylesheetsrules', '[]'));
+        let rules = JSON.parse(GM_getValue('deliciousdynamicstylesheetsrules', '[]'));
         if (rules.length > 0) {
             var result = rules[rules.length - 1][1];
-            for (var i = 0; i < rules.length; i++) {
-                var rule = rules[i];
+            for (let i = 0; i < rules.length; i++) {
+                rule = rules[i];
                 if (rule[0] <= current_hour)
                     result = rule[1];
             }

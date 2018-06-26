@@ -238,8 +238,8 @@
                 }
             }
             cells = document.querySelectorAll('th.UserScriptToggleYen,td.UserScriptToggleYen');
-            for (var i = 0, length = cells.length; i < length; i++) {
-                var cell = cells[i];
+            for (let i = 0, length = cells.length; i < length; i++) {
+                let cell = cells[i];
                 if (yen_per_GB) {
                     cell.style.display = 'none';
                 }
@@ -362,13 +362,13 @@
         }
         // Replace H&R row content by remaining seed time if available in duration row
         if (hr_index !== null && duration_index !== null) {
-            var cell = get_cell(row, duration_index);
+            let cell = get_cell(row, duration_index);
             var match = cell.textContent.replace(/^[^(]*(\(|$)/, '').replace(/\s*left\s*\)[^)]*$/, '').replace(and_RegExp, '').match(duration_RegExp);
             var remaining = 0.0.toFixed(4);
             if (match !== null) {
                 var durations = [];
                 // Starting at 1 because 0 is full matched string
-                for (var i = 1, length = match.length; i < length; i++) {
+                for (let i = 1, length = match.length; i < length; i++) {
                     var num = match[i];
                     if (num !== undefined) {
                         durations.push(parseInt(num, 10));
@@ -433,7 +433,7 @@
             headers.appendChild(td1);
             // Increase colSpan of non-torrent rows in the table
             var non_torrents = table.querySelectorAll('tr.edition_info,tr.pad,tr[id^="group_"]');
-            for (var i = 0, length = non_torrents.length; i < length; i++) {
+            for (let i = 0, length = non_torrents.length; i < length; i++) {
                 var non_torrent = non_torrents[i];
                 var cells_1 = non_torrent.cells;
                 var last_cell = cells_1[cells_1.length - 1];
@@ -443,7 +443,7 @@
         // Parse table data
         var table_data = [];
         var real_torrents = table.querySelectorAll('tr.torrent,tr.group_torrent');
-        for (var i = 0, length = real_torrents.length; i < length; i++) {
+        for (let i = 0, length = real_torrents.length; i < length; i++) {
             var row = real_torrents[i];
             table_data.push(parse_row(row, size_index, seeders_index, duration_index, hr_index));
         }
@@ -518,8 +518,8 @@
         }
         if (sort_rows && table_data.length > 1) {
             // Add * to headers which will trigger sort
-            for (var i = 0, length = cells.length; i < length; i++) {
-                var cell = cells[i];
+            for (let i = 0, length = cells.length; i < length; i++) {
+                let cell = cells[i];
                 var index = get_column(headers, cell);
                 var a = document.createElement('a');
                 a.href = '#';
@@ -547,8 +547,8 @@
                     }
                 }
                 if (new_page === last_page) {
-                    for (var i = 0, length = next_anchors.length; i < length; i++) {
-                        var pagenum = next_anchors[i];
+                    for (let i = 0, length = next_anchors.length; i < length; i++) {
+                        let pagenum = next_anchors[i];
                         pagenum.parentNode.removeChild(pagenum);
                     }
                 }
@@ -591,7 +591,7 @@
                 }
             }
             if (table.nextElementSibling !== null) {
-                var pagenum = table.nextElementSibling.querySelector('div.pagenums');
+                let pagenum = table.nextElementSibling.querySelector('div.pagenums');
                 if (pagenum !== null) {
                     pagenums.push(pagenum);
                 }
@@ -599,8 +599,8 @@
             var previous_anchors = [];
             var next_anchors = [];
             // Loads the previous or next page into tableData, triggered by MouseEvent
-            for (var i = 0, length = pagenums.length; i < length; i++) {
-                var pagenum = pagenums[i];
+            for (let i = 0, length = pagenums.length; i < length; i++) {
+                let pagenum = pagenums[i];
                 // Figure out what the last page is
                 var last_child = pagenum.lastElementChild;
                 if (last_child !== null && last_child.href !== null) {
@@ -620,7 +620,7 @@
                 }
                 // Add buttons to dynamically load previous or next page
                 if (current_page > 1) {
-                    var a = document.createElement('a');
+                    let a = document.createElement('a');
                     a.href = '#';
                     a.className = 'next-prev';
                     a.textContent = '← Load previous page dynamically';
@@ -629,7 +629,7 @@
                     previous_anchors.push(a);
                 }
                 if (current_page < last_page) {
-                    var a = document.createElement('a');
+                    let a = document.createElement('a');
                     a.href = '#';
                     a.className = 'next-prev';
                     a.textContent = 'Load next page dynamically →';
@@ -663,7 +663,7 @@
             var dual_audio = 0;
             var freeleech = 0;
             var remastered = 0;
-            for (var i = 0, length = real_torrents.length; i < length; i++) {
+            for (let i = 0, length = real_torrents.length; i < length; i++) {
                 var torrent = real_torrents[i];
                 var is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
                 var is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
@@ -672,14 +672,14 @@
                 freeleech |= is_freeleech ? 1 : 2;
                 remastered |= is_remastered ? 1 : 2;
             }
-            for (var i = 0, length = real_torrents.length; i < length; i++) {
-                var torrent = real_torrents[i];
+            for (let i = 0, length = real_torrents.length; i < length; i++) {
+                let torrent = real_torrents[i];
                 var corresponding = get_corresponding_torrent_row(torrent);
-                var is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
-                var is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
+                let is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
+                let is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
                 // Check for deselected tags in cleaned textContent of first cell
                 var text = torrent.cells[0].lastElementChild.textContent;
-                var is_dual_audio = /Dual Audio/i.test(text);
+                let is_dual_audio = /Dual Audio/i.test(text);
                 // Remove » from beginning, format, Dual Audio, end empty tags (images, will handle them separately down below)
                 text = text.replace(/^\s*»/i, '').replace(/\d+:\d+/g, '').replace(/Dual Audio/ig, '').replace(/\|(\s*\|)+/g, '|').replace(/^\s*\|/, '').replace(/\|\s*$/, '');
                 // Split text content to get tags
@@ -703,8 +703,8 @@
                         break;
                     }
                 }
-                for (var j = 0; j < torrent_tags.length; j++) {
-                    var tag = torrent_tags[j];
+                for (let j = 0; j < torrent_tags.length; j++) {
+                    let tag = torrent_tags[j];
                     // Fucking ISOs...
                     if (tag.indexOf('ISO') === 0) {
                         torrent_tags.splice(j + 1, 0, '');
@@ -742,7 +742,7 @@
             if (values_by_column.length > 0 || Object.keys(deselected).length > 0) {
                 // Only show each tag once, even across multiple columns, so keep track
                 var shown_values = {};
-                for (var i = 0, length = values_by_column.length; i < length; i++) {
+                for (let i = 0, length = values_by_column.length; i < length; i++) {
                     var index = values_by_column[i];
                     var sorted_tags = Object.keys(index).sort(function (a, b) {
                         if (a.toUpperCase() > b.toUpperCase())
@@ -750,8 +750,8 @@
                         else
                             return -1;
                     });
-                    for (var j = 0, len = sorted_tags.length; j < len; j++) {
-                        var tag = sorted_tags[j];
+                    for (let j = 0, len = sorted_tags.length; j < len; j++) {
+                        let tag = sorted_tags[j];
                         if (shown_values.hasOwnProperty(tag)) {
                             // Skip values we have already shown
                             continue;
@@ -864,7 +864,7 @@
             var user_stats = document.querySelector('div#content div#user_rightcol div.userstatsleft dl.userprofile_list');
             var children = user_stats.children;
             //console.log(children);
-            for (var i = 0, length = children.length; i < length; i++) {
+            for (let i = 0, length = children.length; i < length; i++) {
 
                 var child = children[i];
                 //console.log(child);

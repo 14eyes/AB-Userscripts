@@ -166,7 +166,7 @@
             else {
                 // Also add others and missing to the arrays
                 // 2018-02-23 But only if FL isn't active.
-                next_index = titles.length;
+                var next_index = titles.length;
                 titles[next_index] = 'Other';
                 hrefs[next_index] = 'https://animebytes.tv/konbini/pool';
                 amounts[next_index] = current - sum;
@@ -195,9 +195,9 @@
             try {
                 var xhr = XPCNativeWrapper(new window.wrappedJSObject.XMLHttpRequest());
             } catch (exc) {
-                var xhr = new XMLHttpRequest();
+                xhr = new XMLHttpRequest();
             }
-            parser = new DOMParser();
+            var parser = new DOMParser();
             xhr.open('GET', "https://animebytes.tv/konbini/pool", true);
             xhr.send();
             xhr.onreadystatechange = function () {

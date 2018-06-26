@@ -159,6 +159,7 @@
             return num + ' × 1024^' + i + ' B';
         }
     }
+    var dt, dd;
     function addDefinitionAfter(after, definition, value, cclass) {
         dt = document.createElement('dt');
         dt.appendChild(document.createTextNode(definition));

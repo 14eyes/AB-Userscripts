@@ -462,13 +462,13 @@
                 // path in 'start'.
                 var html1 = range.startContainer;
                 var t = traverseUpwards(html1, true);
-                var html1 = t[0];
+                html1 = t[0];
                 var start = t[1];
         
                 // Similarly for the endContainer.
                 var html2 = range.endContainer;
                 var u = traverseUpwards(html2, false);
-                var html2 = u[0];
+                html2 = u[0];
                 var end = u[1];
         
                 // These should be equal as they originate from the same <html> tag.
@@ -492,7 +492,7 @@
                     if (startNode.nodeType === 3)
                         startNode.data = startNode.data.substr(range.startOffset);
                     else if (startNode.nodeType === 1)
-                        for (var i = 0; i < range.startOffset; i++)
+                        for (let i = 0; i < range.startOffset; i++)
                             startNode.removeChild(startNode.firstChild);
                 }
         
@@ -533,7 +533,7 @@
                 // Restores extra nodes before a quote such as username and link.
                 // Must be done after the common root checking otherwise it will
                 // mess up the process.
-                for (var i = 0; i < savedPreviousNodes.length; i++) {
+                for (let i = 0; i < savedPreviousNodes.length; i++) {
                     // Use selectors on the copied HTML tree to find the corresponding
                     // nodes.
                     var selector = '[data-hyper-quote="'+savedPreviousNodes[i][0]+'"]';
@@ -560,7 +560,7 @@
         
                 // Otherwise, quote as usual.
                 var posts = htmlCopy.querySelectorAll('div[id^="post"],div[id^="msg"]');
-                for (var i = 0; i < posts.length; i++) {
+                for (let i = 0; i < posts.length; i++) {
                     QUOTEONE(posts[i]);
                 }
             }
@@ -1106,7 +1106,7 @@
         
                 document.getElementById('quickpost').value += res;
         
-                sel = document.getElementById('quickpost');
+                let sel = document.getElementById('quickpost');
                 if (sel !== null)
                     sel.scrollIntoView();
             }
@@ -1190,6 +1190,7 @@
                 return;
         
             function custom_insert_text(open, close) {
+                let sel;
                 var elem = document.activeElement;
                 if (elem.selectionStart || elem.selectionStart == '0') {
                     var startPos = elem.selectionStart;
@@ -1223,7 +1224,7 @@
             function insert(e, key, ctrl, alt, shift, open, close, query) {
                 /* Function to handle detecting key combinations and inserting the
                 shortcut text onto the relevent buttons. */
-                if (false) {
+                if (_debug) {
                     //console.log(String.fromCharCode((96 <= key && key <= 105)? key-48 : key));
                     console.log(String.fromCharCode(e.charCode));
                     console.log(e.ctrlKey);
@@ -1445,7 +1446,7 @@
                     else {
                         // Also add others and missing to the arrays
                         // 2018-02-23 But only if FL isn't active.
-                        next_index = titles.length;
+                        var next_index = titles.length;
                         titles[next_index] = 'Other';
                         hrefs[next_index] = 'https://animebytes.tv/konbini/pool';
                         amounts[next_index] = current - sum;
@@ -1474,9 +1475,9 @@
                     try {
                         var xhr = XPCNativeWrapper(new window.wrappedJSObject.XMLHttpRequest());
                     } catch (exc) {
-                        var xhr = new XMLHttpRequest();
+                        xhr = new XMLHttpRequest();
                     }
-                    parser = new DOMParser();
+                    var parser = new DOMParser();
                     xhr.open('GET', "https://animebytes.tv/konbini/pool", true);
                     xhr.send();
                     xhr.onreadystatechange = function () {
@@ -1716,6 +1717,7 @@
                     return num + ' × 1024^' + i + ' B';
                 }
             }
+            var dt, dd;
             function addDefinitionAfter(after, definition, value, cclass) {
                 dt = document.createElement('dt');
                 dt.appendChild(document.createTextNode(definition));
@@ -1971,11 +1973,11 @@
         // Do we have to set the stylesheet?
         if (GM_getValue('deliciousdynamicstylesheets', 'false') === 'true') {
             var current_hour = (new Date()).getHours();
-            var rules = JSON.parse(GM_getValue('deliciousdynamicstylesheetsrules', '[]'));
+            let rules = JSON.parse(GM_getValue('deliciousdynamicstylesheetsrules', '[]'));
             if (rules.length > 0) {
                 var result = rules[rules.length - 1][1];
-                for (var i = 0; i < rules.length; i++) {
-                    var rule = rules[i];
+                for (let i = 0; i < rules.length; i++) {
+                    rule = rules[i];
                     if (rule[0] <= current_hour)
                         result = rule[1];
                 }
@@ -2234,8 +2236,8 @@
                     }
                 }
                 cells = document.querySelectorAll('th.UserScriptToggleYen,td.UserScriptToggleYen');
-                for (var i = 0, length = cells.length; i < length; i++) {
-                    var cell = cells[i];
+                for (let i = 0, length = cells.length; i < length; i++) {
+                    let cell = cells[i];
                     if (yen_per_GB) {
                         cell.style.display = 'none';
                     }
@@ -2358,13 +2360,13 @@
             }
             // Replace H&R row content by remaining seed time if available in duration row
             if (hr_index !== null && duration_index !== null) {
-                var cell = get_cell(row, duration_index);
+                let cell = get_cell(row, duration_index);
                 var match = cell.textContent.replace(/^[^(]*(\(|$)/, '').replace(/\s*left\s*\)[^)]*$/, '').replace(and_RegExp, '').match(duration_RegExp);
                 var remaining = 0.0.toFixed(4);
                 if (match !== null) {
                     var durations = [];
                     // Starting at 1 because 0 is full matched string
-                    for (var i = 1, length = match.length; i < length; i++) {
+                    for (let i = 1, length = match.length; i < length; i++) {
                         var num = match[i];
                         if (num !== undefined) {
                             durations.push(parseInt(num, 10));
@@ -2429,7 +2431,7 @@
                 headers.appendChild(td1);
                 // Increase colSpan of non-torrent rows in the table
                 var non_torrents = table.querySelectorAll('tr.edition_info,tr.pad,tr[id^="group_"]');
-                for (var i = 0, length = non_torrents.length; i < length; i++) {
+                for (let i = 0, length = non_torrents.length; i < length; i++) {
                     var non_torrent = non_torrents[i];
                     var cells_1 = non_torrent.cells;
                     var last_cell = cells_1[cells_1.length - 1];
@@ -2439,7 +2441,7 @@
             // Parse table data
             var table_data = [];
             var real_torrents = table.querySelectorAll('tr.torrent,tr.group_torrent');
-            for (var i = 0, length = real_torrents.length; i < length; i++) {
+            for (let i = 0, length = real_torrents.length; i < length; i++) {
                 var row = real_torrents[i];
                 table_data.push(parse_row(row, size_index, seeders_index, duration_index, hr_index));
             }
@@ -2514,8 +2516,8 @@
             }
             if (sort_rows && table_data.length > 1) {
                 // Add * to headers which will trigger sort
-                for (var i = 0, length = cells.length; i < length; i++) {
-                    var cell = cells[i];
+                for (let i = 0, length = cells.length; i < length; i++) {
+                    let cell = cells[i];
                     var index = get_column(headers, cell);
                     var a = document.createElement('a');
                     a.href = '#';
@@ -2543,8 +2545,8 @@
                         }
                     }
                     if (new_page === last_page) {
-                        for (var i = 0, length = next_anchors.length; i < length; i++) {
-                            var pagenum = next_anchors[i];
+                        for (let i = 0, length = next_anchors.length; i < length; i++) {
+                            let pagenum = next_anchors[i];
                             pagenum.parentNode.removeChild(pagenum);
                         }
                     }
@@ -2587,7 +2589,7 @@
                     }
                 }
                 if (table.nextElementSibling !== null) {
-                    var pagenum = table.nextElementSibling.querySelector('div.pagenums');
+                    let pagenum = table.nextElementSibling.querySelector('div.pagenums');
                     if (pagenum !== null) {
                         pagenums.push(pagenum);
                     }
@@ -2595,8 +2597,8 @@
                 var previous_anchors = [];
                 var next_anchors = [];
                 // Loads the previous or next page into tableData, triggered by MouseEvent
-                for (var i = 0, length = pagenums.length; i < length; i++) {
-                    var pagenum = pagenums[i];
+                for (let i = 0, length = pagenums.length; i < length; i++) {
+                    let pagenum = pagenums[i];
                     // Figure out what the last page is
                     var last_child = pagenum.lastElementChild;
                     if (last_child !== null && last_child.href !== null) {
@@ -2616,7 +2618,7 @@
                     }
                     // Add buttons to dynamically load previous or next page
                     if (current_page > 1) {
-                        var a = document.createElement('a');
+                        let a = document.createElement('a');
                         a.href = '#';
                         a.className = 'next-prev';
                         a.textContent = '← Load previous page dynamically';
@@ -2625,7 +2627,7 @@
                         previous_anchors.push(a);
                     }
                     if (current_page < last_page) {
-                        var a = document.createElement('a');
+                        let a = document.createElement('a');
                         a.href = '#';
                         a.className = 'next-prev';
                         a.textContent = 'Load next page dynamically →';
@@ -2659,7 +2661,7 @@
                 var dual_audio = 0;
                 var freeleech = 0;
                 var remastered = 0;
-                for (var i = 0, length = real_torrents.length; i < length; i++) {
+                for (let i = 0, length = real_torrents.length; i < length; i++) {
                     var torrent = real_torrents[i];
                     var is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
                     var is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
@@ -2668,14 +2670,14 @@
                     freeleech |= is_freeleech ? 1 : 2;
                     remastered |= is_remastered ? 1 : 2;
                 }
-                for (var i = 0, length = real_torrents.length; i < length; i++) {
-                    var torrent = real_torrents[i];
+                for (let i = 0, length = real_torrents.length; i < length; i++) {
+                    let torrent = real_torrents[i];
                     var corresponding = get_corresponding_torrent_row(torrent);
-                    var is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
-                    var is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
+                    let is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
+                    let is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
                     // Check for deselected tags in cleaned textContent of first cell
                     var text = torrent.cells[0].lastElementChild.textContent;
-                    var is_dual_audio = /Dual Audio/i.test(text);
+                    let is_dual_audio = /Dual Audio/i.test(text);
                     // Remove » from beginning, format, Dual Audio, end empty tags (images, will handle them separately down below)
                     text = text.replace(/^\s*»/i, '').replace(/\d+:\d+/g, '').replace(/Dual Audio/ig, '').replace(/\|(\s*\|)+/g, '|').replace(/^\s*\|/, '').replace(/\|\s*$/, '');
                     // Split text content to get tags
@@ -2699,8 +2701,8 @@
                             break;
                         }
                     }
-                    for (var j = 0; j < torrent_tags.length; j++) {
-                        var tag = torrent_tags[j];
+                    for (let j = 0; j < torrent_tags.length; j++) {
+                        let tag = torrent_tags[j];
                         // Fucking ISOs...
                         if (tag.indexOf('ISO') === 0) {
                             torrent_tags.splice(j + 1, 0, '');
@@ -2738,7 +2740,7 @@
                 if (values_by_column.length > 0 || Object.keys(deselected).length > 0) {
                     // Only show each tag once, even across multiple columns, so keep track
                     var shown_values = {};
-                    for (var i = 0, length = values_by_column.length; i < length; i++) {
+                    for (let i = 0, length = values_by_column.length; i < length; i++) {
                         var index = values_by_column[i];
                         var sorted_tags = Object.keys(index).sort(function (a, b) {
                             if (a.toUpperCase() > b.toUpperCase())
@@ -2746,8 +2748,8 @@
                             else
                                 return -1;
                         });
-                        for (var j = 0, len = sorted_tags.length; j < len; j++) {
-                            var tag = sorted_tags[j];
+                        for (let j = 0, len = sorted_tags.length; j < len; j++) {
+                            let tag = sorted_tags[j];
                             if (shown_values.hasOwnProperty(tag)) {
                                 // Skip values we have already shown
                                 continue;
@@ -2860,7 +2862,7 @@
                 var user_stats = document.querySelector('div#content div#user_rightcol div.userstatsleft dl.userprofile_list');
                 var children = user_stats.children;
                 //console.log(children);
-                for (var i = 0, length = children.length; i < length; i++) {
+                for (let i = 0, length = children.length; i < length; i++) {
     
                     var child = children[i];
                     //console.log(child);
@@ -3296,7 +3298,7 @@
         // ==UserScript==
         // @name AnimeBytes Unread Index
         // @author potatoe
-        // @version 1.12.0.1
+        // @version 1.12.1
         // @description Adds the top new unread forum posts to AnimeBytes index page.
         // @icon https://animebytes.tv/favicon.ico
         // @include https://animebytes.tv/
@@ -3312,47 +3314,53 @@
         // @grant GM_deleteValue
         // ==/UserScript==
         
-        var ABGamesForum = GM_getValue('ABGamesForum');
-        if (ABGamesForum == null) {
-            GM_setValue('ABGamesForum', 'true');
-            ABGamesForum = 'true';
-        }
-        if (!(/\/user\.php\?.*action=edit/i.test(document.URL))){
+        
+        function ABUnreadIndex () {
+            var ABGamesForum = GM_getValue('ABGamesForum');
+            if (ABGamesForum == null) {
+                GM_setValue('ABGamesForum', 'true');
+                ABGamesForum = 'true';
+            }
+        
             var unread_tablenode;
             var dividernode = document.createElement('div');
             dividernode.className = 'divider';
             var newsnode = document.getElementById('news');
-            var unread_doc = document.implementation.createHTMLDocument('');
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function () {
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    unread_doc.documentElement.innerHTML = xmlhttp.responseText;
-                    unread_tablenode = unread_doc.evaluate("//div[@id='content']/div[@class='thin']/table[@width='100%']", unread_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-                    var unread_posts = 0;
-                    for (let j = 0; j < 2; j++) unread_tablenode.rows[0].cells[j].style.padding = '8px';
-                    unread_tablenode.rows[0].cells[0].style.width = '30%';
-                    unread_tablenode.rows[0].cells[1].style.width = '70%';
-                    unread_tablenode.rows[0].deleteCell(2);
-                    for (let i = 1; row = unread_tablenode.rows[i]; i++) {
-                        if (row == null) break;
-                        if ((ABGamesForum === 'false' && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === 5)) {
-                            unread_tablenode.deleteRow(i);
-                            i--;
-                        } else if (unread_posts < 5) {
-                            for (let j = 0; j < 2; j++) row.cells[j].style.padding = '0px';
-                            //row.cells[0].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>&nbsp;</div>";
-                            row.cells[1].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>" + row.cells[2].getElementsByTagName('p')[0].innerHTML + '</div>';
-                            row.deleteCell(2);
-                            unread_posts++;
+            if (newsnode !== null) {
+                var unread_doc = document.implementation.createHTMLDocument('');
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        unread_doc.documentElement.innerHTML = xmlhttp.responseText;
+                        unread_tablenode = unread_doc.evaluate("//div[@id='content']/div[@class='thin']/table[@width='100%']", unread_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                        var unread_posts = 0;
+                        for (let j = 0; j < 2; j++) unread_tablenode.rows[0].cells[j].style.padding = '8px';
+                        unread_tablenode.rows[0].cells[0].style.width = '30%';
+        
+                        unread_tablenode.rows[0].cells[1].style.width = '70%';
+                        unread_tablenode.rows[0].deleteCell(2);
+                        var row;
+                        for (let i = 1; row = unread_tablenode.rows[i]; i++) {
+                            if (row == null) break;
+                            if ((ABGamesForum === 'false' && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === 5)) {
+                                unread_tablenode.deleteRow(i);
+                                i--;
+                            } else if (unread_posts < 5) {
+                                for (let j = 0; j < 2; j++) row.cells[j].style.padding = '0px';
+                                //row.cells[0].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>&nbsp;</div>";
+                                row.cells[1].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>" + row.cells[2].getElementsByTagName('p')[0].innerHTML + '</div>';
+                                row.deleteCell(2);
+                                unread_posts++;
+                            }
                         }
+                        unread_tablenode.style.marginBottom = '20px';
+                        newsnode.parentNode.insertBefore(unread_tablenode, newsnode);
+                        newsnode.parentNode.insertBefore(dividernode, newsnode);
                     }
-                    unread_tablenode.style.marginBottom = '20px';
-                    newsnode.parentNode.insertBefore(unread_tablenode, newsnode);
-                    newsnode.parentNode.insertBefore(dividernode, newsnode);
-                }
-            };
-            xmlhttp.open('GET', '/forums.php?action=viewunread', true);
-            xmlhttp.send();
+                };
+                xmlhttp.open('GET', '/forums.php?action=viewunread', true);
+                xmlhttp.send();
+            }
         }
         /* === End ab_unread_index.user.js === */
     }
