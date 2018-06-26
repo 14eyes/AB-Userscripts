@@ -268,13 +268,13 @@
         // path in 'start'.
         var html1 = range.startContainer;
         var t = traverseUpwards(html1, true);
-        var html1 = t[0];
+        html1 = t[0];
         var start = t[1];
 
         // Similarly for the endContainer.
         var html2 = range.endContainer;
         var u = traverseUpwards(html2, false);
-        var html2 = u[0];
+        html2 = u[0];
         var end = u[1];
 
         // These should be equal as they originate from the same <html> tag.
@@ -298,7 +298,7 @@
             if (startNode.nodeType === 3)
                 startNode.data = startNode.data.substr(range.startOffset);
             else if (startNode.nodeType === 1)
-                for (var i = 0; i < range.startOffset; i++)
+                for (let i = 0; i < range.startOffset; i++)
                     startNode.removeChild(startNode.firstChild);
         }
 
@@ -339,7 +339,7 @@
         // Restores extra nodes before a quote such as username and link.
         // Must be done after the common root checking otherwise it will
         // mess up the process.
-        for (var i = 0; i < savedPreviousNodes.length; i++) {
+        for (let i = 0; i < savedPreviousNodes.length; i++) {
             // Use selectors on the copied HTML tree to find the corresponding
             // nodes.
             var selector = '[data-hyper-quote="'+savedPreviousNodes[i][0]+'"]';
@@ -366,7 +366,7 @@
 
         // Otherwise, quote as usual.
         var posts = htmlCopy.querySelectorAll('div[id^="post"],div[id^="msg"]');
-        for (var i = 0; i < posts.length; i++) {
+        for (let i = 0; i < posts.length; i++) {
             QUOTEONE(posts[i]);
         }
     }
@@ -912,7 +912,7 @@
 
         document.getElementById('quickpost').value += res;
 
-        sel = document.getElementById('quickpost');
+        let sel = document.getElementById('quickpost');
         if (sel !== null)
             sel.scrollIntoView();
     }

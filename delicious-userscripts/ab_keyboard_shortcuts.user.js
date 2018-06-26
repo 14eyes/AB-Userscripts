@@ -15,6 +15,7 @@
         return;
 
     function custom_insert_text(open, close) {
+        let sel;
         var elem = document.activeElement;
         if (elem.selectionStart || elem.selectionStart == '0') {
             var startPos = elem.selectionStart;
@@ -48,7 +49,7 @@
     function insert(e, key, ctrl, alt, shift, open, close, query) {
         /* Function to handle detecting key combinations and inserting the
         shortcut text onto the relevent buttons. */
-        if (false) {
+        if (_debug) {
             //console.log(String.fromCharCode((96 <= key && key <= 105)? key-48 : key));
             console.log(String.fromCharCode(e.charCode));
             console.log(e.ctrlKey);
