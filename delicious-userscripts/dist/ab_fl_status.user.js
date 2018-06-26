@@ -275,7 +275,21 @@
     }
 
     var pos = GM_getValue('deliciousflpoolposition', 'after #userinfo_minor');
+    function dropPie2(event) {
+        // because who doesn't love dropping their pies
+        if ((typeof $j).toString() !== 'undefined') {
+            // below copied from https://animebytes.tv/static/functions/global-2acd7ec19a.js
+            $j(event.target).parent().find("ul.subnav").is(":hidden") ?
+                ($j("ul.subnav").hide(),
+                $j("li.navmenu").removeClass("selected"),
+                $j(this).parent().addClass("selected").find("ul.subnav").show())
+                : $j(event.target).parent().removeClass("selected").find("ul.subnav").hide();
+        }
 
+        // prevents global click handler from immediately closing the menu
+        event.stopPropagation();
+        return false;
+    }
     if (pos !== 'none' || /user\.php\?id=/i.test(document.URL) || /konbini\/pool/i.test(document.URL)) {
         var p = document.createElement('p'),
             p2 = document.createElement('center'),
@@ -287,23 +301,6 @@
         a.href = '/konbini/pool';
         nav.appendChild(a);
         if (GM_getValue('delicousnavbarpiechart', 'false') === 'true') {
-
-            function dropPie2(event) {
-                // because who doesn't love dropping their pies
-                if ((typeof $j).toString() !== 'undefined') {
-                    // below copied from https://animebytes.tv/static/functions/global-2acd7ec19a.js
-                    $j(event.target).parent().find("ul.subnav").is(":hidden") ?
-                        ($j("ul.subnav").hide(),
-                        $j("li.navmenu").removeClass("selected"),
-                        $j(this).parent().addClass("selected").find("ul.subnav").show())
-                        : $j(event.target).parent().removeClass("selected").find("ul.subnav").hide();
-                }
-
-                // prevents global click handler from immediately closing the menu
-                event.stopPropagation();
-                return false;
-            }
-
             var outerSpan = document.createElement('span');
             outerSpan.className += "dropit hover clickmenu";
             outerSpan.onclick = (dropPie2);

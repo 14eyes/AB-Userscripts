@@ -528,6 +528,55 @@
                 cell.appendChild(a);
             }
         }
+        function load_history_page(prev) {
+            if (prev === void 0) { prev = false; }
+            return function (event) {
+                if (event !== null) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+                var new_page = prev ? previous_page-- : next_page++;
+                if (new_page < 1 || new_page > last_page) {
+                    return;
+                }
+                // Remove links to dynamically load more pages if we've reached the end
+                if (new_page === 1) {
+                    for (var i = 0, length = previous_anchors.length; i < length; i++) {
+                        var pagenum = previous_anchors[i];
+                        pagenum.parentNode.removeChild(pagenum);
+                    }
+                }
+                if (new_page === last_page) {
+                    for (var i = 0, length = next_anchors.length; i < length; i++) {
+                        var pagenum = next_anchors[i];
+                        pagenum.parentNode.removeChild(pagenum);
+                    }
+                }
+                var url = document.URL.split('#')[0];
+                if (url.indexOf('page=') >= 0) {
+                    url = url.replace(/page=(\d+)/i, 'page=' + new_page);
+                }
+                else {
+                    url = url + '&page=' + new_page;
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.send();
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        var parser = new DOMParser();
+                        var new_document = parser.parseFromString(xhr.responseText, 'text/html');
+                        var new_torrents = new_document.querySelectorAll('tr.torrent,tr.group_torrent');
+                        for (var i = 0, length = new_torrents.length; i < length; i++) {
+                            var new_torrent = new_torrents[i];
+                            table_data.push(parse_row(new_torrent, size_index, seeders_index, duration_index, hr_index));
+                        }
+                        sort_by_index(sort_index, false)(null);
+                        toggle_yen(false)();
+                    }
+                };
+            };
+        }
         if (dynamic_load) {
             var current_page_match = document.URL.match(/page=(\d+)/i);
             var current_page = current_page_match != null ? parseInt(current_page_match[1], 10) : 1;
@@ -550,55 +599,6 @@
             var previous_anchors = [];
             var next_anchors = [];
             // Loads the previous or next page into tableData, triggered by MouseEvent
-            function load_history_page(prev) {
-                if (prev === void 0) { prev = false; }
-                return function (event) {
-                    if (event !== null) {
-                        event.stopPropagation();
-                        event.preventDefault();
-                    }
-                    var new_page = prev ? previous_page-- : next_page++;
-                    if (new_page < 1 || new_page > last_page) {
-                        return;
-                    }
-                    // Remove links to dynamically load more pages if we've reached the end
-                    if (new_page === 1) {
-                        for (var i = 0, length = previous_anchors.length; i < length; i++) {
-                            var pagenum = previous_anchors[i];
-                            pagenum.parentNode.removeChild(pagenum);
-                        }
-                    }
-                    if (new_page === last_page) {
-                        for (var i = 0, length = next_anchors.length; i < length; i++) {
-                            var pagenum = next_anchors[i];
-                            pagenum.parentNode.removeChild(pagenum);
-                        }
-                    }
-                    var url = document.URL.split('#')[0];
-                    if (url.indexOf('page=') >= 0) {
-                        url = url.replace(/page=(\d+)/i, 'page=' + new_page);
-                    }
-                    else {
-                        url = url + '&page=' + new_page;
-                    }
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('GET', url, true);
-                    xhr.send();
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4) {
-                            var parser = new DOMParser();
-                            var new_document = parser.parseFromString(xhr.responseText, 'text/html');
-                            var new_torrents = new_document.querySelectorAll('tr.torrent,tr.group_torrent');
-                            for (var i = 0, length = new_torrents.length; i < length; i++) {
-                                var new_torrent = new_torrents[i];
-                                table_data.push(parse_row(new_torrent, size_index, seeders_index, duration_index, hr_index));
-                            }
-                            sort_by_index(sort_index, false)(null);
-                            toggle_yen(false)();
-                        }
-                    };
-                };
-            }
             for (var i = 0, length = pagenums.length; i < length; i++) {
                 var pagenum = pagenums[i];
                 // Figure out what the last page is
@@ -794,6 +794,22 @@
                 }
             }
         }
+        function head_click_event(e) {
+            if (e !== null) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            var span = head.querySelector('span');
+            if (body.style.display !== 'none') {
+                body.style.display = 'none';
+                span.className = 'triangle-right-md';
+            }
+            else {
+                filter_torrent_table(body);
+                body.style.display = '';
+                span.className = 'triangle-down-md';
+            }
+        }
         if (filter_torrents && real_torrents.length > 1) {
             var box = document.createElement('div');
             var head = document.createElement('div');
@@ -804,22 +820,6 @@
             body.style.display = 'none';
             head.innerHTML = '<a href="#"><span class="triangle-right-md"><span class="stext">+/-</span></span> Filter </a>';
             // Show or hide filter box
-            function head_click_event(e) {
-                if (e !== null) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                }
-                var span = head.querySelector('span');
-                if (body.style.display !== 'none') {
-                    body.style.display = 'none';
-                    span.className = 'triangle-right-md';
-                }
-                else {
-                    filter_torrent_table(body);
-                    body.style.display = '';
-                    span.className = 'triangle-down-md';
-                }
-            }
             head.addEventListener('click', head_click_event);
             box.appendChild(head);
             box.appendChild(body);
