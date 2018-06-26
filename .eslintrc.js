@@ -1,7 +1,8 @@
 module.exports = {
     "env": {
         "browser": true,
-        "node": true
+        "node": true,
+        "es6": true
     },
     "parserOptions": {
         "ecmaVersion": 6
@@ -22,5 +23,11 @@ module.exports = {
         "no-console": [
             "off"
         ]
+    },
+    "globals": {
+        "GM_getValue": true,
+        "GM_setValue": true,
+        "initGM": true,
+        "importDeliciousCommon": true
     }
 };

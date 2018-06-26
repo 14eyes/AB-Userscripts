@@ -96,7 +96,7 @@
     var gm_unreadindx = initGM('unreadindx', 'false', false);
     var gm_hoverdrop = initGM('hoverdrop', 'false', false);
     var gm_hidepmstaff = initGM('hidepmstaff', 'false', false);
-    var gm_quicklink = initGM('quicklink', 'false', false)
+    var gm_quicklink = initGM('quicklink', 'false', false);
 
 
     // Better Quote no longer necessary.
