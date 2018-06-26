@@ -149,6 +149,7 @@
         //addCheckbox("Delicious Better Quote", "Enable/Disable delicious better <span style='color: green; font-family: Courier New;'>&gt;quoting</span>", 'deliciousquote');
         addCheckbox("Unread forums in index(News Page)", "Enable/Disable Unread Inded script.", 'unreadindx');
         addCheckbox("Hoverin", "Enable/Disable Auto dropdown menus when hovering.", 'hoverdrop');
+        addCheckbox("Quick links", "Enable/Disable quick link dropdown to the main nav bar.", 'quicklink');
         addCheckbox("PM the staff", "Hide/Unhide PM the Staff link on the main menu", 'hidepmstaff');
         addCheckbox("Delicious HYPER Quote", "Enable/Disable experimental HYPER quoting: select text and press CTRL+V to instant-quote. [EXPERIMENTAL]", 'delicioushyperquote');
         addCheckbox("Delicious Title Flip", "Enable/Disable delicious flipping of Forum title tags.", 'delicioustitleflip');
@@ -182,6 +183,7 @@
     var gm_unreadindx = initGM('unreadindx', 'false', false);
     var gm_hoverdrop = initGM('hoverdrop', 'false', false);
     var gm_hidepmstaff = initGM('hidepmstaff', 'false', false);
+    var gm_quicklink = initGM('quicklink', 'false', false)
 
 
     // Better Quote no longer necessary.
@@ -3270,25 +3272,25 @@
 
     // Opens drop down menu when hovering.
     if (GM_getValue('hoverdrop') === 'true'){
-    /* === Inserted from ab_hoverin.user.js === */
-    // ==UserScript==
-    // @name           AB Hoverin'
-    // @namespace      http://animebytes.tv
-    // @include        animebytes.tv*
-    // ==/UserScript==
-    function Hoverin(css) {
-        var head, style;
-        head = document.getElementsByTagName('head')[0];
-        if (!head) {
-            return;
+        /* === Inserted from ab_hoverin.user.js === */
+        // ==UserScript==
+        // @name           AB Hoverin'
+        // @namespace      http://animebytes.tv
+        // @include        animebytes.tv*
+        // ==/UserScript==
+        function Hoverin(css) {
+            var head, style;
+            head = document.getElementsByTagName('head')[0];
+            if (!head) {
+                return;
+            }
+            style = document.createElement('style');
+            style.type = 'text/css';
+            style.innerHTML = css;
+            head.appendChild(style);
         }
-        style = document.createElement('style');
-        style.type = 'text/css';
-        style.innerHTML = css;
-        head.appendChild(style);
-    }
-    Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
-    /* === End ab_hoverin.user.js === */
+        Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
+        /* === End ab_hoverin.user.js === */
     }
 
     // Adds the top new unread forum posts to AnimeBytes index page.
@@ -3375,6 +3377,86 @@
             if (pmstaffnode) pmstaffnode.style.display = "none";
         })();
         /* === End ab_hide_pmstaff.user.js === */
+    }
+    // Adds quick link dropdown to the main nav bar.
+    if (GM_getValue('quicklink') === 'true') {
+        /* === Inserted from ab_quick_links.user.js === */
+        // ==UserScript==
+        // @name         AB Quick Links
+        // @namespace    TheFallingMan
+        // @version      0.1.0
+        // @description  Adds quick link dropdown to the main nav bar.
+        // @author       TheFallingMan
+        // @icon         https://animebytes.tv/favicon.ico
+        // @match        https://animebytes.tv/*
+        // @license      GPL-3.0
+        // @grant        GM_setValue
+        // @grant        GM_getValue
+        // ==/UserScript==
+        
+        (function ABQuickLinks() {
+            var defaultLinks = [
+                {text: 'Image Upload', href: '/imageupload.php'},
+                {text: 'Profile Settings', href: '/user.php?action=edit'},
+            ];
+            function setLinks(linksArray) {
+                GM_setValue('ABQuickLinks', JSON.stringify(linksArray));
+            }
+            function getLinks() {
+                var stored = GM_getValue('ABQuickLinks', 'null');
+                if (stored === 'null') {
+                    setLinks(defaultLinks);
+                    return defaultLinks;
+                }
+                return JSON.parse(stored);
+            }
+        
+            var rootLI = document.createElement('li');
+            rootLI.id = 'nav_quicklinks';
+            rootLI.className = 'navmenu';
+            // Above search boxes, but below user menu dropdown.
+            rootLI.style.zIndex = 94;
+        
+            rootLI.innerHTML = '<a style="cursor:pointer;">Quick Links\ <span class="dropit hover clickmenu"><span class="stext">▼</span></span></a>';
+            rootLI.firstElementChild.addEventListener('click', function(ev) {
+                var subnav = ev.currentTarget.parentNode.children[1];
+                var willShow = (subnav.style.display==='none');
+                subnav.style.display = willShow?'block':'none';
+                if (willShow)
+                    subnav.parentNode.classList.add('selected');
+                else
+                    subnav.parentNode.classList.remove('selected');
+                ev.stopPropagation();
+                return false;
+            });
+        
+            var subnavUL = document.createElement('ul');
+            subnavUL.className = 'subnav nobullet';
+            subnavUL.style.display = 'none';
+        
+            subnavUL.style.width = '100%';
+            subnavUL.style.left = '-1px'; // Shift so border is symmetrical
+        
+            var links = getLinks();
+            for (var i = 0; i < links.length; i++) {
+                var li = document.createElement('li');
+                li.style.width = '100%';
+                var a = document.createElement('a');
+                a.style.width = '100%';
+                a.style.boxSizing = 'border-box';
+                if (links[i]['href']) a.href = links[i]['href'];
+                a.textContent = links[i]['text'] || '';
+                li.appendChild(a);
+                subnavUL.appendChild(li);
+            }
+        
+            rootLI.appendChild(subnavUL);
+        
+            document.querySelector('.main-menu').appendChild(rootLI);
+        
+        
+        })();
+        /* === End ab_quick_links.user.js === */
     }
 
     // Add settings
@@ -3471,7 +3553,7 @@
             addTextSetting('ABForumLoadText', 'Text for links to be loaded', 'The text to be shown for forum links that have not been loaded yet.', '(Load)', '10');
             addTextSetting('ABForumLoadingText', 'Text for loading links', 'The text to be shown for forum links that are currently being loaded.', '(Loading)', '10');
             addTextSetting('ABForumToggleText', 'Text for loaded links', 'The text to be shown for forum links that have been loaded and can now be toggled.', '(Toggle)', '10');
-
+            addTextSetting('ABQuickLinks', 'Text for  links', '','','');
         }).call(this);
     }
 })();

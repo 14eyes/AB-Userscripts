@@ -62,6 +62,7 @@
         //addCheckbox("Delicious Better Quote", "Enable/Disable delicious better <span style='color: green; font-family: Courier New;'>&gt;quoting</span>", 'deliciousquote');
         addCheckbox("Unread forums in index(News Page)", "Enable/Disable Unread Inded script.", 'unreadindx');
         addCheckbox("Hoverin", "Enable/Disable Auto dropdown menus when hovering.", 'hoverdrop');
+        addCheckbox("Quick links", "Enable/Disable quick link dropdown to the main nav bar.", 'quicklink');
         addCheckbox("PM the staff", "Hide/Unhide PM the Staff link on the main menu", 'hidepmstaff');
         addCheckbox("Delicious HYPER Quote", "Enable/Disable experimental HYPER quoting: select text and press CTRL+V to instant-quote. [EXPERIMENTAL]", 'delicioushyperquote');
         addCheckbox("Delicious Title Flip", "Enable/Disable delicious flipping of Forum title tags.", 'delicioustitleflip');
@@ -95,6 +96,7 @@
     var gm_unreadindx = initGM('unreadindx', 'false', false);
     var gm_hoverdrop = initGM('hoverdrop', 'false', false);
     var gm_hidepmstaff = initGM('hidepmstaff', 'false', false);
+    var gm_quicklink = initGM('quicklink', 'false', false)
 
 
     // Better Quote no longer necessary.
@@ -164,7 +166,7 @@
 
     // Opens drop down menu when hovering.
     if (GM_getValue('hoverdrop') === 'true'){
-    importScriptFile('ab_hoverin.user.js');
+        importScriptFile('ab_hoverin.user.js');
     }
 
     // Adds the top new unread forum posts to AnimeBytes index page.
@@ -174,6 +176,10 @@
     // Hide PM staff link
     if (GM_getValue('hidepmstaff') === 'true') {
         importScriptFile('ab_hide_pmstaff.user.js');
+    }
+    // Adds quick link dropdown to the main nav bar.
+    if (GM_getValue('quicklink') === 'true') {
+        importScriptFile('ab_quick_links.user.js');
     }
 
     // Add settings
@@ -270,7 +276,7 @@
             addTextSetting('ABForumLoadText', 'Text for links to be loaded', 'The text to be shown for forum links that have not been loaded yet.', '(Load)', '10');
             addTextSetting('ABForumLoadingText', 'Text for loading links', 'The text to be shown for forum links that are currently being loaded.', '(Loading)', '10');
             addTextSetting('ABForumToggleText', 'Text for loaded links', 'The text to be shown for forum links that have been loaded and can now be toggled.', '(Toggle)', '10');
-
+            addTextSetting('ABQuickLinks', 'Text for  links', '','','');
         }).call(this);
     }
 })();
