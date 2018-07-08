@@ -7,12 +7,46 @@
 // @icon        http://animebytes.tv/favicon.ico
 // @grant       GM_getValue
 // @grant       GM_setValue
+// @require     https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
 // ==/UserScript==
+
+//import '../delicious-library/src/ab_delicious_library';
 
 // Freeleech Pool Status by Megure, inspired by Lemma, Alpha, NSC
 // Shows current freeleech pool status in navbar with a pie-chart
 // Updates only once every hour or when pool site is visited, showing a pie-chart on pool site
 (function ABFLStatus() {
+    delicious.settings._migrateStringSetting('deliciousflpoolposition');
+
+    if (delicious.settings.ensureSettingsInserted()) {
+        var s = delicious.settings.createSection('Delicious Freeleech Pool');
+        s.appendChild(delicious.settings.createCheckbox(
+            'deliciousfreeleechpool',
+            'Enable/Disable',
+            'Shows current freeleech pool progress in the navbar and on user pages'
+            + ' (updated once an hour or when freeleech pool site is visited).'));
+        s.appendChild(delicious.settings.createDropDown(
+            'deliciousflpoolposition',
+            'Navbar Position',
+            'Select position of freeleech pool progress in the navbar or disable it.',
+            [['Before user info', 'before #userinfo_minor'],
+                ['After user info', 'after #userinfo_minor'],
+                ['Before menu', 'before .main-menu.nobullet'],
+                ['After menu', 'after .main-menu.nobullet'],
+                ['Don\'t display', 'none']],
+            {default: 'after #userinfo_minor'}
+        ));
+        s.appendChild(delicious.settings.createCheckbox(
+            'deliciousnavbarpiechart',
+            'Freeleech Pie Chart',
+            'Adds a dropdown with a pie chart to the freeleech pool progress in the navbar.'
+        ));
+        delicious.settings.insertSection(s);
+    }
+    delicious.settings.init('deliciousfreeleechpool', true);
+    if (!delicious.settings.get('deliciousfreeleechpool'))
+        return;
+
     importDeliciousCommon();
 
     function niceNumber(num) {
@@ -176,7 +210,7 @@
         var pieChart = getPieChart();
         p.innerHTML = pieChart;
         p3.innerHTML = pieChart;
-        if (GM_getValue('delicousnavbarpiechart', 'false') === 'true') {
+        if (delicious.settings.get('delicousnavbarpiechart')) {
             li.innerHTML = pieChart;
         }
         p2.innerHTML = 'We currently have ¥' + niceNumber(parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' / ¥' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10)) + ' in our donation box.<br/>';
@@ -187,17 +221,7 @@
         nav.replaceChild(a, nav.firstChild);
     }
 
-    var pos = GM_getValue('deliciousflpoolposition', 'after #userinfo_minor');
-    function dropPie2(event) {
-        // because who doesn't love dropping their pies
-        if ((typeof $j).toString() !== 'undefined') {
-            // below copied from https://animebytes.tv/static/functions/global-2acd7ec19a.js
-            $j(event.target).parent().find("ul.subnav").is(":hidden") ?
-                ($j("ul.subnav").hide(),
-                $j("li.navmenu").removeClass("selected"),
-                $j(this).parent().addClass("selected").find("ul.subnav").show())
-                : $j(event.target).parent().removeClass("selected").find("ul.subnav").hide();
-        }
+    var pos = delicious.settings.get('deliciousflpoolposition');
 
         // prevents global click handler from immediately closing the menu
         event.stopPropagation();
@@ -213,7 +237,24 @@
             li = document.createElement('li');
         a.href = '/konbini/pool';
         nav.appendChild(a);
-        if (GM_getValue('delicousnavbarpiechart', 'false') === 'true') {
+        if (delicious.settings.get('delicousnavbarpiechart')) {
+
+            function dropPie2(event) { // eslint-disable-line no-inner-declarations
+                // because who doesn't love dropping their pies
+                if ((typeof $j).toString() !== 'undefined') {
+                    // below copied from https://animebytes.tv/static/functions/global-2acd7ec19a.js
+                    $j(event.target).parent().find("ul.subnav").is(":hidden") ?
+                        ($j("ul.subnav").hide(),
+                        $j("li.navmenu").removeClass("selected"),
+                        $j(this).parent().addClass("selected").find("ul.subnav").show())
+                        : $j(event.target).parent().removeClass("selected").find("ul.subnav").hide();
+                }
+
+                // prevents global click handler from immediately closing the menu
+                event.stopPropagation();
+                return false;
+            }
+
             var outerSpan = document.createElement('span');
             outerSpan.className += "dropit hover clickmenu";
             outerSpan.onclick = (dropPie2);
@@ -244,8 +285,7 @@
 
         updatePieChart();
 
-        if (/user\.php\?id=/i.test(document.URL) && GM_getValue('deliciousyenperx', 'true') === 'true') {
-            // Only do so on the users' profile pages if Yen per X is activated and Yen per day is present in userstats
+        if (/user\.php\?id=/i.test(document.URL)) {
             var userstats = document.querySelector('#user_rightcol > .box');
             if (userstats != null) {
                 var tw = document.createTreeWalker(userstats, NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /Yen per day/i.test(node.data); } });

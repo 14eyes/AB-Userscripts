@@ -5,9 +5,22 @@
 // @include     https://animebytes.tv/*
 // @version     0.2.3
 // @icon        http://animebytes.tv/favicon.ico
+// @require     https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
 // ==/UserScript==
 
+//import '../delicious-library/src/ab_delicious_library';
+
+/* global delicious */
+
 (function ABHyperQuote() {
+    var _enabled = delicious.settings.basicScriptCheckbox(
+        'delicioushyperquote',
+        'Delicious Hyper Quote',
+        'Select text and press Ctrl+V to instantly quote it.'
+    );
+    if (!_enabled)
+        return;
+
     if (document.getElementById('quickpost') === null)
         return;
     /** Debug flag. */
@@ -298,7 +311,7 @@
             if (startNode.nodeType === 3)
                 startNode.data = startNode.data.substr(range.startOffset);
             else if (startNode.nodeType === 1)
-                for (let i = 0; i < range.startOffset; i++)
+                for (var j = 0; j < range.startOffset; j++)
                     startNode.removeChild(startNode.firstChild);
         }
 
@@ -339,12 +352,12 @@
         // Restores extra nodes before a quote such as username and link.
         // Must be done after the common root checking otherwise it will
         // mess up the process.
-        for (let i = 0; i < savedPreviousNodes.length; i++) {
+        for (var k = 0; k < savedPreviousNodes.length; k++) {
             // Use selectors on the copied HTML tree to find the corresponding
             // nodes.
-            var selector = '[data-hyper-quote="'+savedPreviousNodes[i][0]+'"]';
+            var selector = '[data-hyper-quote="'+savedPreviousNodes[k][0]+'"]';
             var copyNode = htmlCopy.querySelector(selector);
-            copyNode.parentNode.insertBefore(savedPreviousNodes[i][1], copyNode);
+            copyNode.parentNode.insertBefore(savedPreviousNodes[k][1], copyNode);
 
             // Delete original document's data-hyper-quote attribute.
             // We don't care about htmlCopy's attributes as it gets reset
@@ -366,8 +379,8 @@
 
         // Otherwise, quote as usual.
         var posts = htmlCopy.querySelectorAll('div[id^="post"],div[id^="msg"]');
-        for (let i = 0; i < posts.length; i++) {
-            QUOTEONE(posts[i]);
+        for (var l = 0; l < posts.length; l++) {
+            QUOTEONE(posts[l]);
         }
     }
 
@@ -643,7 +656,7 @@
      * @param {HTMLDivElement} buttonDiv Div containing the button and spoiler.
      * @param {HTMLTableElement} mediainfoTable
      */
-    function bbcodeMediainfo(buttonDiv, mediainfoTable) {
+    function bbcodeMediainfo(buttonDiv, mediainfoTable) { // eslint-disable-line no-unused-vars
         if (buttonDiv.children.length < 2) return '';
         return '[mediainfo]' + bbcodeChildren(buttonDiv.children[1]) + '[/mediainfo]';
     }
@@ -912,7 +925,7 @@
 
         document.getElementById('quickpost').value += res;
 
-        let sel = document.getElementById('quickpost');
+        var sel = document.getElementById('quickpost');
         if (sel !== null)
             sel.scrollIntoView();
     }

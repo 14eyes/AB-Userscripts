@@ -8,6 +8,9 @@ module.exports = {
     "parserOptions": {
         "ecmaVersion": 6
     },
+    "globals": {
+        "delicious": false
+    },
     "extends": "eslint:recommended",
     "rules": {
         "no-unused-vars": [

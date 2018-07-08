@@ -1,20 +1,27 @@
-// ==UserScript==
-// @name        AB Delicious Userscript Library
-// @namespace   TheFallingMan
-// @version     0.0.1
-// @description Provides useful functions for AnimeBytes userscripts.
-// @author      TheFallingMan
-// @icon        https://animebytes.tv/favicon.ico
-// @include     https://animebytes.tv/*
-// @license     GPL-3.0
-// @grant       GM_getValue
-// @grant       GM_setValue
-// ==/UserScript==
+/**
+ * @file   Library for userscripts on AnimeBytes.
+ * @author TheFallingMan
+ * @version 0.0.1
+ * @license GPL-3.0
+ *
+ * Exports `delicious`, containing `delicious.settings` and
+ * `delicious.utilities`.
+ *
+ * This implements settings, providing functions for storing and setting
+ * values, and methods to create an organised userscript settings page within
+ * the user's profile settings.
+ *
+ * Additionally, provides several (hopefully) useful functions through
+ * `delicious.utilities`.
+ */
 
 /* global GM_setValue:false, GM_getValue:false */
 
-/* eslint-disable-next-line no-unused-vars */
-var delicious = (function ABDeliciousLibrary(){
+/**
+ * @namespace
+ * Root namespace for the delicious library.
+ */
+var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused-vars
     "use strict";
 
     function newElement(tagName, properties, children) {
@@ -38,7 +45,6 @@ var delicious = (function ABDeliciousLibrary(){
         return elem;
     }
 
-
     function log(message) {
         console.debug(
             typeof message === 'string' ? ('[Delicious] '+message) : message
@@ -46,6 +52,9 @@ var delicious = (function ABDeliciousLibrary(){
     }
 
     var utilities = {
+        /**
+         * @param {MouseEvent} ev
+         */
         toggleSubnav: function(ev) {
             var subnav = ev.currentTarget.parentNode.children[1];
             var willShow = (subnav.style.display==='none');
@@ -59,6 +68,11 @@ var delicious = (function ABDeliciousLibrary(){
             return false;
         },
 
+        /**
+         * @param {Object.<string, any>} options
+         * @param {Object.<string, any>} defaults
+         * @returns {Object.<string, any>}
+         */
         applyDefaults: function(options, defaults) {
             if (!options)
                 return defaults;
@@ -74,6 +88,9 @@ var delicious = (function ABDeliciousLibrary(){
             return newObject;
         },
 
+        /**
+         * @param {string} text
+         */
         htmlEscape: function(text) {
             return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         },
@@ -82,6 +99,9 @@ var delicious = (function ABDeliciousLibrary(){
         _bytes_base: 1024,
         nbsp: '\xa0',
 
+        /**
+         * @param {string} bytesString
+         */
         parseBytes: function(bytesString) {
             var split = bytesString.split(/\s+/);
             var significand = parseFloat(split[0]);
@@ -91,7 +111,13 @@ var delicious = (function ABDeliciousLibrary(){
             return significand * Math.pow(this._bytes_base, magnitude);
         },
 
-        // Adapted from https://stackoverflow.com/a/18650828
+
+        /**
+         * Adapted from https://stackoverflow.com/a/18650828
+         *
+         * @param {number} numBytes
+         * @param {number} decimals
+         */
         formatBytes: function(numBytes, decimals) {
             if (numBytes === 0) return '0 ' + this._bytes_units[0];
             var magnitude = Math.floor(Math.log(numBytes) / Math.log(this._bytes_base));
@@ -102,13 +128,12 @@ var delicious = (function ABDeliciousLibrary(){
         }
     };
 
-
     var _isSettingsPage = window.location.href.indexOf('/user.php?action=edit') !== -1;
 
     var settings = {
         isSettingsPage: _isSettingsPage,
 
-        createSettingsPage: function() {
+        _createDeliciousPage: function() {
             log('Creating settings page...');
             var settingsDiv = document.createElement('div');
             settingsDiv.id = 'delicious_settings';
@@ -157,32 +182,36 @@ var delicious = (function ABDeliciousLibrary(){
             }
         },
 
-        _insertSettingsPage: function() {
-            log('Inserting settings page...');
+        insertSettingsPage: function(label, settingsPage) {
+            log('Inserting a settings page...');
             var linkItem = document.createElement('li');
             linkItem.appendChild(document.createTextNode('•'));
 
             var link = document.createElement('a');
-            link.href = '#delicious_settings';
-            link.textContent = 'Userscript Settings';
+            link.href = '#' + settingsPage.id;
+            link.textContent = label;
             linkItem.appendChild(link);
 
             document.querySelector('.ue_tabs').appendChild(linkItem);
             this._relinkClickHandlers();
 
-            var page = this.createSettingsPage();
-            page.style.display = 'none';
+            settingsPage.style.display = 'none';
             var tabs = document.querySelector('#tabs');
+            tabs.insertBefore(settingsPage, tabs.lastElementChild);
+        },
 
-            tabs.insertBefore(page, tabs.lastElementChild);
+        _insertDeliciousSettings: function() {
+            this.insertSettingsPage('Userscript Settings',
+                this._createDeliciousPage());
 
             var userform = document.querySelector('form#userform');
+            userform.addEventListener('submit', this._deliciousSaveAndSubmit);
 
-            userform.addEventListener('submit', this.saveAllSettings);
-
-            userform.dataset['onsubmit'] = userform.getAttribute('onsubmit');
-            userform.removeAttribute('onsubmit');
-            log('Previous onsubmit: ' + userform.dataset['onsubmit']);
+            if (userform.hasAttribute('onsubmit')) {
+                userform.dataset['onsubmit'] = userform.getAttribute('onsubmit');
+                userform.removeAttribute('onsubmit');
+                log('Previous onsubmit: ' + userform.dataset['onsubmit']);
+            }
         },
 
         _settingsInserted: !!document.getElementById('delicious_settings'),
@@ -198,19 +227,31 @@ var delicious = (function ABDeliciousLibrary(){
                         [this._basicSection]);
                 }
                 return false;
-            }
+            } else {
+                if (!this._settingsInserted) {
+                    log('Settings not yet inserted; inserting...');
+                    this._settingsInserted = true;
 
-            if (!this._settingsInserted) {
-                log('Settings not yet inserted; inserting...');
-                this._settingsInserted = true;
+                    this._insertDeliciousSettings();
+                }
+                if (!this.rootSettingsList) {
+                    this.rootSettingsList = document.querySelector('#delicious_settings .ue_list');
+                    this._basicSection = this.rootSettingsList.querySelector('#delicious_basic_settings');
+                }
+                return true;
+            }
+        },
 
-                this._insertSettingsPage();
+        _deliciousSaveAndSubmit: function(ev) {
+            if (settings.saveAllSettings(ev)) {
+                ev.target.removeEventListener('submit', settings._deliciousSaveAndSubmit);
+                ev.target.setAttribute('onsubmit', ev.target.dataset['onsubmit']);
+                ev.target.submit();
+            } else {
+                var errorBox = document.querySelector('.error_message');
+                if (errorBox)
+                    errorBox.scrollIntoView();
             }
-            if (!this.rootSettingsList) {
-                this.rootSettingsList = document.querySelector('#delicious_settings .ue_list');
-                this._basicSection = this.rootSettingsList.querySelector('#delicious_basic_settings');
-            }
-            return true;
         },
 
         saveAllSettings: function(ev) {
@@ -219,25 +260,16 @@ var delicious = (function ABDeliciousLibrary(){
             var settingsItems = ev.target.querySelectorAll('[data-settings-key]');
             for (var i = 0; i < settingsItems.length; i++) {
                 log('Sending save event for setting key: ' + settingsItems[i].dataset['settingsKey']);
-                var subevent = new Event('saveEvent', {
-                    cancelable: true,
-                });
-                if (!settingsItems[i].dispatchEvent(subevent)) {
+                var saveEvent = new Event('deliciousSave', {cancelable: true});
+                if (!settingsItems[i].dispatchEvent(saveEvent)) {
                     cancelled = true;
                 }
             }
             log('Form submit cancelled: ' + cancelled);
             if (cancelled) {
-                var errorBox = document.querySelector('.error_message');
-                if (errorBox)
-                    errorBox.scrollIntoView();
                 ev.preventDefault();
                 ev.stopPropagation();
                 return false;
-            } else {
-                ev.target.removeEventListener('submit', settings.saveAllSettings);
-                ev.target.setAttribute('onsubmit', ev.target.dataset['onsubmit']);
-                ev.target.submit();
             }
         },
 
@@ -250,7 +282,7 @@ var delicious = (function ABDeliciousLibrary(){
 
         init: function(key, defaultValue) {
             if (GM_getValue(key, undefined) === undefined) {
-                this.set(defaultValue);
+                this.set(key, defaultValue);
             }
         },
 
@@ -267,6 +299,24 @@ var delicious = (function ABDeliciousLibrary(){
             }
         },
 
+        _migrateStringSetting: function(key) {
+            var val;
+            try {
+                val = this.get(key);
+            } catch (exc) {
+                if (exc instanceof SyntaxError
+                    && GM_getValue(key, undefined) !== undefined) {
+                    // Assume the current variable is a bare string.
+                    // Re-store it as a JSON string.
+                    val = GM_getValue(key);
+                    this.set(key, val);
+                } else {
+                    throw exc; // Something else happened
+                }
+            }
+            return val;
+        },
+
         _insertSorted: function(newText, newElement, rootElement, skipFirst) {
             var current = rootElement.firstElementChild;
             if (skipFirst)
@@ -281,7 +331,15 @@ var delicious = (function ABDeliciousLibrary(){
             }
         },
 
-        addScriptCheckbox: function(key, label, description, options) {
+        basicScriptCheckbox: function(key, label, description) {
+            this.init(key, true);
+            if (this.ensureSettingsInserted()) {
+                this.addBasicCheckbox(key, label, description);
+            }
+            return this.get(key);
+        },
+
+        addBasicCheckbox: function(key, label, description, options) {
             var checkboxLI = this.createCheckbox(
                 key, label, description, options);
             //this._basicSection.appendChild(checkboxLI);
@@ -298,11 +356,14 @@ var delicious = (function ABDeliciousLibrary(){
             var section = this.createSection(title);
 
             var enableBox = this.createCheckbox(key, 'Enable/Disable', description, options);
-            enableBox.style.marginTop = '10px';
             section.appendChild(enableBox);
 
             this._insertSorted(title.textContent || title, section, this.rootSettingsList, true);
             return section;
+        },
+
+        insertSection: function(section) {
+            this._insertSorted(section.textContent, section, this.rootSettingsList, true);
         },
 
         _createSettingLI: function(label, rightElements) {
@@ -328,7 +389,7 @@ var delicious = (function ABDeliciousLibrary(){
                 checkbox.setAttribute('checked', 'checked');
 
             if (options['onSave'] !== null) {
-                checkbox.addEventListener('saveEvent', options['onSave']);
+                checkbox.addEventListener('deliciousSave', options['onSave']);
             }
 
             var li = this._createSettingLI(label, [
@@ -345,7 +406,7 @@ var delicious = (function ABDeliciousLibrary(){
             var section = newElement('div', {className: 'delicious_settings_section'}, [
                 newElement('li', {}, [heading])
             ]);
-            section.style.marginTop = '25px';
+            section.style.marginTop = '30px';
             return section;
         },
 
@@ -373,7 +434,7 @@ var delicious = (function ABDeliciousLibrary(){
             ]);
 
             if (options['onSave'] !== null) {
-                inputElem.addEventListener('saveEvent', options['onSave']);
+                inputElem.addEventListener('deliciousSave', options['onSave']);
             }
 
             return li;
@@ -390,7 +451,6 @@ var delicious = (function ABDeliciousLibrary(){
 
             var select = newElement('select');
             select.dataset['settingsKey'] = key;
-
 
             var currentValue = null;
             if (options['default'] !== null)
@@ -413,7 +473,7 @@ var delicious = (function ABDeliciousLibrary(){
             ]);
 
             if (options['onSave'] !== null) {
-                select.addEventListener('saveEvent', options['onSave']);
+                select.addEventListener('deliciousSave', options['onSave']);
             }
 
             return li;
@@ -423,6 +483,8 @@ var delicious = (function ABDeliciousLibrary(){
             options = utilities.applyDefaults(options, {
                 lineBreak: false,
                 default: '',
+                allowDecimal: true,
+                allowNegative: false,
                 onSave: function(ev) {
                     settings.set(key, parseFloat(ev.target.value));
                 }
@@ -431,6 +493,10 @@ var delicious = (function ABDeliciousLibrary(){
             var input = newElement('input');
             input.dataset['settingsKey'] = key;
             input.type = 'number';
+            if (options['allowDecimal'])
+                input.step = 'any';
+            if (!options['allowNegative'])
+                input.min = '0';
             input.value = this.get(key, options['default']);
 
             var li = this._createSettingLI(label, [
@@ -440,8 +506,210 @@ var delicious = (function ABDeliciousLibrary(){
             ]);
 
             if (options['onSave'] !== null) {
-                input.addEventListener('saveEvent', options['onSave']);
+                input.addEventListener('deliciousSave', options['onSave']);
             }
+
+            return li;
+        },
+
+        createFieldSetSetting: function(key, label, fields, description, options) {
+            options = utilities.applyDefaults(options, {
+                default: [fields[0][1]],
+                onSave: function(ev) {
+                    var obj = {};
+                    var checkboxes = ev.target.querySelectorAll('[data-settings-subkey]');
+                    for (var i = 0; i < checkboxes.length; i++) {
+                        obj[checkboxes[i].dataset['settingsSubkey']] = checkboxes[i].checked;
+                    }
+                    settings.set(ev.target.dataset['settingsKey'], obj);
+                }
+            });
+
+            var fieldset = newElement('span');
+            fieldset.dataset['settingsKey'] = key;
+
+            var currentSettings = this.get(key, {});
+
+            for (var i = 0; i < fields.length; i++) {
+                var checkbox = newElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.dataset['settingsSubkey'] = fields[i][1];
+
+                var current = currentSettings[fields[i][1]];
+                if (current === undefined)
+                    current = options['default'].indexOf(fields[i][1]) !== -1;
+
+                if (current)
+                    checkbox.checked = true;
+
+                var newLabel = newElement('label', {}, [
+                    checkbox, ' ', fields[i][0]
+                ]);
+                newLabel.style.marginRight = '15px';
+
+                fieldset.appendChild(newLabel);
+            }
+
+            if (options['onSave'] !== null) {
+                fieldset.addEventListener('deliciousSave', options['onSave']);
+            }
+
+            var li = this._createSettingLI(label, [
+                fieldset, newElement('br'),
+                description
+            ]);
+
+            return li;
+        },
+
+        _moveRowUp: function(ev) {
+            var thisRow = ev.target.parentNode;
+            if (thisRow.previousElementSibling) {
+                thisRow.parentNode.insertBefore(
+                    thisRow,
+                    thisRow.previousElementSibling
+                );
+            }
+            if (ev.preventDefault) {
+                ev.preventDefault();
+                ev.stopPropagation();
+            }
+        },
+
+        _moveRowDown: function(ev) {
+            var thisRow = ev.target.parentNode;
+            if (thisRow.nextElementSibling) {
+                settings._moveRowUp({target: thisRow.nextElementSibling.firstElementChild});
+            }
+            ev.preventDefault();
+            ev.stopPropagation();
+        },
+
+        _deleteRow: function(ev) {
+            var row = ev.target.parentNode;
+            row.parentNode.removeChild(row);
+            ev.preventDefault();
+            ev.stopPropagation();
+        },
+
+        _createRow: function(values, columns, allowSort, allowDelete) {
+            var row = newElement('div', {className: 'setting_row'});
+            row.style.marginBottom = '2px';
+
+            if (allowSort === undefined || allowSort) {
+                var upButton = newElement('button', {textContent: '▲',
+                    title: 'Move up'});
+                upButton.addEventListener('click', this._moveRowUp);
+                row.appendChild(upButton);
+                row.appendChild(document.createTextNode(' '));
+
+                var downButton = newElement('button', {textContent: '▼',
+                    title: 'Move down'});
+                downButton.addEventListener('click', this._moveRowDown);
+                row.appendChild(downButton);
+                row.appendChild(document.createTextNode(' '));
+            }
+
+            for (var i = 0; i < columns.length; i++) {
+                var cell = newElement('input', {type: columns[i][2]});
+                if (cell.type === 'number') {
+                    cell.min = '0';
+                    cell.step = 'any';
+                }
+                var subkey = columns[i][1];
+                cell.dataset['settingsSubkey'] = subkey;
+                cell.placeholder = columns[i][0];
+                if (values[subkey] !== undefined) {
+                    cell.value = values[subkey];
+                }
+                row.appendChild(cell);
+                row.appendChild(document.createTextNode(' '));
+            }
+
+            if (allowDelete === undefined || allowDelete) {
+                var delButton = newElement('button', {textContent: '✖',
+                    title: 'Delete'});
+                delButton.addEventListener('click', this._deleteRow);
+                row.appendChild(delButton);
+            }
+
+            return row;
+        },
+
+        /**
+         * @param {string} key
+         * @param {string | HTMLElement} label
+         * @param {Array.<[string, string, string]>} columns
+         * @param {string | HTMLElement} description
+         * @param {Object} options
+         */
+        createRowSetting: function(key, label, columns, description, options) {
+            options = utilities.applyDefaults(options, {
+                default: [],
+                newButtonText: '+',
+                allowSort: true,
+                allowDelete: true,
+                allowNew: true,
+                onSave: function(ev) {
+                    var list = [];
+                    var rows = ev.target.querySelectorAll('.setting_row');
+                    for (var i = 0; i < rows.length; i++) {
+                        var obj = {};
+                        var columns = rows[i].querySelectorAll('[data-settings-subkey]');
+                        for (var j = 0; j < columns.length; j++) {
+                            var val = columns[j].value;
+                            if (columns[j].type === 'number')
+                                val = parseFloat(val);
+                            obj[columns[j].dataset['settingsSubkey']] = val;
+                        }
+                        list.push(obj);
+                    }
+                    settings.set(key, list);
+                }
+            });
+
+            var children;
+            if (description) {
+                children = [description, newElement('br')];
+            } else {
+                children = undefined;
+            }
+            var rowDiv = newElement('div', {className: 'ue_right'}, children);
+
+            var rowContainer = newElement('div');
+            rowContainer.dataset['settingsKey'] = key;
+            rowContainer.className = 'row_container';
+            if (options['onSave'] !== null)
+                rowContainer.addEventListener('deliciousSave', options['onSave']);
+            if (description)
+                rowContainer.style.marginTop = '5px';
+            rowDiv.appendChild(rowContainer);
+
+            var current = this.get(key, options['default']);
+            for (var i = 0; i < current.length; i++) {
+                rowContainer.appendChild(
+                    this._createRow(current[i], columns, options['allowSort'],
+                        options['allowDelete']));
+            }
+
+            if (options['allowNew']) {
+                var newButton = newElement('button', {textContent: options['newButtonText'], title: 'New'});
+                newButton.style.marginTop = '8px';
+                newButton.addEventListener('click', function(ev) {
+                    rowContainer.appendChild(
+                        settings._createRow({}, columns,
+                            options['allowSort'],
+                            options['allowDelete']));
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                });
+                rowDiv.appendChild(newButton);
+            }
+
+            var li = newElement('li', {}, [
+                newElement('span', {className: 'ue_left strong'}, [label]),
+                rowDiv
+            ]);
 
             return li;
         },
@@ -462,48 +730,6 @@ var delicious = (function ABDeliciousLibrary(){
             return errorDiv;
         },
     };
-
-
-    settings.ensureSettingsInserted();
-
-    settings.addScriptCheckbox('ABQuickLinks', 'Quick Links', 'Adds quick links to the main navbar.');
-    settings.addScriptCheckbox('ABQuickLinks2', 'Quick Links 2.0', 'Adds quick links to the main navbar.');
-    settings.addScriptCheckbox('ABQuickLinks3', 'AA Quick Links 2.0', 'Adds quick links to the main navbar.');
-    settings.addScriptCheckbox('ABQuickLinks4', 'ZZ Quick Links 2.0', 'Adds quick links to the main navbar.');
-
-    var s = settings.addScriptSection('ABDynamicStylesheets', 'Dynamic Stylesheets', 'Automatically changes stylesheets.');
-
-    s.appendChild(settings.createCheckbox('TEST', 'The label', 'Does things'));
-
-    var c = settings.createCheckbox('', 'Error test', 'Will throw an error if ticked', {
-        onSave: function(ev) {
-            if (ev.target.checked) {
-                settings.showErrorMessage('Error thrown.', 'testId');
-                ev.preventDefault();
-            }
-        }
-    });
-    settings.addBasicSetting(c);
-    settings.addBasicSetting(
-        settings.createTextField('ABTestText', 'Text field', 'description', {
-            default: 1234,
-            lineBreak: false,
-        })
-    );
-    settings.addBasicSetting(
-        settings.createDropDown('dropdownkey', 'A drop down', 'Drops down some things',
-            [['Text', '1'], ['Value', '2'], ['This', '3']], {
-                default: '2',
-            })
-    );
-    settings.addBasicSetting(
-        settings.createNumberInput('numberkey', 'An integer', 'Whole numbers!', {
-        default: 2,
-        lineBreak: true,
-        })
-    );
-
-    settings.addScriptSection('ABDynamicStyleasheets', 'Adynamic Stylesheets', 'Automatically changes stylesheets.');
 
     return {
         settings: settings,
