@@ -24,6 +24,16 @@
 var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused-vars
     "use strict";
 
+    /**
+     * A helper function for creating a HTML element, defining some properties
+     * on it and appending child nodes.
+     *
+     * @param {string} tagName The type of element to create.
+     * @param {Object.<string, any>} properties
+     * An object containing properties to set on the new element.
+     * Note: does not support nested elements (e.g. "style.width" does _not_ work).
+     * @param {Array.<Node|string>} children Child nodes and/or text to append.
+     */
     function newElement(tagName, properties, children) {
         var elem = document.createElement(tagName);
         if (properties) {
@@ -45,18 +55,40 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
         return elem;
     }
 
+    /**
+     * Logs a message to the debug console, prefixing it if it is a string.
+     *
+     * @param {any} message
+     */
     function log(message) {
         console.debug(
             typeof message === 'string' ? ('[Delicious] '+message) : message
         );
     }
 
+    /**
+     * Uesful Javascript functions related to AnimeBytes.
+     */
     var utilities = {
         /**
+         * Click handler for those triangles which drop down menus. Toggles
+         * displaying the associated submenu.
+         *
          * @param {MouseEvent} ev
          */
         toggleSubnav: function(ev) {
-            var subnav = ev.currentTarget.parentNode.children[1];
+            // Begin at the bound element.
+            var current = ev.target;
+            // Keep traversing up the node's parents until we find an
+            // adjacent .subnav element.
+            while (current && !current.nextSibling.classList.contains('subnav')) {
+                current = current.parentNode;
+            }
+            if (!current)
+                return;
+            var subnav = current.nextSibling;
+
+            // Logic to toggle visibility.
             var willShow = (subnav.style.display==='none');
             subnav.style.display = willShow?'block':'none';
             if (willShow)
@@ -69,9 +101,15 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
         },
 
         /**
-         * @param {Object.<string, any>} options
-         * @param {Object.<string, any>} defaults
-         * @returns {Object.<string, any>}
+         * Applies default options to an object containing possibly
+         * incomplete options.
+         *
+         * Note: only returns keys which are present in `defaults`.
+         *
+         * @param {Object.<string, any>} options User-specified options.
+         * @param {Object.<string, any>} defaults Default options.
+         * @returns {Object.<string, any>} Object containing user-specified
+         * option if it is present, else the default.
          */
         applyDefaults: function(options, defaults) {
             if (!options)
@@ -89,50 +127,97 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
         },
 
         /**
-         * @param {string} text
+         * Makes the given text suitable for inserting into HTML as text.
+         *
+         * @param {string} text Bare text.
+         * @returns {string} HTML escaped text.
          */
         htmlEscape: function(text) {
             return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         },
 
-        _bytes_units: ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'],
-        _bytes_base: 1024,
+        /** A non-breaking space character. */
         nbsp: '\xa0',
 
+        _bytes_units: ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'],
+        _bytes_base: 1024,
+
         /**
-         * @param {string} bytesString
+         * Parses a string containing a number of bytes (e.g. "4.25 GiB") and
+         * returns the number of bytes.
+         *
+         * Note: uses IEC prefixes (KiB, MiB, etc.).
+         *
+         * @param {string} bytesString Bytes as string.
+         * @returns {number} Number of bytes.
          */
         parseBytes: function(bytesString) {
             var split = bytesString.split(/\s+/);
             var significand = parseFloat(split[0]);
             var magnitude = this._bytes_units.indexOf(split[1]);
             if (magnitude === -1)
-                throw 'Bytes unit not recognised. Make sure you are using KiB, MiB, or similar.';
+                throw 'Bytes unit not recognised. Make sure you are using IEC prefixes (KiB, MiB, etc.)';
             return significand * Math.pow(this._bytes_base, magnitude);
         },
 
-
         /**
-         * Adapted from https://stackoverflow.com/a/18650828
+         * Formats a number of bytes as a string with an appropriate unit.
          *
-         * @param {number} numBytes
-         * @param {number} decimals
+         * @param {number} numBytes Number of bytes
+         * @param {number} [decimals=2] Number of decimal places to use.
+         * @returns {string} Bytes formatted as string.
          */
         formatBytes: function(numBytes, decimals) {
-            if (numBytes === 0) return '0 ' + this._bytes_units[0];
+            // Adapted from https://stackoverflow.com/a/18650828
+            if (numBytes === 0)
+                return '0 ' + this._bytes_units[0];
+            if (decimals === undefined)
+                decimals = 2;
             var magnitude = Math.floor(Math.log(numBytes) / Math.log(this._bytes_base));
             // Extra parseFloat is so trailing 0's are removed.
             return parseFloat(
                 (numBytes / Math.pow(this._bytes_base, magnitude)).toFixed(decimals)
             ) + ' ' + this._bytes_units[magnitude];
+        },
+
+        /**
+         * Given a element.dataset property name in camelCase, returns the corresponding
+         * data- attribute name with hyphens.
+         * @param {string} str JS `dataset` name.
+         * @returns {string} HTML `data-` name.
+         */
+        toDataAttr: function(str) {
+            return 'data-'+str.replace(/[A-Z]/g, function(a){return '-'+a.toLowerCase();});
         }
     };
 
     var _isSettingsPage = window.location.href.indexOf('/user.php?action=edit') !== -1;
 
+    /**
+     * Container for all setting-related functions.
+     */
     var settings = {
+        /** Prefix used when setting element ID attributes. */
+        _idPrefix: 'setting_',
+        /** Event type used when saving. */
+        _eventName: 'deliciousSave',
+        /** Data attribute JS name for primary keys. */
+        _settingKey: 'settingKey',
+        /** Data attribute JS name for subkeys. */
+        _settingSubkey: 'settingSubkey',
+
+        /** HTML attribute name for primary keys. */
+        _dataSettingKey: utilities.toDataAttr('settingKey'),
+        /** HTML attribute name for primary subkeys. */
+        _dataSettingSubkey: utilities.toDataAttr('settingSubkey'),
+
+        /** Whether this page is a user settings page. */
         isSettingsPage: _isSettingsPage,
 
+        /**
+         * Creates the delicious settings `div`.
+         * @returns {HTMLDivElement}
+         */
         _createDeliciousPage: function() {
             log('Creating settings page...');
             var settingsDiv = document.createElement('div');
@@ -156,6 +241,8 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
         },
 
         /**
+         * Click handler for user profile tab links. Displays the clicked page
+         * and hides any other page.
          *
          * @param {MouseEvent} ev
          */
@@ -174,6 +261,9 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return false;
         },
 
+        /**
+         * Attaches our click handler to the existing tab links.
+         */
         _relinkClickHandlers: function() {
             log('Rebinding tab click handlers...');
             var tabLinks = document.querySelectorAll('.ue_tabs a');
@@ -182,6 +272,11 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             }
         },
 
+        /**
+         * Inserts the given settings div into the user settings page.
+         * @param {string} label Name to display for this page.
+         * @param {HTMLDivElement} settingsPage Element containing the page.
+         */
         insertSettingsPage: function(label, settingsPage) {
             log('Inserting a settings page...');
             var linkItem = document.createElement('li');
@@ -200,6 +295,11 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             tabs.insertBefore(settingsPage, tabs.lastElementChild);
         },
 
+        /**
+         * Inserts the delicious settings page. Attaches a listener to the
+         * form `submit` event, and temporarily disables the default `onsubmit`
+         * attribute which is set.
+         */
         _insertDeliciousSettings: function() {
             this.insertSettingsPage('Userscript Settings',
                 this._createDeliciousPage());
@@ -216,6 +316,12 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
 
         _settingsInserted: !!document.getElementById('delicious_settings'),
 
+        /**
+         * Ensures the settings page has been inserted, creating and inserting
+         * it if the page is a user settings page.
+         *
+         * Returns true if on the user settings page, false otherwise.
+         */
         ensureSettingsInserted: function() {
             if (!this.isSettingsPage) {
                 if (!this.rootSettingsList) {
@@ -242,54 +348,86 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             }
         },
 
+        /**
+         * Saves the settings and submits the rest of the user settings form.
+         * @param {Event} ev Form element.
+         */
         _deliciousSaveAndSubmit: function(ev) {
-            if (settings.saveAllSettings(ev)) {
+            if (settings.saveAllSettings(ev.target)) {
                 ev.target.removeEventListener('submit', settings._deliciousSaveAndSubmit);
-                ev.target.setAttribute('onsubmit', ev.target.dataset['onsubmit']);
+                if (ev.target.dataset['onsubmit'])
+                    ev.target.setAttribute('onsubmit', ev.target.dataset['onsubmit']);
                 ev.target.submit();
             } else {
                 var errorBox = document.querySelector('.error_message');
                 if (errorBox)
                     errorBox.scrollIntoView();
+                ev.stopPropagation();
+                ev.preventDefault();
             }
         },
 
-        saveAllSettings: function(ev) {
+        /**
+         * Sends the save event to all elements contained within `rootElement`
+         * and with the appropriate `data-` settings attribute set.
+         * @param {HTMLElement} rootElement Root element.
+         * @returns {boolean} True if all elements saved successfully, false otherwise.
+         */
+        saveAllSettings: function(rootElement) {
             log('Saving all settings...');
             var cancelled = false;
-            var settingsItems = ev.target.querySelectorAll('[data-settings-key]');
+            var settingsItems = rootElement.querySelectorAll('['+this._dataSettingKey+']');
             for (var i = 0; i < settingsItems.length; i++) {
-                log('Sending save event for setting key: ' + settingsItems[i].dataset['settingsKey']);
-                var saveEvent = new Event('deliciousSave', {cancelable: true});
+                log('Sending save event for setting key: ' + settingsItems[i].dataset[this._settingKey]);
+                var saveEvent = new Event(this._eventName, {cancelable: true});
                 if (!settingsItems[i].dispatchEvent(saveEvent)) {
                     cancelled = true;
                 }
             }
             log('Form submit cancelled: ' + cancelled);
             if (cancelled) {
-                ev.preventDefault();
-                ev.stopPropagation();
                 return false;
+            } else {
+                return true;
             }
         },
 
+        /**
+         * Saves an element, reading the key from its dataset and
+         * the value from its `property` attribute.
+         * @param {HTMLElement} element
+         * @param {string} property
+         */
         saveOneElement: function(element, property) {
-            if (element.dataset['settingsKey'])
-                this.set(element.dataset['settingsKey'], element[property]);
+            if (element.dataset[this._settingKey])
+                this.set(element.dataset[this._settingKey], element[property]);
             else
                 log('Skipping blank: ' + element.outerHTML);
         },
 
+        /**
+         * If `key` is not set, set it to `defaultValue`. Otherwise, do nothing.
+         * @param {string} key
+         * @param {any} defaultValue
+         */
         init: function(key, defaultValue) {
             if (GM_getValue(key, undefined) === undefined) {
                 this.set(key, defaultValue);
             }
         },
 
+        /**
+         * Sets `key` to `value`. Currently uses GM_setValue, storing internally
+         * as JSON.
+         */
         set: function(key, value) {
             GM_setValue(key, JSON.stringify(value));
         },
 
+        /**
+         * Gets `key`, returns `defaultValue` if it is not set.
+         * Currently uses GM_getValue, storing internally as JSON.
+         */
         get: function(key, defaultValue) {
             var value = GM_getValue(key, undefined);
             if (value !== undefined) {
@@ -299,6 +437,12 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             }
         },
 
+        /**
+         * Migrates a string stored in `key` as a bare string to a
+         * JSON encoded string.
+         * @param {string} key Setting key.
+         * @returns {any} String value.
+         */
         _migrateStringSetting: function(key) {
             var val;
             try {
@@ -317,11 +461,25 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return val;
         },
 
-        _insertSorted: function(newText, newElement, rootElement, skipFirst) {
+        /**
+         * Inserts `newElement` as a chlid of `rootElement` sorted, by comparing
+         * `newText` to each element's textContent.
+         *
+         * If `refElement` is specified, will start _after_ `refElement`.
+         *
+         * @param {string} newText Comparison text for `newElement`.
+         * @param {HTMLElement} newElement Element to insert.
+         * @param {HTMLElement} rootElement Parent element to insert `newElement` into.
+         * @param {HTMLElement} [refElement] Reference element to insert after this or later.
+         */
+        _insertSorted: function(newText, newElement, rootElement, refElement) {
             var current = rootElement.firstElementChild;
-            if (skipFirst)
-                current = current.nextElementSibling;
-            while (current && (current.firstElementChild.textContent < newText)) {
+            if (refElement) {
+                if (refElement.parentNode !== rootElement)
+                    throw 'refElement is not a direct child of rootElement';
+                current = refElement.nextElementSibling;
+            }
+            while (current && (current.textContent <= newText)) {
                 current = current.nextElementSibling;
             }
             if (current) {
@@ -358,12 +516,14 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             var enableBox = this.createCheckbox(key, 'Enable/Disable', description, options);
             section.appendChild(enableBox);
 
-            this._insertSorted(title.textContent || title, section, this.rootSettingsList, true);
+            this._insertSorted(title.textContent || title, section,
+                this.rootSettingsList, this._basicSection);
             return section;
         },
 
         insertSection: function(section) {
-            this._insertSorted(section.textContent, section, this.rootSettingsList, true);
+            this._insertSorted(section.textContent, section, this.rootSettingsList,
+                this._basicSection);
         },
 
         _createSettingLI: function(label, rightElements) {
@@ -382,20 +542,21 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             });
 
             var checkbox = newElement('input', {type: 'checkbox'});
-            checkbox.dataset['settingsKey'] = key;
+            checkbox.dataset[this._settingKey] = key;
+            checkbox.id = this._idPrefix + key;
 
             var currentValue = options['default'];
             if (this.get(key, currentValue))
                 checkbox.setAttribute('checked', 'checked');
 
             if (options['onSave'] !== null) {
-                checkbox.addEventListener('deliciousSave', options['onSave']);
+                checkbox.addEventListener(this._eventName, options['onSave']);
             }
 
             var li = this._createSettingLI(label, [
                 checkbox,
                 ' ',
-                newElement('label', {}, [description]),
+                newElement('label', {htmlFor: this._idPrefix+key}, [description]),
             ]);
 
             return li;
@@ -410,9 +571,9 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return section;
         },
 
-        createTextField: function(key, label, description, options) {
+        createTextSetting: function(key, label, description, options) {
             options = utilities.applyDefaults(options, {
-                width: 50,
+                width: null,
                 lineBreak: false,
                 default: '',
                 onSave: function(ev) {
@@ -422,19 +583,20 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
 
             var inputElem = newElement('input', {
                 type: 'text',
-                size: options['width']
+                id: this._idPrefix+key
             });
             inputElem.value = this.get(key, options['default']);
-            inputElem.dataset['settingsKey'] = key;
+            inputElem.dataset[this._settingKey] = key;
+            inputElem.style.width = options['width'];
 
             var li = this._createSettingLI(label, [
                 inputElem,
                 (options['lineBreak'] && description) ? newElement('br') : ' ',
-                description
+                newElement('label', {htmlFor: this._idPrefix+key}, [description])
             ]);
 
             if (options['onSave'] !== null) {
-                inputElem.addEventListener('deliciousSave', options['onSave']);
+                inputElem.addEventListener(this._eventName, options['onSave']);
             }
 
             return li;
@@ -450,7 +612,8 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             });
 
             var select = newElement('select');
-            select.dataset['settingsKey'] = key;
+            select.dataset[this._settingKey] = key;
+            select.id = this._idPrefix+key;
 
             var currentValue = null;
             if (options['default'] !== null)
@@ -469,11 +632,11 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             var li = this._createSettingLI(label, [
                 select,
                 (options['lineBreak'] && description) ? newElement('br') : ' ',
-                description
+                newElement('label', {htmlFor: this._idPrefix+key}, [description])
             ]);
 
             if (options['onSave'] !== null) {
-                select.addEventListener('deliciousSave', options['onSave']);
+                select.addEventListener(this._eventName, options['onSave']);
             }
 
             return li;
@@ -491,7 +654,8 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             });
 
             var input = newElement('input');
-            input.dataset['settingsKey'] = key;
+            input.id = this._idPrefix+key;
+            input.dataset[this._settingKey] = key;
             input.type = 'number';
             if (options['allowDecimal'])
                 input.step = 'any';
@@ -502,11 +666,11 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             var li = this._createSettingLI(label, [
                 input,
                 (options['lineBreak'] && description) ? newElement('br') : ' ',
-                description
+                newElement('label', {htmlFor: this._idPrefix+key}, [description])
             ]);
 
             if (options['onSave'] !== null) {
-                input.addEventListener('deliciousSave', options['onSave']);
+                input.addEventListener(this._eventName, options['onSave']);
             }
 
             return li;
@@ -514,26 +678,27 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
 
         createFieldSetSetting: function(key, label, fields, description, options) {
             options = utilities.applyDefaults(options, {
-                default: [fields[0][1]],
+                default: [],
                 onSave: function(ev) {
                     var obj = {};
-                    var checkboxes = ev.target.querySelectorAll('[data-settings-subkey]');
+                    var checkboxes = ev.target.querySelectorAll('['+settings._dataSettingSubkey+']');
                     for (var i = 0; i < checkboxes.length; i++) {
-                        obj[checkboxes[i].dataset['settingsSubkey']] = checkboxes[i].checked;
+                        obj[checkboxes[i].dataset[settings._settingSubkey]] = checkboxes[i].checked;
                     }
-                    settings.set(ev.target.dataset['settingsKey'], obj);
+                    settings.set(ev.target.dataset[settings._settingKey], obj);
                 }
             });
 
             var fieldset = newElement('span');
-            fieldset.dataset['settingsKey'] = key;
+            fieldset.dataset[this._settingKey] = key;
 
             var currentSettings = this.get(key, {});
 
             for (var i = 0; i < fields.length; i++) {
                 var checkbox = newElement('input');
                 checkbox.type = 'checkbox';
-                checkbox.dataset['settingsSubkey'] = fields[i][1];
+                checkbox.id = this._idPrefix+key+'_'+fields[i][1];
+                checkbox.dataset[this._settingSubkey] = fields[i][1];
 
                 var current = currentSettings[fields[i][1]];
                 if (current === undefined)
@@ -542,7 +707,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
                 if (current)
                     checkbox.checked = true;
 
-                var newLabel = newElement('label', {}, [
+                var newLabel = newElement('label', {htmlFor: this._idPrefix+key+'_'+fields[i][1]}, [
                     checkbox, ' ', fields[i][0]
                 ]);
                 newLabel.style.marginRight = '15px';
@@ -551,7 +716,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             }
 
             if (options['onSave'] !== null) {
-                fieldset.addEventListener('deliciousSave', options['onSave']);
+                fieldset.addEventListener(this._eventName, options['onSave']);
             }
 
             var li = this._createSettingLI(label, [
@@ -617,7 +782,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
                     cell.step = 'any';
                 }
                 var subkey = columns[i][1];
-                cell.dataset['settingsSubkey'] = subkey;
+                cell.dataset[this._settingSubkey] = subkey;
                 cell.placeholder = columns[i][0];
                 if (values[subkey] !== undefined) {
                     cell.value = values[subkey];
@@ -655,12 +820,12 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
                     var rows = ev.target.querySelectorAll('.setting_row');
                     for (var i = 0; i < rows.length; i++) {
                         var obj = {};
-                        var columns = rows[i].querySelectorAll('[data-settings-subkey]');
+                        var columns = rows[i].querySelectorAll('['+settings._dataSettingSubkey+']');
                         for (var j = 0; j < columns.length; j++) {
                             var val = columns[j].value;
                             if (columns[j].type === 'number')
                                 val = parseFloat(val);
-                            obj[columns[j].dataset['settingsSubkey']] = val;
+                            obj[columns[j].dataset[settings._settingSubkey]] = val;
                         }
                         list.push(obj);
                     }
@@ -677,10 +842,10 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             var rowDiv = newElement('div', {className: 'ue_right'}, children);
 
             var rowContainer = newElement('div');
-            rowContainer.dataset['settingsKey'] = key;
+            rowContainer.dataset[this._settingKey] = key;
             rowContainer.className = 'row_container';
             if (options['onSave'] !== null)
-                rowContainer.addEventListener('deliciousSave', options['onSave']);
+                rowContainer.addEventListener(this._eventName, options['onSave']);
             if (description)
                 rowContainer.style.marginTop = '5px';
             rowDiv.appendChild(rowContainer);
@@ -714,6 +879,63 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return li;
         },
 
+        createColourSetting: function(key, label, description, options) {
+            options = utilities.applyDefaults(options, {
+                default: '#000000',
+                checkbox: true,
+                resetButton: true,
+                onSave: function(ev) {
+                    if (checkbox.checked) {
+                        settings.set(key, ev.target.value);
+                    } else {
+                        settings.set(key, null);
+                    }
+                }
+            });
+
+            var currentColour = this.get(key, options['default']);
+
+            if (options['checkbox']) {
+                var checkbox = newElement('input',
+                    {type: 'checkbox', checked: currentColour !== null});
+            }
+
+            var colour = newElement('input', {type: 'color'});
+            colour.dataset[this._settingKey] = key;
+            colour.id = this._idPrefix+key;
+
+            if (currentColour !== null)
+                colour.value = currentColour;
+            else
+                colour.value = options['default'];
+
+            if (options['onSave'] !== null)
+                colour.addEventListener(this._eventName, options['onSave']);
+
+            if (options['resetButton']) {
+                var reset = newElement('button', {textContent: 'Reset'});
+                reset.addEventListener('click', function(ev) {
+                    colour.value = options['default'];
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                });
+            }
+
+            var right = [];
+            if (options['checkbox']) {
+                right.push(checkbox);
+                right.push(' ');
+            }
+            right.push(colour);
+            right.push(' ');
+            if (options['resetButton']) {
+                right.push(reset);
+                right.push(' ');
+            }
+            right.push(newElement('label', {htmlFor: this._idPrefix+key},
+                [description]));
+            return this._createSettingLI(label, right);
+        },
 
 
         showErrorMessage: function(message, errorId) {
