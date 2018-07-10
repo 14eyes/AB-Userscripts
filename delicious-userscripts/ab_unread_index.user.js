@@ -10,20 +10,33 @@
 // @match https://animebytes.tv/
 // @match https://animebytes.tv/index.php
 // @match https://animebytes.tv/user.php?action=edit
-// @downloadURL https://ab.nope.bz/userscripts/unread_index/ab_unread_index.user.js
-// @updateURL https://ab.nope.bz/userscripts/unread_index/ab_unread_index.user.js
-// @grant GM_getValue
-// @grant GM_setValue
-// @grant GM_deleteValue
+// @require https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
 // ==/UserScript==
 
-
-
-var ABGamesForum = GM_getValue('ABGamesForum');
-if (ABGamesForum == null) {
-    GM_setValue('ABGamesForum', 'true');
-    ABGamesForum = 'true';
+delicious.settings.init('ABGamesForum', false);
+delicious.settings.init('unreadindx', false);
+delicious.settings.init('ABNoT', 5);
+if (delicious.settings.ensureSettingsInserted()) {
+    var s = delicious.settings.createSection('Unread Index');
+    s.appendChild(delicious.settings.createCheckbox(
+        'ABGamesForum',
+        'Unread forums in index(News Page)',
+        'Hide those hideous "Forum Games" on your unread index page!'
+    ));
+    s.appendChild(delicious.settings.createCheckbox(
+        'unreadindx',
+        'Enable',
+        'Enable/Disable Unread Index script.'));
+    delicious.settings.insertSection(s);
+    s.appendChild(delicious.settings.createNumberInput(
+        'ABNoT',
+        'Number of threads',
+        'set the number of threads to show'
+    ));
 }
+var _enabled = delicious.settings.get('unreadindx');
+if (!_enabled)
+    return;
 var unread_tablenode;
 var dividernode = document.createElement('div');
 dividernode.className = 'divider';
@@ -38,16 +51,16 @@ function ABUnreadIndex () {
             var unread_posts = 0;
             for (let j = 0; j < 2; j++) unread_tablenode.rows[0].cells[j].style.padding = '8px';
             unread_tablenode.rows[0].cells[0].style.width = '30%';
-
             unread_tablenode.rows[0].cells[1].style.width = '70%';
             unread_tablenode.rows[0].deleteCell(2);
-            var row;
-            for (let i = 1; row = unread_tablenode.rows[i]; i++) {
+            var row = unread_tablenode.rows[1];
+            for (let i = 1; row; i++) {
+                row = unread_tablenode.rows[i];
                 if (row == null) break;
-                if ((ABGamesForum === 'false' && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === 5)) {
+                if ((delicious.settings.get('ABGamesForum') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === delicious.settings.get('ABNoT'))){
                     unread_tablenode.deleteRow(i);
                     i--;
-                } else if (unread_posts < 5) {
+                } else if (unread_posts < delicious.settings.get('ABNoT')) {
                     for (let j = 0; j < 2; j++) row.cells[j].style.padding = '0px';
                     //row.cells[0].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>&nbsp;</div>";
                     row.cells[1].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>" + row.cells[2].getElementsByTagName('p')[0].innerHTML + '</div>';

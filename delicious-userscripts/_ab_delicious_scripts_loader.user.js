@@ -72,4 +72,15 @@
     // Load posts into search results; highlight search terms; filter authors; slide through posts
     importScriptFile('ab_forum_search_enhancement.user.js');
 
+    // Opens drop down menu when hovering.
+    importScriptFile('ab_hoverin.user.js');
+
+    // Adds the top new unread forum posts to AnimeBytes index page.
+    importScriptFile('ab_unread_index.user.js');
+
+    // Hide PM staff link
+    importScriptFile('ab_hide_pmstaff.user.js');
+
+    // Adds quick link dropdown to the main nav bar.
+    importScriptFile('ab_quick_links.user.js');
 })();

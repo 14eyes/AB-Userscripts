@@ -9,6 +9,14 @@
 
 // Bassed on Hide treats by Alpha
 (function ABHidePMstaff() {
+    var _enabled = delicious.settings.basicScriptCheckbox(
+        'hidepmstaff',
+        'PM the staff',
+        'Hide/Unhide PM the Staff link on the main menu'
+    );
+    if (!_enabled)
+        return;
+
     var pmstaffnode = document.evaluate('//*[@id="nav_staffpm"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
     if (pmstaffnode) pmstaffnode.style.display = "none";
 })();
