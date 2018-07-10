@@ -1,6 +1,6 @@
 /**
- * @file   Library for userscripts on AnimeBytes.
- * @author TheFallingMan
+ * @file    Library for userscripts on AnimeBytes.
+ * @author  TheFallingMan
  * @version 0.0.1
  * @license GPL-3.0
  *
@@ -32,7 +32,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
      * @param {Object.<string, any>} properties
      * An object containing properties to set on the new element.
      * Note: does not support nested elements (e.g. "style.width" does _not_ work).
-     * @param {Array.<Node|string>} children Child nodes and/or text to append.
+     * @param {(Node[]|string[])} children Child nodes and/or text to append.
      */
     function newElement(tagName, properties, children) {
         var elem = document.createElement(tagName);
@@ -489,6 +489,21 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             }
         },
 
+        /**
+         * Inserts a checkbox with the given parameters to the basic settings
+         * section. Returns true if the stored `key` value is true, false otherwise.
+         *
+         * @param {string} key Setting key.
+         * @param {string} label Label for setting, placed in left column.
+         * @param {string} description Description for setting, placed right of checkbox.
+         * @returns {boolean} Value of the `key` setting.
+         * @example
+         * // Very basic enable/disable script setting.
+         * if (!delicious.settings.basicScriptCheckbox('EnableHideTreats', 'Hides Treats', 'Hide those hideous treats!')) {
+         *      return;
+         * }
+         * // Rest of userscript here.
+         */
         basicScriptCheckbox: function(key, label, description) {
             this.init(key, true);
             if (this.ensureSettingsInserted()) {
@@ -497,19 +512,41 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return this.get(key);
         },
 
+        /**
+         * Inserts a checkbox to the basic section and returns it.
+         *
+         * @param {string} key Setting key.
+         * @param {string} label Left label.
+         * @param {string} description Right description.
+         * @param {Object.<string, any>} options Further options for the checkbox.
+         * @see {settings.createCheckbox} for accepted `options`.
+         */
         addBasicCheckbox: function(key, label, description, options) {
             var checkboxLI = this.createCheckbox(
                 key, label, description, options);
-            //this._basicSection.appendChild(checkboxLI);
             this.addBasicSetting(checkboxLI);
             return checkboxLI;
         },
 
+        /**
+         * Adds an element containing a basic setting to the basic settings
+         * section, at the top of the settings page.
+         * @param {HTMLElement} setting Setting element.
+         */
         addBasicSetting: function(setting) {
             this._insertSorted(setting.textContent,
                 setting, this._basicSection);
         },
 
+        /**
+         * Creates, inserts and returns a script section to the settings page.
+         * Inserts an Enable/Disable checkbox associated with `key` into
+         * the section.
+         * @param {string} key Setting key.
+         * @param {string} title Section title.
+         * @param {string} description Basic description.
+         * @param {Object.<string, any>} options Further options for the checkbox.
+         */
         addScriptSection: function(key, title, description, options) {
             var section = this.createSection(title);
 
@@ -521,6 +558,11 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return section;
         },
 
+        /**
+         * Inserts a section into the settings page, placing it after the
+         * basic settings and sorting it alphabetically.
+         * @param {HTMLElement} section Setting section.
+         */
         insertSection: function(section) {
             this._insertSorted(section.textContent, section, this.rootSettingsList,
                 this._basicSection);
@@ -533,6 +575,12 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             ]);
         },
 
+        /**
+         * @param {string} key Setting key.
+         * @param {string} label Label text.
+         * @param {string} description Short description.
+         * @param {Object.<string, any>} options Further options (see source code).
+         */
         createCheckbox: function(key, label, description, options) {
             options = utilities.applyDefaults(options, {
                 default: true,
@@ -562,6 +610,10 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return li;
         },
 
+        /**
+         * Creates a setting section, returns it but does not insert it into
+         * the page.
+         */
         createSection: function(title) {
             var heading = newElement('h3', {}, [title]);
             var section = newElement('div', {className: 'delicious_settings_section'}, [
@@ -571,11 +623,18 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return section;
         },
 
+        /**
+         * @param {string} key Setting key.
+         * @param {string} label Label text.
+         * @param {string} description Short description.
+         * @param {Object.<string, any>} options Further options (see source code).
+         */
         createTextSetting: function(key, label, description, options) {
             options = utilities.applyDefaults(options, {
                 width: null,
                 lineBreak: false,
                 default: '',
+                required: false,
                 onSave: function(ev) {
                     settings.saveOneElement(ev.target, 'value');
                 }
@@ -588,6 +647,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             inputElem.value = this.get(key, options['default']);
             inputElem.dataset[this._settingKey] = key;
             inputElem.style.width = options['width'];
+            inputElem.required = options['required'];
 
             var li = this._createSettingLI(label, [
                 inputElem,
@@ -602,6 +662,25 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return li;
         },
 
+        /**
+         * Creates and returns a drop-down setting.
+         *
+         * `valuesArray` must contain 2-tuples of strings; values will
+         * be stored as strings.
+         *
+         * The default value specified in `options` must be identical to a
+         * setting value in `valuesArray`.
+         * @example
+         * // Creates a drop-down with 2 options, and the second option default.
+         * delicious.settings.createDropdown('TimeUnit', 'Select time',
+         *      'Select a time unit to use', [['Hour', '1'], ['Day', '24']],
+         *      {default: '24'})
+         * @param {string} key Setting key.
+         * @param {string} label Left label.
+         * @param {string} description Right description.
+         * @param {[string, string][]} valuesArray Array of 2-tuples containing [text, setting value].
+         * @param {Object.<string, any>} options Further options.
+         */
         createDropDown: function(key, label, description, valuesArray, options) {
             options = utilities.applyDefaults(options, {
                 lineBreak: false,
@@ -642,12 +721,23 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return li;
         },
 
+        /**
+         * Returns a number setting element. Value is stored as a number.
+         * Note that an empty input is stored as `null`. Empty input can be
+         * disallowed by specifying `{required: true}` in `options`.
+         *
+         * @param {string} key Setting key.
+         * @param {string} label Label text.
+         * @param {string} description Short description.
+         * @param {Object.<string, any>} options Further options (see source code).
+         */
         createNumberInput: function(key, label, description, options) {
             options = utilities.applyDefaults(options, {
                 lineBreak: false,
                 default: '',
                 allowDecimal: true,
                 allowNegative: false,
+                required: false,
                 onSave: function(ev) {
                     settings.set(key, parseFloat(ev.target.value));
                 }
@@ -661,6 +751,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
                 input.step = 'any';
             if (!options['allowNegative'])
                 input.min = '0';
+            input.required = options['required'];
             input.value = this.get(key, options['default']);
 
             var li = this._createSettingLI(label, [
@@ -676,6 +767,27 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return li;
         },
 
+        /**
+         * Creates a setting containing many checkboxes. Stores the value as
+         * an object, with subkeys as keys and true/false as values.
+         *
+         * @example
+         * // Creates a setting with 2 checkboxes,
+         * delicious.settings.createFieldSetSetting('FLPoolLocations',
+         *      'Freeleech status locations',
+         *      [['Navbar', 'navbar'], ['User menu', 'usermenu']]);
+         * // Example stored value
+         * delicious.settings.get('FLPoolLocations') == {
+         *      'navbar': true,
+         *      'usermenu': false
+         * };
+         *
+         * @param {string} key Root setting key.
+         * @param {string} label Label text.
+         * @param {[string, string][]} fields Array of 2-tuples of [text, subkey].
+         * @param {string} description Short description.
+         * @param {Object.<string, any>} options Further options (see source code).
+         */
         createFieldSetSetting: function(key, label, fields, description, options) {
             options = utilities.applyDefaults(options, {
                 default: [],
@@ -727,6 +839,9 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return li;
         },
 
+        /**
+         * Event handler to move the containing row up one.
+         */
         _moveRowUp: function(ev) {
             var thisRow = ev.target.parentNode;
             if (thisRow.previousElementSibling) {
@@ -741,6 +856,10 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             }
         },
 
+        /**
+         * Event handler to move the containing row down one.
+         * Implemented by moving the row underneath this one up one.
+         */
         _moveRowDown: function(ev) {
             var thisRow = ev.target.parentNode;
             if (thisRow.nextElementSibling) {
@@ -750,6 +869,9 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             ev.stopPropagation();
         },
 
+        /**
+         * Event handler to delete a row.
+         */
         _deleteRow: function(ev) {
             var row = ev.target.parentNode;
             row.parentNode.removeChild(row);
@@ -757,6 +879,10 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             ev.stopPropagation();
         },
 
+        /**
+         * Creates a new row for a multi-row setting. Used when clicking
+         * the new row button.
+         */
         _createRow: function(values, columns, allowSort, allowDelete) {
             var row = newElement('div', {className: 'setting_row'});
             row.style.marginBottom = '2px';
@@ -802,11 +928,31 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
         },
 
         /**
-         * @param {string} key
-         * @param {string | HTMLElement} label
-         * @param {Array.<[string, string, string]>} columns
-         * @param {string | HTMLElement} description
-         * @param {Object} options
+         * Creates and returns a multi-row setting. That is, a setting with
+         * certain columns and a variable number of rows.
+         *
+         * Setting is stored as an array of objects. Every input type except
+         * number is stored as a string. Number input allows any non-negative number,
+         * possibly blank. If blank, a number input will be stored as null.
+         *
+         * @example
+         * // Returns a row setting with one row by default.
+         * delicious.settings.createRowSetting('QuickLinks', 'Quick Links',
+         *      [['Label', 'label', 'text'], ['Link', 'href', 'text']],
+         *      {default: [{label: 'Home', href: 'https://animebytes.tv'}]})
+         *
+         * // Example stored value.
+         * delicious.settings.get('QuickLinks') == [
+         *      {label: 'Home', href: 'https://animebytes.tv'}
+         * ];
+         *
+         * @param {string} key Root setting key.
+         * @param {string | HTMLElement} label Left label.
+         * @param {string[][]} columns Array of 3-tuples which are
+         * [column label, subkey, input type]. Input type is the `type` attribute
+         * of the cell's `<input>` element.
+         * @param {string | HTMLElement} description Short description, placed above rows.
+         * @param {Object} options Further options (see source code).
          */
         createRowSetting: function(key, label, columns, description, options) {
             options = utilities.applyDefaults(options, {
@@ -879,30 +1025,50 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             return li;
         },
 
+        /**
+         * Returns a colour input, with optional checkbox to enable/disable
+         * the whole setting and reset to default value.
+         *
+         * If the checkbox is unchecked, a `null` will be stored as the value.
+         * Else, the colour will be stored as #rrggbb.
+         *
+         * @param {string} key Setting key.
+         * @param {string} label Left label.
+         * @param {string} description Short description on right.
+         * @param {Object.<string, any>} options Further options (see source code).
+         */
         createColourSetting: function(key, label, description, options) {
             options = utilities.applyDefaults(options, {
                 default: '#000000',
                 checkbox: true,
                 resetButton: true,
                 onSave: function(ev) {
-                    if (checkbox.checked) {
-                        settings.set(key, ev.target.value);
-                    } else {
+                    if (options['checkbox'] && !checkbox.checked) {
                         settings.set(key, null);
+                    } else {
+                        settings.set(key, ev.target.value);
                     }
                 }
             });
 
             var currentColour = this.get(key, options['default']);
 
+            var disabled = currentColour === null;
             if (options['checkbox']) {
                 var checkbox = newElement('input',
-                    {type: 'checkbox', checked: currentColour !== null});
+                    {type: 'checkbox', checked: !disabled});
+                checkbox.addEventListener('change', function(ev) {
+                    colour.disabled = !ev.target.checked;
+                    if (reset)
+                        reset.disabled = !ev.target.checked;
+                    ev.stopPropagation();
+                });
             }
 
             var colour = newElement('input', {type: 'color'});
             colour.dataset[this._settingKey] = key;
             colour.id = this._idPrefix+key;
+            colour.disabled = disabled;
 
             if (currentColour !== null)
                 colour.value = currentColour;
@@ -919,6 +1085,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
                     ev.preventDefault();
                     ev.stopPropagation();
                 });
+                reset.disabled = disabled;
             }
 
             var right = [];
@@ -938,6 +1105,17 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
         },
 
 
+        /**
+         * Shows an error message in a friendly red box near the top of the
+         * page.
+         *
+         * `errorId` should be a unique string identifying the type of error.
+         * It is used to remove previous errors of the same type before
+         * displaying the new error.
+         *
+         * @param {string | HTMLElement} message
+         * @param {string} errorId
+         */
         showErrorMessage: function(message, errorId) {
             var errorDiv = newElement('div', {className: 'error_message'},
                 [message]);

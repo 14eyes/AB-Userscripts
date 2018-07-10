@@ -10,8 +10,6 @@
 // @require     https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
 // ==/UserScript==
 
-//import '../delicious-library/src/ab_delicious_library';
-
 // Freeleech Pool Status by Megure, inspired by Lemma, Alpha, NSC
 // Shows current freeleech pool status in navbar with a pie-chart
 // Updates only once every hour or when pool site is visited, showing a pie-chart on pool site
@@ -44,6 +42,7 @@
         delicious.settings.insertSection(s);
     }
     delicious.settings.init('deliciousfreeleechpool', true);
+    delicious.settings.init('deliciousnavbarpiechart', true);
     if (!delicious.settings.get('deliciousfreeleechpool'))
         return;
 
@@ -237,27 +236,10 @@
             li = document.createElement('li');
         a.href = '/konbini/pool';
         nav.appendChild(a);
-        if (delicious.settings.get('delicousnavbarpiechart')) {
-
-            function dropPie2(event) { // eslint-disable-line no-inner-declarations
-                // because who doesn't love dropping their pies
-                if ((typeof $j).toString() !== 'undefined') {
-                    // below copied from https://animebytes.tv/static/functions/global-2acd7ec19a.js
-                    $j(event.target).parent().find("ul.subnav").is(":hidden") ?
-                        ($j("ul.subnav").hide(),
-                        $j("li.navmenu").removeClass("selected"),
-                        $j(this).parent().addClass("selected").find("ul.subnav").show())
-                        : $j(event.target).parent().removeClass("selected").find("ul.subnav").hide();
-                }
-
-                // prevents global click handler from immediately closing the menu
-                event.stopPropagation();
-                return false;
-            }
-
+        if (delicious.settings.get('deliciousnavbarpiechart')) {
             var outerSpan = document.createElement('span');
             outerSpan.className += "dropit hover clickmenu";
-            outerSpan.onclick = (dropPie2);
+            outerSpan.addEventListener('click', delicious.utilities.toggleSubnav);
             outerSpan.innerHTML += '<span class="stext">▼</span>';
 
             // nav is the li.navmenu
