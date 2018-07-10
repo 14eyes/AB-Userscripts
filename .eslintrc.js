@@ -38,7 +38,7 @@ module.exports = {
         ]
     },
     "globals": {
-        "initGM": true,
+        "delicious": true,
         "importDeliciousCommon": true,
         "injectScript": true,
         "$j": true,
