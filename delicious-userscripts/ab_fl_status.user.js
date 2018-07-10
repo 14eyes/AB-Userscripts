@@ -223,10 +223,10 @@
 
     var pos = delicious.settings.get('deliciousflpoolposition');
 
-        // prevents global click handler from immediately closing the menu
-        event.stopPropagation();
-        return false;
-    }
+    // // prevents global click handler from immediately closing the menu
+    // event.stopPropagation();
+    // return false;
+
     if (pos !== 'none' || /user\.php\?id=/i.test(document.URL) || /konbini\/pool/i.test(document.URL)) {
         var p = document.createElement('p'),
             p2 = document.createElement('center'),
