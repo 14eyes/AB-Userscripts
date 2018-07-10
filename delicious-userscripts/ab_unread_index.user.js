@@ -19,14 +19,15 @@ delicious.settings.init('ABNoT', 5);
 if (delicious.settings.ensureSettingsInserted()) {
     var s = delicious.settings.createSection('Unread Index');
     s.appendChild(delicious.settings.createCheckbox(
+        'unreadindx',
+        'Enable',
+        'Enable/Disable Unread Index script.'
+    ));
+    s.appendChild(delicious.settings.createCheckbox(
         'ABGamesForum',
         'Unread forums in index(News Page)',
         'Hide those hideous "Forum Games" on your unread index page!'
     ));
-    s.appendChild(delicious.settings.createCheckbox(
-        'unreadindx',
-        'Enable',
-        'Enable/Disable Unread Index script.'));
     delicious.settings.insertSection(s);
     s.appendChild(delicious.settings.createNumberInput(
         'ABNoT',
