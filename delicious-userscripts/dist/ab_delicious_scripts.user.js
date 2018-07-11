@@ -107,22 +107,22 @@
             if (typeof prefix === 'undefined') return 1 / 1073741824;
             // This is called with only the prefix of the byte unit
             switch (prefix.toUpperCase()) {
-                case '':
-                    return 1 / 1073741824;
-                case 'K':
-                    return 1 / 1048576;
-                case 'M':
-                    return 1 / 1024;
-                case 'G':
-                    return 1;
-                case 'T':
-                    return 1024;
-                case 'P':
-                    return 1048576;
-                case 'E':
-                    return 1073741824;
-                default:
-                    return 0;
+            case '':
+                return 1 / 1073741824;
+            case 'K':
+                return 1 / 1048576;
+            case 'M':
+                return 1 / 1024;
+            case 'G':
+                return 1;
+            case 'T':
+                return 1024;
+            case 'P':
+                return 1048576;
+            case 'E':
+                return 1073741824;
+            default:
+                return 0;
             }
         }
         function get_column(row, cell) {
@@ -300,8 +300,8 @@
                     }
                 }
                 cells = document.querySelectorAll('th.UserScriptToggleYen,td.UserScriptToggleYen');
-                for (var i = 0, length = cells.length; i < length; i++) {
-                    var cell = cells[i];
+                for (let i = 0, length = cells.length; i < length; i++) {
+                    let cell = cells[i];
                     if (yen_per_GB) {
                         cell.style.display = 'none';
                     }
@@ -352,14 +352,14 @@
             match = text_content_no_comma.match(ratio_RegExp);
             if (match !== null) {
                 switch (match[1]) {
-                    case '∞':
-                        return Infinity;
-                    case '--':
-                        return -0.2;
-                    case '0':
-                        return -0.1;
-                    default:
-                        return parseFloat(match[1]);
+                case '∞':
+                    return Infinity;
+                case '--':
+                    return -0.2;
+                case '0':
+                    return -0.1;
+                default:
+                    return parseFloat(match[1]);
                 }
             }
             if (/^Never(\s*\([^)]*\)\s*)*$/i.test(text_content_no_comma)) {
@@ -424,13 +424,13 @@
             }
             // Replace H&R row content by remaining seed time if available in duration row
             if (hr_index !== null && duration_index !== null) {
-                var cell = get_cell(row, duration_index);
+                let cell = get_cell(row, duration_index);
                 var match = cell.textContent.replace(/^[^(]*(\(|$)/, '').replace(/\s*left\s*\)[^)]*$/, '').replace(and_RegExp, '').match(duration_RegExp);
                 var remaining = 0.0.toFixed(4);
                 if (match !== null) {
                     var durations = [];
                     // Starting at 1 because 0 is full matched string
-                    for (var i = 1, length = match.length; i < length; i++) {
+                    for (let i = 1, length = match.length; i < length; i++) {
                         var num = match[i];
                         if (num !== undefined) {
                             durations.push(parseInt(num, 10));
@@ -495,7 +495,7 @@
                 headers.appendChild(td1);
                 // Increase colSpan of non-torrent rows in the table
                 var non_torrents = table.querySelectorAll('tr.edition_info,tr.pad,tr[id^="group_"]');
-                for (var i = 0, length = non_torrents.length; i < length; i++) {
+                for (let i = 0, length = non_torrents.length; i < length; i++) {
                     var non_torrent = non_torrents[i];
                     var cells_1 = non_torrent.cells;
                     var last_cell = cells_1[cells_1.length - 1];
@@ -505,7 +505,7 @@
             // Parse table data
             var table_data = [];
             var real_torrents = table.querySelectorAll('tr.torrent,tr.group_torrent');
-            for (var i = 0, length = real_torrents.length; i < length; i++) {
+            for (let i = 0, length = real_torrents.length; i < length; i++) {
                 var row = real_torrents[i];
                 table_data.push(parse_row(row, size_index, seeders_index, duration_index, hr_index));
             }
@@ -580,8 +580,8 @@
             }
             if (sort_rows && table_data.length > 1) {
                 // Add * to headers which will trigger sort
-                for (var i = 0, length = cells.length; i < length; i++) {
-                    var cell = cells[i];
+                for (let i = 0, length = cells.length; i < length; i++) {
+                    let cell = cells[i];
                     var index = get_column(headers, cell);
                     var a = document.createElement('a');
                     a.href = '#';
@@ -589,6 +589,55 @@
                     a.addEventListener('click', sort_by_index(index));
                     cell.appendChild(a);
                 }
+            }
+            function load_history_page(prev) {
+                if (prev === void 0) { prev = false; }
+                return function (event) {
+                    if (event !== null) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                    }
+                    var new_page = prev ? previous_page-- : next_page++;
+                    if (new_page < 1 || new_page > last_page) {
+                        return;
+                    }
+                    // Remove links to dynamically load more pages if we've reached the end
+                    if (new_page === 1) {
+                        for (var i = 0, length = previous_anchors.length; i < length; i++) {
+                            var pagenum = previous_anchors[i];
+                            pagenum.parentNode.removeChild(pagenum);
+                        }
+                    }
+                    if (new_page === last_page) {
+                        for (let i = 0, length = next_anchors.length; i < length; i++) {
+                            let pagenum = next_anchors[i];
+                            pagenum.parentNode.removeChild(pagenum);
+                        }
+                    }
+                    var url = document.URL.split('#')[0];
+                    if (url.indexOf('page=') >= 0) {
+                        url = url.replace(/page=(\d+)/i, 'page=' + new_page);
+                    }
+                    else {
+                        url = url + '&page=' + new_page;
+                    }
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', url, true);
+                    xhr.send();
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            var parser = new DOMParser();
+                            var new_document = parser.parseFromString(xhr.responseText, 'text/html');
+                            var new_torrents = new_document.querySelectorAll('tr.torrent,tr.group_torrent');
+                            for (var i = 0, length = new_torrents.length; i < length; i++) {
+                                var new_torrent = new_torrents[i];
+                                table_data.push(parse_row(new_torrent, size_index, seeders_index, duration_index, hr_index));
+                            }
+                            sort_by_index(sort_index, false)(null);
+                            toggle_yen(false)();
+                        }
+                    };
+                };
             }
             if (dynamic_load) {
                 var current_page_match = document.URL.match(/page=(\d+)/i);
@@ -604,7 +653,7 @@
                     }
                 }
                 if (table.nextElementSibling !== null) {
-                    var pagenum = table.nextElementSibling.querySelector('div.pagenums');
+                    let pagenum = table.nextElementSibling.querySelector('div.pagenums');
                     if (pagenum !== null) {
                         pagenums.push(pagenum);
                     }
@@ -612,57 +661,8 @@
                 var previous_anchors = [];
                 var next_anchors = [];
                 // Loads the previous or next page into tableData, triggered by MouseEvent
-                function load_history_page(prev) {
-                    if (prev === void 0) { prev = false; }
-                    return function (event) {
-                        if (event !== null) {
-                            event.stopPropagation();
-                            event.preventDefault();
-                        }
-                        var new_page = prev ? previous_page-- : next_page++;
-                        if (new_page < 1 || new_page > last_page) {
-                            return;
-                        }
-                        // Remove links to dynamically load more pages if we've reached the end
-                        if (new_page === 1) {
-                            for (var i = 0, length = previous_anchors.length; i < length; i++) {
-                                var pagenum = previous_anchors[i];
-                                pagenum.parentNode.removeChild(pagenum);
-                            }
-                        }
-                        if (new_page === last_page) {
-                            for (var i = 0, length = next_anchors.length; i < length; i++) {
-                                var pagenum = next_anchors[i];
-                                pagenum.parentNode.removeChild(pagenum);
-                            }
-                        }
-                        var url = document.URL.split('#')[0];
-                        if (url.indexOf('page=') >= 0) {
-                            url = url.replace(/page=(\d+)/i, 'page=' + new_page);
-                        }
-                        else {
-                            url = url + '&page=' + new_page;
-                        }
-                        var xhr = new XMLHttpRequest();
-                        xhr.open('GET', url, true);
-                        xhr.send();
-                        xhr.onreadystatechange = function () {
-                            if (xhr.readyState === 4) {
-                                var parser = new DOMParser();
-                                var new_document = parser.parseFromString(xhr.responseText, 'text/html');
-                                var new_torrents = new_document.querySelectorAll('tr.torrent,tr.group_torrent');
-                                for (var i = 0, length = new_torrents.length; i < length; i++) {
-                                    var new_torrent = new_torrents[i];
-                                    table_data.push(parse_row(new_torrent, size_index, seeders_index, duration_index, hr_index));
-                                }
-                                sort_by_index(sort_index, false)(null);
-                                toggle_yen(false)();
-                            }
-                        };
-                    };
-                }
-                for (var i = 0, length = pagenums.length; i < length; i++) {
-                    var pagenum = pagenums[i];
+                for (let i = 0, length = pagenums.length; i < length; i++) {
+                    let pagenum = pagenums[i];
                     // Figure out what the last page is
                     var last_child = pagenum.lastElementChild;
                     if (last_child !== null && last_child.href !== null) {
@@ -682,7 +682,7 @@
                     }
                     // Add buttons to dynamically load previous or next page
                     if (current_page > 1) {
-                        var a = document.createElement('a');
+                        let a = document.createElement('a');
                         a.href = '#';
                         a.className = 'next-prev';
                         a.textContent = '← Load previous page dynamically';
@@ -691,7 +691,7 @@
                         previous_anchors.push(a);
                     }
                     if (current_page < last_page) {
-                        var a = document.createElement('a');
+                        let a = document.createElement('a');
                         a.href = '#';
                         a.className = 'next-prev';
                         a.textContent = 'Load next page dynamically →';
@@ -725,7 +725,7 @@
                 var dual_audio = 0;
                 var freeleech = 0;
                 var remastered = 0;
-                for (var i = 0, length = real_torrents.length; i < length; i++) {
+                for (let i = 0, length = real_torrents.length; i < length; i++) {
                     var torrent = real_torrents[i];
                     var is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
                     var is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
@@ -734,14 +734,14 @@
                     freeleech |= is_freeleech ? 1 : 2;
                     remastered |= is_remastered ? 1 : 2;
                 }
-                for (var i = 0, length = real_torrents.length; i < length; i++) {
-                    var torrent = real_torrents[i];
+                for (let i = 0, length = real_torrents.length; i < length; i++) {
+                    let torrent = real_torrents[i];
                     var corresponding = get_corresponding_torrent_row(torrent);
-                    var is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
-                    var is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
+                    let is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
+                    let is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
                     // Check for deselected tags in cleaned textContent of first cell
                     var text = torrent.cells[0].lastElementChild.textContent;
-                    var is_dual_audio = /Dual Audio/i.test(text);
+                    let is_dual_audio = /Dual Audio/i.test(text);
                     // Remove » from beginning, format, Dual Audio, end empty tags (images, will handle them separately down below)
                     text = text.replace(/^\s*»/i, '').replace(/\d+:\d+/g, '').replace(/Dual Audio/ig, '').replace(/\|(\s*\|)+/g, '|').replace(/^\s*\|/, '').replace(/\|\s*$/, '');
                     // Split text content to get tags
@@ -765,8 +765,8 @@
                             break;
                         }
                     }
-                    for (var j = 0; j < torrent_tags.length; j++) {
-                        var tag = torrent_tags[j];
+                    for (let j = 0; j < torrent_tags.length; j++) {
+                        let tag = torrent_tags[j];
                         // Fucking ISOs...
                         if (tag.indexOf('ISO') === 0) {
                             torrent_tags.splice(j + 1, 0, '');
@@ -804,7 +804,7 @@
                 if (values_by_column.length > 0 || Object.keys(deselected).length > 0) {
                     // Only show each tag once, even across multiple columns, so keep track
                     var shown_values = {};
-                    for (var i = 0, length = values_by_column.length; i < length; i++) {
+                    for (let i = 0, length = values_by_column.length; i < length; i++) {
                         var index = values_by_column[i];
                         var sorted_tags = Object.keys(index).sort(function (a, b) {
                             if (a.toUpperCase() > b.toUpperCase())
@@ -812,8 +812,8 @@
                             else
                                 return -1;
                         });
-                        for (var j = 0, len = sorted_tags.length; j < len; j++) {
-                            var tag = sorted_tags[j];
+                        for (let j = 0, len = sorted_tags.length; j < len; j++) {
+                            let tag = sorted_tags[j];
                             if (shown_values.hasOwnProperty(tag)) {
                                 // Skip values we have already shown
                                 continue;
@@ -856,6 +856,22 @@
                     }
                 }
             }
+            function head_click_event(e) {
+                if (e !== null) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+                var span = head.querySelector('span');
+                if (body.style.display !== 'none') {
+                    body.style.display = 'none';
+                    span.className = 'triangle-right-md';
+                }
+                else {
+                    filter_torrent_table(body);
+                    body.style.display = '';
+                    span.className = 'triangle-down-md';
+                }
+            }
             if (filter_torrents && real_torrents.length > 1) {
                 var box = document.createElement('div');
                 var head = document.createElement('div');
@@ -866,22 +882,6 @@
                 body.style.display = 'none';
                 head.innerHTML = '<a href="#"><span class="triangle-right-md"><span class="stext">+/-</span></span> Filter </a>';
                 // Show or hide filter box
-                function head_click_event(e) {
-                    if (e !== null) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                    }
-                    var span = head.querySelector('span');
-                    if (body.style.display !== 'none') {
-                        body.style.display = 'none';
-                        span.className = 'triangle-right-md';
-                    }
-                    else {
-                        filter_torrent_table(body);
-                        body.style.display = '';
-                        span.className = 'triangle-down-md';
-                    }
-                }
                 head.addEventListener('click', head_click_event);
                 box.appendChild(head);
                 box.appendChild(body);
@@ -926,7 +926,7 @@
                 var user_stats = document.querySelector('div#content div#user_rightcol div.userstatsleft dl.userprofile_list');
                 var children = user_stats.children;
                 //console.log(children);
-                for (var i = 0, length = children.length; i < length; i++) {
+                for (let i = 0, length = children.length; i < length; i++) {
     
                     var child = children[i];
                     //console.log(child);
@@ -939,7 +939,7 @@
                             var timezone_re = /( \d\d:\d\d) [A-Z]+$/;
                             GM_setValue('creation', JSON.stringify(Date.parse(join_date.replace(timezone_re, '$1'))));
                         }
-                        catch (error) { }
+                        catch (error) { console.error(error);}
                     }
                 }
             }
@@ -1037,7 +1037,6 @@
     
                 // The third box holds the top 10 donators for the current box
                 var box = boxes[2],
-                    firstP = box.querySelector('p'),
                     tr = box.querySelector('table').querySelectorAll('tbody > tr');
     
                 var titles = [], hrefs = [], amounts = [], colors = [], sum = 0;
@@ -1063,7 +1062,7 @@
                 else {
                     // Also add others and missing to the arrays
                     // 2018-02-23 But only if FL isn't active.
-                    next_index = titles.length;
+                    var next_index = titles.length;
                     titles[next_index] = 'Other';
                     hrefs[next_index] = 'https://animebytes.tv/konbini/pool';
                     amounts[next_index] = current - sum;
@@ -1092,9 +1091,9 @@
                 try {
                     var xhr = XPCNativeWrapper(new window.wrappedJSObject.XMLHttpRequest());
                 } catch (exc) {
-                    var xhr = new XMLHttpRequest();
+                    xhr = new XMLHttpRequest();
                 }
-                parser = new DOMParser();
+                var parser = new DOMParser();
                 xhr.open('GET', "https://animebytes.tv/konbini/pool", true);
                 xhr.send();
                 xhr.onreadystatechange = function () {
@@ -1152,7 +1151,7 @@
                 for (var i = 0; i < titles.length; i++) {
                     str += circlePart(amounts[i], titles[i], hrefs[i], colors[i]);
                 }
-            } catch (e) { }
+            } catch (e) {console.error(e); }
             return str + '</svg>';
         }
     
@@ -1160,18 +1159,22 @@
             var pieChart = getPieChart();
             p.innerHTML = pieChart;
             p3.innerHTML = pieChart;
-            if (delicious.settings.get('delicousnavbarpiechart')) {
+            if (delicious.settings.get('deliciousnavbarpiechart')) {
                 li.innerHTML = pieChart;
             }
-            p2.innerHTML = 'There is currently ' + niceNumber(parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' / ' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10)) + ' yen in the donation box.<br/>';
-            p2.innerHTML += '(That means we are ' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10) - parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' yen away from getting sitewide freeleech!)<br/>';
-            p2.innerHTML += 'In total, you\'ve donated ' + niceNumber(parseInt(GM_getValue('FLPoolContribution', '0'), 10)) + ' yen to the freeleech pool.<br/>';
-            p2.innerHTML += 'Last updated ' + Math.round((Date.now() - parseInt(GM_getValue('FLPoolLastUpdate', Date.now()), 10)) / 60000) + ' minutes ago.';
+            p2.innerHTML = 'We currently have ¥' + niceNumber(parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' / ¥' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10)) + ' in our donation box.<br/>';
+            p2.innerHTML += '(That means we\'re ¥' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10) - parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' away from getting sitewide freeleech!)<br/>';
+            p2.innerHTML += '<br>In total, you\'ve donated ¥' + niceNumber(parseInt(GM_getValue('FLPoolContribution', '0'), 10)) + ' to the freeleech pool.<br/>';
+            p2.innerHTML += 'Last Update: ' + Math.round((Date.now() - parseInt(GM_getValue('FLPoolLastUpdate', Date.now()), 10)) / 60000) + ' minutes ago.';
             a.textContent = 'FL: ' + (100 * parseInt(GM_getValue('FLPoolCurrent', '0'), 10) / parseInt(GM_getValue('FLPoolMax', '50000000'), 10)).toFixed(1) + '%';
             nav.replaceChild(a, nav.firstChild);
         }
     
         var pos = delicious.settings.get('deliciousflpoolposition');
+    
+        // // prevents global click handler from immediately closing the menu
+        // event.stopPropagation();
+        // return false;
     
         if (pos !== 'none' || /user\.php\?id=/i.test(document.URL) || /konbini\/pool/i.test(document.URL)) {
             var p = document.createElement('p'),
@@ -1231,7 +1234,7 @@
             }
     
             if (/konbini\/pool/i.test(document.URL)) {
-                var tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Most Donated to This Box\s*$/i.test(node.data); } });
+                let tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Most Donated to This Box\s*$/i.test(node.data); } });
                 if (tw.nextNode() !== null) {
                     tw.currentNode.parentNode.insertBefore(p, tw.currentNode.nextSibling);
                 }
@@ -1675,6 +1678,32 @@
     /* End ./src\ab_forum_search_enhancement.user.js */
 
 
+    /* Begin ./src\ab_hide_pmstaff.user.js */
+    // ==UserScript==
+    // @name        AB - Hide PM staff
+    // @author      ShaverJ
+    // @description Hide PM staff on Main menu.
+    // @include     https://animebytes.tv/*
+    // @version     0.1
+    // @icon        http://animebytes.tv/favicon.ico
+    // ==/UserScript==
+    
+    // Bassed on Hide treats by Alpha
+    (function ABHidePMstaff() {
+        var _enabled = delicious.settings.basicScriptCheckbox(
+            'hidepmstaff',
+            'PM the staff',
+            'Hide/Unhide PM the Staff link on the main menu'
+        );
+        if (!_enabled)
+            return;
+    
+        var pmstaffnode = document.evaluate('//*[@id="nav_staffpm"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        if (pmstaffnode) pmstaffnode.style.display = "none";
+    })();
+    /* End ./src\ab_hide_pmstaff.user.js */
+
+
     /* Begin ./src\ab_hide_treats.user.js */
     // ==UserScript==
     // @name        AB - Hide treats
@@ -1703,6 +1732,36 @@
         if (treatsnode) treatsnode.style.display = "none";
     })();
     /* End ./src\ab_hide_treats.user.js */
+
+
+    /* Begin ./src\ab_hoverin.user.js */
+    // ==UserScript==
+    // @name           AB Hoverin'
+    // @namespace      http://animebytes.tv
+    // @include        animebytes.tv*
+    // @require https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
+    // ==/UserScript==
+    function Hoverin(css) {
+        var head, style;
+        head = document.getElementsByTagName('head')[0];
+        if (!head) {
+            return;
+        }
+        style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = css;
+        head.appendChild(style);
+    }
+    var _enabled = delicious.settings.basicScriptCheckbox(
+        'hoverdrop',
+        'Hoverin',
+        'Enable/Disable Auto dropdown menus when hovering.'
+    );
+    if (!_enabled)
+        return;
+    
+    Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
+    /* End ./src\ab_hoverin.user.js */
 
 
     /* Begin ./src\ab_hyper_quote.user.js */
@@ -2678,6 +2737,7 @@
             return;
     
         function custom_insert_text(open, close) {
+            var sel;
             var elem = document.activeElement;
             if (elem.selectionStart || elem.selectionStart == '0') {
                 var startPos = elem.selectionStart;
@@ -2691,7 +2751,7 @@
                     elem.setSelectionRange(startPos + open.length, endPos + open.length);
             } else if (document.selection && document.selection.createRange) {
                 elem.focus();
-                var sel = document.selection.createRange();
+                sel = document.selection.createRange();
                 sel.text = open + sel.text + close;
                 if (close.length != 0) {
                     sel.move("character", -close.length);
@@ -2711,7 +2771,7 @@
         function insert(e, key, ctrl, alt, shift, open, close, query) {
             /* Function to handle detecting key combinations and inserting the
             shortcut text onto the relevent buttons. */
-            if (false) {
+            if (_debug) {
                 //console.log(String.fromCharCode((96 <= key && key <= 105)? key-48 : key));
                 console.log(String.fromCharCode(e.charCode));
                 console.log(e.ctrlKey);
@@ -2885,6 +2945,93 @@
     /* End ./src\ab_title_notifications.user.js */
 
 
+    /* Begin ./src\ab_unread_index.user.js */
+    // ==UserScript==
+    // @name AnimeBytes Unread Index
+    // @author potatoe
+    // @version 1.12.1
+    // @description Adds the top new unread forum posts to AnimeBytes index page.
+    // @icon https://animebytes.tv/favicon.ico
+    // @include https://animebytes.tv/
+    // @include https://animebytes.tv/index.php
+    // @include https://animebytes.tv/user.php?action=edit
+    // @match https://animebytes.tv/
+    // @match https://animebytes.tv/index.php
+    // @match https://animebytes.tv/user.php?action=edit
+    // @require https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
+    // ==/UserScript==
+    
+    delicious.settings.init('ABGamesForum', false);
+    delicious.settings.init('unreadindx', false);
+    delicious.settings.init('ABNoT', 5);
+    if (delicious.settings.ensureSettingsInserted()) {
+        var s = delicious.settings.createSection('Unread Index');
+        s.appendChild(delicious.settings.createCheckbox(
+            'unreadindx',
+            'Enable',
+            'Enable/Disable Unread Index script.'
+        ));
+        s.appendChild(delicious.settings.createCheckbox(
+            'ABGamesForum',
+            'Unread forums in index(News Page)',
+            'Hide those hideous "Forum Games" on your unread index page!'
+        ));
+        delicious.settings.insertSection(s);
+        s.appendChild(delicious.settings.createNumberInput(
+            'ABNoT',
+            'Number of threads',
+            'set the number of threads to show'
+        ));
+    }
+    var _enabled = delicious.settings.get('unreadindx');
+    if (!_enabled)
+        return;
+    var unread_tablenode;
+    var dividernode = document.createElement('div');
+    dividernode.className = 'divider';
+    var newsnode = document.getElementById('news');
+    function ABUnreadIndex () {
+        var unread_doc = document.implementation.createHTMLDocument('');
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                unread_doc.documentElement.innerHTML = xmlhttp.responseText;
+                unread_tablenode = unread_doc.evaluate("//div[@id='content']/div[@class='thin']/table[@width='100%']", unread_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                var unread_posts = 0;
+                for (let j = 0; j < 2; j++) unread_tablenode.rows[0].cells[j].style.padding = '8px';
+                unread_tablenode.rows[0].cells[0].style.width = '30%';
+                unread_tablenode.rows[0].cells[1].style.width = '70%';
+                unread_tablenode.rows[0].deleteCell(2);
+                var row = unread_tablenode.rows[1];
+                for (let i = 1; row; i++) {
+                    row = unread_tablenode.rows[i];
+                    if (row == null) break;
+                    if ((delicious.settings.get('ABGamesForum') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === delicious.settings.get('ABNoT'))){
+                        unread_tablenode.deleteRow(i);
+                        i--;
+                    } else if (unread_posts < delicious.settings.get('ABNoT')) {
+                        for (let j = 0; j < 2; j++) row.cells[j].style.padding = '0px';
+                        //row.cells[0].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>&nbsp;</div>";
+                        row.cells[1].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>" + row.cells[2].getElementsByTagName('p')[0].innerHTML + '</div>';
+                        row.deleteCell(2);
+                        unread_posts++;
+                    }
+                }
+                unread_tablenode.style.marginBottom = '20px';
+                newsnode.parentNode.insertBefore(unread_tablenode, newsnode);
+                newsnode.parentNode.insertBefore(dividernode, newsnode);
+            }
+        };
+        xmlhttp.open('GET', '/forums.php?action=viewunread', true);
+        xmlhttp.send();
+    
+    }
+    if (newsnode !== null) {
+        ABUnreadIndex();
+    }
+    /* End ./src\ab_unread_index.user.js */
+
+
     /* Begin ./src\ab_yen_stats.user.js */
     // ==UserScript==
     // @name        AB - Yen per X and ratio milestones
@@ -2926,26 +3073,26 @@
             // by the original author, but newer KiB style prefixes have
             // a lowercase. Keeping both for compatibility.
             switch (unit) {
-                case 'B':
-                    return num * Math.pow(1024, 0);
-                case 'KiB':
-                case 'KIB':
-                    return num * Math.pow(1024, 1);
-                case 'MiB':
-                case 'MIB':
-                    return num * Math.pow(1024, 2);
-                case 'GiB':
-                case 'GIB':
-                    return num * Math.pow(1024, 3);
-                case 'TiB':
-                case 'TIB':
-                    return num * Math.pow(1024, 4);
-                case 'PiB':
-                case 'PIB':
-                    return num * Math.pow(1024, 5);
-                case 'EiB':
-                case 'EIB':
-                    return num * Math.pow(1024, 6);
+            case 'B':
+                return num * Math.pow(1024, 0);
+            case 'KiB':
+            case 'KIB':
+                return num * Math.pow(1024, 1);
+            case 'MiB':
+            case 'MIB':
+                return num * Math.pow(1024, 2);
+            case 'GiB':
+            case 'GIB':
+                return num * Math.pow(1024, 3);
+            case 'TiB':
+            case 'TIB':
+                return num * Math.pow(1024, 4);
+            case 'PiB':
+            case 'PIB':
+                return num * Math.pow(1024, 5);
+            case 'EiB':
+            case 'EIB':
+                return num * Math.pow(1024, 6);
             }
         }
         function humancount(num) {
@@ -2953,24 +3100,25 @@
             var i = Math.floor(Math.log(Math.abs(num)) / Math.log(1024));
             num = (num / Math.pow(1024, i)).toFixed(2);
             switch (i) {
-                case 0:
-                    return num + ' B';
-                case 1:
-                    return num + ' KiB';
-                case 2:
-                    return num + ' MiB';
-                case 3:
-                    return num + ' GiB';
-                case 4:
-                    return num + ' TiB';
-                case 5:
-                    return num + ' PiB';
-                case 6:
-                    return num + ' EiB';
-                default:
-                    return num + ' × 1024^' + i + ' B';
+            case 0:
+                return num + ' B';
+            case 1:
+                return num + ' KiB';
+            case 2:
+                return num + ' MiB';
+            case 3:
+                return num + ' GiB';
+            case 4:
+                return num + ' TiB';
+            case 5:
+                return num + ' PiB';
+            case 6:
+                return num + ' EiB';
+            default:
+                return num + ' × 1024^' + i + ' B';
             }
         }
+        var dt, dd;
         function addDefinitionAfter(after, definition, value, cclass) {
             dt = document.createElement('dt');
             dt.appendChild(document.createTextNode(definition));
@@ -3043,9 +3191,9 @@
     
             function printBuffer(u, d, r) {
                 if (u / r - d >= 0)
-                    return '\n' + r.toFixed(1) + '\t' + (humancount(u / r - d)).slice(-10) + '    \tcan be downloaded'
+                    return '\n' + r.toFixed(1) + '\t' + (humancount(u / r - d)).slice(-10) + '    \tcan be downloaded';
                 else
-                    return '\n' + r.toFixed(1) + '\t' + (humancount(d * r - u)).slice(-10) + '    \tmust be uploaded'
+                    return '\n' + r.toFixed(1) + '\t' + (humancount(d * r - u)).slice(-10) + '    \tmust be uploaded';
             }
             for (var i = 0; i < 10; i++) {
                 var myRatio = [0.2, 0.5, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 5.0, 10.0][i];
