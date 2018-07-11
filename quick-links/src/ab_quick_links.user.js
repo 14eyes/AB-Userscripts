@@ -34,7 +34,8 @@
     // Above search boxes, but below user menu dropdown.
     rootLI.style.zIndex = 94;
 
-    rootLI.innerHTML = '<a style="cursor:pointer;">Quick Links\ <span class="dropit hover clickmenu"><span class="stext">▼</span></span></a>';
+    rootLI.innerHTML = '<a style="cursor:pointer;">Quick Links\
+    <span class="dropit hover clickmenu"><span class="stext">▼</span></span></a>';
     rootLI.firstElementChild.addEventListener('click', function(ev) {
         var subnav = ev.currentTarget.parentNode.children[1];
         var willShow = (subnav.style.display==='none');
