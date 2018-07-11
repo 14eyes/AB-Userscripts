@@ -27,7 +27,7 @@
         return;
 
     function custom_insert_text(open, close) {
-        let sel;
+        var sel;
         var elem = document.activeElement;
         if (elem.selectionStart || elem.selectionStart == '0') {
             var startPos = elem.selectionStart;
@@ -41,7 +41,7 @@
                 elem.setSelectionRange(startPos + open.length, endPos + open.length);
         } else if (document.selection && document.selection.createRange) {
             elem.focus();
-            var sel = document.selection.createRange();
+            sel = document.selection.createRange();
             sel.text = open + sel.text + close;
             if (close.length != 0) {
                 sel.move("character", -close.length);
