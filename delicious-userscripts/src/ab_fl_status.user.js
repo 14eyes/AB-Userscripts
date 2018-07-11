@@ -41,12 +41,11 @@
         ));
         delicious.settings.insertSection(s);
     }
+    delicious.settings.init('deliciousflpoolposition', 'after #userinfo_minor');
     delicious.settings.init('deliciousfreeleechpool', true);
     delicious.settings.init('deliciousnavbarpiechart', true);
     if (!delicious.settings.get('deliciousfreeleechpool'))
         return;
-
-    importDeliciousCommon();
 
     function niceNumber(num) {
         var res = '';
@@ -209,7 +208,7 @@
         var pieChart = getPieChart();
         p.innerHTML = pieChart;
         p3.innerHTML = pieChart;
-        if (delicious.settings.get('delicousnavbarpiechart')) {
+        if (delicious.settings.get('deliciousnavbarpiechart')) {
             li.innerHTML = pieChart;
         }
         p2.innerHTML = 'We currently have ¥' + niceNumber(parseInt(GM_getValue('FLPoolCurrent', '0'), 10)) + ' / ¥' + niceNumber(parseInt(GM_getValue('FLPoolMax', '50000000'), 10)) + ' in our donation box.<br/>';
