@@ -27,6 +27,7 @@
     // Enhanced Torrent View by Megure
     // Shows how much yen you would receive if you seeded torrents; shows required seeding time; allows sorting and filtering of torrent tables; dynamic loading of transfer history tables
     (function EnhancedTorrentView() {
+        var _debug = false;
         var settingsKeys = ['ABTorrentsShowYen', 'ABTorrentsReqTime',
             'ABSortTorrents', 'ABTorrentsFilter', 'ABHistDynLoad'];
         for (let i = 0; i < settingsKeys.length; i++) {
@@ -1266,8 +1267,8 @@
     
         var textSettings = ['ABForumSearchHighlightBG', 'ABForumSearchHighlightFG',
             'ABForumLoadText', 'ABForumLoadingText', 'ABForumToggleText'];
-        for (var j = 0; j < textSettings.length; j++) {
-            delicious.settings._migrateStringSetting(textSettings[j]);
+        for (var k = 0; k < textSettings.length; k++) {
+            delicious.settings._migrateStringSetting(textSettings[k]);
         }
     
         if (delicious.settings.get('ABForumSearchHighlightBG') === 'none')
@@ -3047,6 +3048,9 @@
     
     // Yen per X and ratio milestones, by Megure, Lemma, NSC, et al.
     (function ABYenStats() {
+        var _debug = false;
+        delicious.settings.init('deliciousyenperx', true);
+        delicious.settings.init('deliciousratio', true);
         delicious.settings.basicScriptCheckbox('deliciousyenperx', 'Delicious Yen Per X',
             'Shows how much yen you receive per X and as upload equivalent.');
         delicious.settings.basicScriptCheckbox('deliciousratio', 'Delicious Ratio',
@@ -3217,10 +3221,13 @@
             addDefinitionBefore(ypdNode, 'Yen as upload:', humancount(Math.pow(1024, 2) * ypy * compoundInterest(1 / dpy / 24 / 60 / 60)) + '/s');
             addDefinitionBefore(ypdNode, 'Yen per hour:', (ypy * compoundInterest(1 / dpy / 24)).toFixed(1));
         }
-        if (delicious.settings.get('deliciousratio'))
+        if (delicious.settings.get('deliciousratio')){
             addRawStats();
-        if (delicious.settings.get('deliciousyenperx'))
+        }
+        if (delicious.settings.get('deliciousyenperx')){
             addYenPerStats();
+        }
+    
     })();
     /* End ./src\ab_yen_stats.user.js */
 

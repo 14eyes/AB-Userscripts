@@ -19,8 +19,8 @@
 
     var textSettings = ['ABForumSearchHighlightBG', 'ABForumSearchHighlightFG',
         'ABForumLoadText', 'ABForumLoadingText', 'ABForumToggleText'];
-    for (var j = 0; j < textSettings.length; j++) {
-        delicious.settings._migrateStringSetting(textSettings[j]);
+    for (var k = 0; k < textSettings.length; k++) {
+        delicious.settings._migrateStringSetting(textSettings[k]);
     }
 
     if (delicious.settings.get('ABForumSearchHighlightBG') === 'none')
