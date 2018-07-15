@@ -1,7 +1,7 @@
 /**
  * @file    Library for userscripts on AnimeBytes.
  * @author  TheFallingMan
- * @version 0.0.1
+ * @version 1.0.0
  * @license GPL-3.0
  *
  * Exports `delicious`, containing `delicious.settings` and
@@ -81,12 +81,25 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             var current = ev.target;
             // Keep traversing up the node's parents until we find an
             // adjacent .subnav element.
-            while (current && !current.nextSibling.classList.contains('subnav')) {
+            while (current
+                    && !(current.nextSibling && current.nextSibling.classList.contains('subnav'))) {
                 current = current.parentNode;
             }
             if (!current)
                 return;
             var subnav = current.nextSibling;
+
+            // Remove already open menus.
+            var l = document.querySelectorAll('ul.subnav');
+            for (var i = 0; i < l.length; i++) {
+                if (l[i] === subnav)
+                    continue;
+                l[i].style.display = 'none';
+            }
+            var k = document.querySelectorAll('li.navmenu.selected');
+            for (var j = 0; j < k.length; j++) {
+                k[j].classList.remove('selected');
+            }
 
             // Logic to toggle visibility.
             var willShow = (subnav.style.display==='none');
@@ -95,6 +108,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
                 subnav.parentNode.classList.add('selected');
             else
                 subnav.parentNode.classList.remove('selected');
+
             ev.stopPropagation();
             ev.preventDefault();
             return false;
@@ -327,6 +341,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
          */
         ensureSettingsInserted: function() {
             if (!this.isSettingsPage) {
+                log('Not a profile settings page; doing nothing...');
                 if (!this.rootSettingsList) {
                     this._basicSection = newElement('div',
                         {id: 'delicious_basic_settings',
@@ -342,8 +357,11 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
                     this._settingsInserted = true;
 
                     this._insertDeliciousSettings();
+                } else {
+                    log('Settings already inserted; continuing...');
                 }
                 if (!this.rootSettingsList) {
+                    log('Locating settings div...');
                     this.rootSettingsList = document.querySelector('#delicious_settings .ue_list');
                     this._basicSection = this.rootSettingsList.querySelector('#delicious_basic_settings');
                 }
@@ -388,11 +406,7 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
                 }
             }
             log('Form submit cancelled: ' + cancelled);
-            if (cancelled) {
-                return false;
-            } else {
-                return true;
-            }
+            return !cancelled;
         },
 
         /**
@@ -409,13 +423,19 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
         },
 
         /**
-         * If `key` is not set, set it to `defaultValue`. Otherwise, do nothing.
+         * If `key` is not set, set it to `defaultValue` and returns `defaultValue`.
+         * Otherwise, returns the stored value.
          * @param {string} key
          * @param {any} defaultValue
+         * @returns {any}
          */
         init: function(key, defaultValue) {
-            if (GM_getValue(key, undefined) === undefined) {
+            var value = this.get(key, undefined);
+            if (value === undefined) {
                 this.set(key, defaultValue);
+                return defaultValue;
+            } else {
+                return value;
             }
         },
 
@@ -526,16 +546,16 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
         addBasicCheckbox: function(key, label, description, options) {
             var checkboxLI = this.createCheckbox(
                 key, label, description, options);
-            this.addBasicSetting(checkboxLI);
+            this.insertBasicSetting(checkboxLI);
             return checkboxLI;
         },
 
         /**
-         * Adds an element containing a basic setting to the basic settings
-         * section, at the top of the settings page.
+         * Inserts an element containing a basic setting to the basic settings
+         * section, above the individual script sections.
          * @param {HTMLElement} setting Setting element.
          */
-        addBasicSetting: function(setting) {
+        insertBasicSetting: function(setting) {
             this._insertSorted(setting, this._basicSection);
         },
 
