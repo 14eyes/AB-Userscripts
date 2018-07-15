@@ -10,7 +10,7 @@
 // @match https://animebytes.tv/
 // @match https://animebytes.tv/index.php
 // @match https://animebytes.tv/user.php?action=edit
-// @require https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
+// @require https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
 // ==/UserScript==
 
 delicious.settings.init('ABGamesForum', false);

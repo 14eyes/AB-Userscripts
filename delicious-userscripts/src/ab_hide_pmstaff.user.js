@@ -5,6 +5,7 @@
 // @include     https://animebytes.tv/*
 // @version     0.1
 // @icon        http://animebytes.tv/favicon.ico
+// @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
 // ==/UserScript==
 
 // Bassed on Hide treats by Alpha

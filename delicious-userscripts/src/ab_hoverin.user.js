@@ -2,7 +2,7 @@
 // @name           AB Hoverin'
 // @namespace      http://animebytes.tv
 // @include        animebytes.tv*
-// @require https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
+// @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
 // ==/UserScript==
 function Hoverin(css) {
     var head, style;

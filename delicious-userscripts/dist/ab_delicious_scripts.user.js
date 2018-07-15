@@ -1685,7 +1685,7 @@
     /* End src/ab_forum_search_enhancement.user.js */
 
 
-    /* Begin ./src\ab_hide_pmstaff.user.js */
+    /* Begin src/ab_hide_pmstaff.user.js */
     // ==UserScript==
     // @name        AB - Hide PM staff
     // @author      ShaverJ
@@ -1693,6 +1693,7 @@
     // @include     https://animebytes.tv/*
     // @version     0.1
     // @icon        http://animebytes.tv/favicon.ico
+    // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
     
     // Bassed on Hide treats by Alpha
@@ -1708,10 +1709,10 @@
         var pmstaffnode = document.evaluate('//*[@id="nav_staffpm"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
         if (pmstaffnode) pmstaffnode.style.display = "none";
     })();
-    /* End ./src\ab_hide_pmstaff.user.js */
+    /* End src/ab_hide_pmstaff.user.js */
 
 
-    /* Begin ./src\ab_hide_treats.user.js */
+    /* Begin src/ab_hide_treats.user.js */
     // ==UserScript==
     // @name        AB - Hide treats
     // @author      Alpha
@@ -1741,12 +1742,12 @@
     /* End src/ab_hide_treats.user.js */
 
 
-    /* Begin ./src\ab_hoverin.user.js */
+    /* Begin src/ab_hoverin.user.js */
     // ==UserScript==
     // @name           AB Hoverin'
     // @namespace      http://animebytes.tv
     // @include        animebytes.tv*
-    // @require https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
+    // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
     function Hoverin(css) {
         var head, style;
@@ -1768,10 +1769,10 @@
         return;
     
     Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
-    /* End ./src\ab_hoverin.user.js */
+    /* End src/ab_hoverin.user.js */
 
 
-    /* Begin ./src\ab_hyper_quote.user.js */
+    /* Begin src/ab_hyper_quote.user.js */
     // ==UserScript==
     // @name        AB - HYPER QUOTE!
     // @author      Megure, TheFallingMan
@@ -2952,7 +2953,7 @@
     /* End src/ab_title_notifications.user.js */
 
 
-    /* Begin ./src\ab_unread_index.user.js */
+    /* Begin src/ab_unread_index.user.js */
     // ==UserScript==
     // @name AnimeBytes Unread Index
     // @author potatoe
@@ -2965,7 +2966,7 @@
     // @match https://animebytes.tv/
     // @match https://animebytes.tv/index.php
     // @match https://animebytes.tv/user.php?action=edit
-    // @require https://raw.githubusercontent.com/momentary0/AB-Userscripts/delicious-settings/delicious-library/src/ab_delicious_library.js
+    // @require https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
     
     delicious.settings.init('ABGamesForum', false);
@@ -3036,10 +3037,10 @@
     if (newsnode !== null) {
         ABUnreadIndex();
     }
-    /* End ./src\ab_unread_index.user.js */
+    /* End src/ab_unread_index.user.js */
 
 
-    /* Begin ./src\ab_yen_stats.user.js */
+    /* Begin src/ab_yen_stats.user.js */
     // ==UserScript==
     // @name        AB - Yen per X and ratio milestones
     // @author      Megure, Lemma, NSC, et al.
