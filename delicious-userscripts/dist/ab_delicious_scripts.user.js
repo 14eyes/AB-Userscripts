@@ -1697,6 +1697,8 @@
     // @include     https://animebytes.tv/*
     // @version     0.1
     // @icon        http://animebytes.tv/favicon.ico
+    // @grant       GM_setValue
+    // @grant       GM_getValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
     
@@ -1751,6 +1753,8 @@
     // @name           AB Hoverin'
     // @namespace      http://animebytes.tv
     // @include        animebytes.tv*
+    // @grant       GM_setValue
+    // @grant       GM_getValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
     function Hoverin(css) {
@@ -2970,6 +2974,8 @@
     // @match https://animebytes.tv/
     // @match https://animebytes.tv/index.php
     // @match https://animebytes.tv/user.php?action=edit
+    // @grant       GM_setValue
+    // @grant       GM_getValue
     // @require https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
     
@@ -2977,7 +2983,8 @@
     delicious.settings.init('unreadindx', false);
     delicious.settings.init('ABNoT', 5);
     if (delicious.settings.ensureSettingsInserted()) {
-        var s = delicious.settings.createSection('Unread Index');
+        var section = delicious.settings.createCollapsibleSection('Unread Index');
+        var s = section.querySelector('.settings_section_body');
         s.appendChild(delicious.settings.createCheckbox(
             'unreadindx',
             'Enable',
@@ -2988,12 +2995,13 @@
             'Unread forums in index(News Page)',
             'Hide those hideous "Forum Games" on your unread index page!'
         ));
-        delicious.settings.insertSection(s);
+    
         s.appendChild(delicious.settings.createNumberInput(
             'ABNoT',
             'Number of threads',
             'set the number of threads to show'
         ));
+        delicious.settings.insertSection(section);
     }
     var _enabled = delicious.settings.get('unreadindx');
     if (!_enabled)

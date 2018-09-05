@@ -19,7 +19,8 @@ delicious.settings.init('ABGamesForum', false);
 delicious.settings.init('unreadindx', false);
 delicious.settings.init('ABNoT', 5);
 if (delicious.settings.ensureSettingsInserted()) {
-    var s = delicious.settings.createSection('Unread Index');
+    var section = delicious.settings.createCollapsibleSection('Unread Index');
+    var s = section.querySelector('.settings_section_body');
     s.appendChild(delicious.settings.createCheckbox(
         'unreadindx',
         'Enable',
@@ -30,12 +31,13 @@ if (delicious.settings.ensureSettingsInserted()) {
         'Unread forums in index(News Page)',
         'Hide those hideous "Forum Games" on your unread index page!'
     ));
-    delicious.settings.insertSection(s);
+
     s.appendChild(delicious.settings.createNumberInput(
         'ABNoT',
         'Number of threads',
         'set the number of threads to show'
     ));
+    delicious.settings.insertSection(section);
 }
 var _enabled = delicious.settings.get('unreadindx');
 if (!_enabled)
