@@ -2,6 +2,8 @@
 // @name           AB Hoverin'
 // @namespace      http://animebytes.tv
 // @include        animebytes.tv*
+// @grant       GM_setValue
+// @grant       GM_getValue
 // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
 // ==/UserScript==
 function Hoverin(css) {
