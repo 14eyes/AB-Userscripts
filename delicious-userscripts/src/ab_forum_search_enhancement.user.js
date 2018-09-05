@@ -4,7 +4,7 @@
 // @description Load posts into search results; highlight search terms; filter authors; slide through posts
 // @include     http*://animebytes.tv/forums.php*
 // @exclude     *action=viewthread*
-// @version     0.72.1
+// @version     0.72.2
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @icon        http://animebytes.tv/favicon.ico
@@ -29,7 +29,8 @@
         delicious.settings.set('ABForumSearchHighlightFG', null);
 
     if (delicious.settings.ensureSettingsInserted()) {
-        var s = delicious.settings.createSection('Forum Search Enhancements');
+        var section = delicious.settings.createCollapsibleSection('Forum Search Enhancements');
+        var s = section.querySelector('.settings_section_body');
         s.appendChild(delicious.settings.createCheckbox(
             'ABForumSearchWorkInFS',
             'Load posts into search results',
@@ -48,15 +49,15 @@
             {default: false}));
         s.appendChild(delicious.settings.createTextSetting('ABForumLoadText',
             'Text for links to be loaded', 'The text to be shown for forum links that have not been loaded yet.',
-            {default: '(Load)', width: '8em'}));
+            {default: '(Load) ', width: '8em'}));
         s.appendChild(delicious.settings.createTextSetting('ABForumLoadingText', 'Text for loading links',
             'The text to be shown for forum links that are currently being loaded.',
-            {default: '(Loading)', width: '8em'}));
+            {default: '(Loading) ', width: '8em'}));
         s.appendChild(delicious.settings.createTextSetting('ABForumToggleText', 'Text for loaded links',
             'The text to be shown for forum links that have been loaded and can now be toggled.',
-            {default: '(Toggle)', width: '8em'}));
+            {default: '(Toggle) ', width: '8em'}));
 
-        delicious.settings.insertSection(s);
+        delicious.settings.insertSection(section);
     }
 
     if (!( (/^http.*:\/\/animebytes\.tv\/forums\.php/i.test(document.URL))
@@ -70,11 +71,11 @@
 
     text_color = delicious.settings.get('ABForumSearchHighlightFG', '#000000');
 
-    toggleText = delicious.settings.get('ABForumToggleText', '(Toggle)');
+    toggleText = delicious.settings.get('ABForumToggleText', '(Toggle) ');
 
-    loadText = delicious.settings.get('ABForumLoadText', '(Load)');
+    loadText = delicious.settings.get('ABForumLoadText', '(Load) ');
 
-    loadingText = delicious.settings.get('ABForumLoadingText', '(Loading)');
+    loadingText = delicious.settings.get('ABForumLoadingText', '(Loading) ');
 
     hideSubSelection = delicious.settings.get('ABForumSearchHideSubfor', true);
 
@@ -151,7 +152,9 @@
             }
             user_id = tP[threadPage][sR[id].index].className.split('_');
             user_id = user_id[user_id.length - 1];
-            sR[id].user = tP[threadPage][sR[id].index].querySelector('a[href="/user.php?id=' + user_id + '"]').textContent;
+            // It looks lke sR is the search results, and tP is a thread page.
+            // This line gets the username from the author's profile link.
+            sR[id].user = tP[threadPage][sR[id].index].querySelector('.num_author > a[href^="/user"]').textContent;
             linkbox = document.createElement('div');
             pagenums = document.createElement('div');
             linkbox.className = 'linkbox';

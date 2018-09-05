@@ -1,7 +1,7 @@
 /**
  * @file    Library for userscripts on AnimeBytes.
  * @author  TheFallingMan
- * @version 1.0.0
+ * @version 1.1.0
  * @license GPL-3.0
  *
  * Exports `delicious`, containing `delicious.settings` and
@@ -635,6 +635,69 @@ var delicious = (function ABDeliciousLibrary(){ // eslint-disable-line no-unused
             ]);
 
             return li;
+        },
+
+        /**
+         * Event handler attached to h3 section heading. Toggles visibility
+         * of associated section body.
+         */
+        _toggleSection: function(ev) {
+            var sectionBody = ev.currentTarget.parentNode.parentNode.nextElementSibling;
+            var willShow = sectionBody.style.display === 'none';
+            sectionBody.style.display = willShow ? 'block' : 'none';
+
+            var toggleTriangle = ev.currentTarget.firstElementChild;
+            toggleTriangle.textContent = willShow ? '▼' : '▶';
+
+            ev.preventDefault();
+            ev.stopPropagation();
+        },
+
+        /**
+         * Creates a collapsible script section with the given title.
+         * Clicking the section heading will toggle the visibility of the
+         * section's settings.
+         *
+         * **Important.** Appending directly into the returned div element will
+         * not work. You must append to the section's body div.
+         *
+         * Correct example:
+         *
+         *    var section = delicious.settings.createCollapsibleSection('Script Name');
+         *    var s = section.querySelector('.settings_section_body');
+         *    s.appendChild(delicious.settings.createCheckbox(...));
+         *    delicious.setttings.insertSection(section);
+         *
+         * Incorrect example:
+         *
+         *    var section = delicious.settings.createCollapsibleSection('Script Name');
+         *    // This will not be able to collapse/expand the section correctly!
+         *    section.appendChild(delicious.settings.createCheckbox(...));
+         *    delicious.setttings.insertSection(section);
+         *
+         *
+         * @param {string} title Script title.
+         * @param {boolean} defaultState If true, the section will be expanded by default.
+         * @returns {HTMLDivElement} Script section.
+         */
+        createCollapsibleSection: function(title, defaultState) {
+            var toggleTriangle = newElement('a',
+                {textContent: (defaultState ? '▼' : '▶')});
+            var heading = newElement('h3', {}, [toggleTriangle, ' ', title]);
+            heading.style.cursor = 'pointer';
+            heading.addEventListener('click', this._toggleSection);
+
+            var sectionHeading = newElement('div', {className: 'settings_section_heading'},
+                [newElement('li', {}, [heading]) ]);
+            sectionHeading.style.marginBottom = '20px';
+
+            var sectionBody = newElement('div', {className: 'settings_section_body'});
+            sectionBody.style.display = defaultState ? 'block' : 'none';
+
+            var section = newElement('div', {className: 'delicious_settings_section'},
+                [sectionHeading, sectionBody]);
+            section.style.marginTop = '30px';
+            return section;
         },
 
         /**

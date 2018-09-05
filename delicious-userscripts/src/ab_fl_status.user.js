@@ -3,7 +3,7 @@
 // @author      Megure (inspired by Lemma, Alpha, NSC)
 // @description Shows current freeleech pool status in navbar with a pie-chart
 // @include     https://animebytes.tv/*
-// @version     0.1.1.1
+// @version     0.1.1.2
 // @icon        http://animebytes.tv/favicon.ico
 // @grant       GM_getValue
 // @grant       GM_setValue
@@ -25,7 +25,8 @@
     });
 
     if (delicious.settings.ensureSettingsInserted()) {
-        var s = delicious.settings.createSection('Delicious Freeleech Pool');
+        var section = delicious.settings.createCollapsibleSection('Delicious Freeleech Pool');
+        var s = section.querySelector('.settings_section_body');
         s.appendChild(delicious.settings.createCheckbox(
             'deliciousfreeleechpool',
             'Enable/Disable',
@@ -47,7 +48,7 @@
             'FL Pie Chart Locations',
             [['Navbar dropdown', 'navbar'], ['User profile', 'profile']]
         ));
-        delicious.settings.insertSection(s);
+        delicious.settings.insertSection(section);
     }
 
     if (!delicious.settings.get('deliciousfreeleechpool'))

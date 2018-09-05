@@ -3,7 +3,7 @@
 // @namespace   Megure@AnimeBytes.tv
 // @description Shows how much yen you would receive if you seeded torrents; shows required seeding time; allows sorting and filtering of torrent tables; dynamic loading of transfer history tables
 // @include     http*://animebytes.tv*
-// @version     1.01
+// @version     1.02
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @icon        http://animebytes.tv/favicon.ico
@@ -22,7 +22,8 @@
     delicious.settings.init('ABTorrentsYenTimeFrame', '24');
 
     if (delicious.settings.ensureSettingsInserted()) {
-        var s = delicious.settings.createSection('Enhanced Torrent View');
+        var section = delicious.settings.createCollapsibleSection('Enhanced Torrent View');
+        var s = section.querySelector('.settings_section_body');
         s.appendChild(delicious.settings.createCheckbox(
             'ABTorrentsShowYen',
             'Show yen generation',
@@ -57,11 +58,10 @@
             'Dynamic history tables',
             'Dynamically load more pages into the transfer history page.'
         ));
-        delicious.settings.insertSection(s);
+        delicious.settings.insertSection(section);
     }
 
-
-
+    var _debug = false;
 
     var days_per_year = 365.256363;
     var show_yen = GM_getValue('ABTorrentsShowYen', 'true') === 'true';
