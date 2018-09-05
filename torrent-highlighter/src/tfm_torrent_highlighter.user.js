@@ -481,7 +481,7 @@
         '.torrent_properties>a[href*="&torrentid="]'
     );
     for (let t = 0; t < searchResultTorrents.length; t++) {
-        searchResultTorrents[t].className += 'userscript-highlight torrent-page';
+        searchResultTorrents[t].className += ' userscript-highlight torrent-page';
         p.linkElement = searchResultTorrents[t];
         p.delim = ' | ';
         p.parse();
