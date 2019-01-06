@@ -558,7 +558,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var searchResultTorrents = document.querySelectorAll('.torrent_properties>a[href*="&torrentid="]');
     for (var _t = 0; _t < searchResultTorrents.length; _t++) {
-        searchResultTorrents[_t].className += 'userscript-highlight torrent-page';
+        searchResultTorrents[_t].className += ' userscript-highlight torrent-page';
         p.linkElement = searchResultTorrents[_t];
         p.delim = ' | ';
         p.parse();

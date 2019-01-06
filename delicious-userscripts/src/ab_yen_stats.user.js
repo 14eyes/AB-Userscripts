@@ -183,6 +183,8 @@
         hr.style.clear = 'both';
         ypdNode.parentNode.insertBefore(hr, ypdNode);
         addDefinitionBefore(ypdNode, 'Yen as upload:', humancount(Math.pow(1024, 2) * ypy * compoundInterest(1 / dpy / 24 / 60 / 60)) + '/s');
+        addDefinitionBefore(ypdNode, 'Yen per seconds:', (ypy * compoundInterest(1 / dpy / 24)/3600).toFixed(4));
+        addDefinitionBefore(ypdNode, 'Yen per minutes:', (ypy * compoundInterest(1 / dpy / 24)/60).toFixed(2));
         addDefinitionBefore(ypdNode, 'Yen per hour:', (ypy * compoundInterest(1 / dpy / 24)).toFixed(1));
     }
     if (delicious.settings.get('deliciousratio')){

@@ -1,7 +1,112 @@
 // ==UserScript==
 // @name        AnimeBytes delicious user scripts (updated)
 // @author      aldy, potatoe, alpha, Megure
-// @version     2.1.4
+// @version     2.1.3
+// @description Userscripts to enhance AnimeBytes in various ways. (Updated by TheFallingMan)
+// @match       https://*.animebytes.tv/*
+// @icon        http://animebytes.tv/favicon.ico
+// @grant       GM_getValue
+// @grant       GM_setValue
+// @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
+// ==/UserScript==
+
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// ==UserScript==
+// @name        AnimeBytes delicious user scripts (updated)
+// @author      aldy, potatoe, alpha, Megure
+// @version     2.1.3
 // @description Userscripts to enhance AnimeBytes in various ways. (Updated by TheFallingMan)
 // @match       https://*.animebytes.tv/*
 // @icon        http://animebytes.tv/favicon.ico
@@ -17,66 +122,37 @@
     // @namespace   Megure@AnimeBytes.tv
     // @description Shows how much yen you would receive if you seeded torrents; shows required seeding time; allows sorting and filtering of torrent tables; dynamic loading of transfer history tables
     // @include     http*://animebytes.tv*
-    // @version     1.03
+    // @version     1.02
     // @grant       GM_getValue
     // @grant       GM_setValue
     // @icon        http://animebytes.tv/favicon.ico
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     // Enhanced Torrent View by Megure
     // Shows how much yen you would receive if you seeded torrents; shows required seeding time; allows sorting and filtering of torrent tables; dynamic loading of transfer history tables
     (function EnhancedTorrentView() {
         var _debug = false;
-        var settingsKeys = ['ABTorrentsShowYen', 'ABTorrentsReqTime',
-            'ABSortTorrents', 'ABTorrentsFilter', 'ABHistDynLoad'];
-        for (let i = 0; i < settingsKeys.length; i++) {
-            delicious.settings.init(settingsKeys[i], true);
+        var settingsKeys = ['ABTorrentsShowYen', 'ABTorrentsReqTime', 'ABSortTorrents', 'ABTorrentsFilter', 'ABHistDynLoad'];
+        for (var _i2 = 0; _i2 < settingsKeys.length; _i2++) {
+            delicious.settings.init(settingsKeys[_i2], true);
         }
         delicious.settings.init('ABTorrentsYenTimeFrame', '24');
-    
+
         if (delicious.settings.ensureSettingsInserted()) {
             var section = delicious.settings.createCollapsibleSection('Enhanced Torrent View');
             var s = section.querySelector('.settings_section_body');
-            s.appendChild(delicious.settings.createCheckbox(
-                'ABTorrentsShowYen',
-                'Show yen generation',
-                'Show yen generation for torrents, with detailed information when hovered.'
-            ));
-            s.appendChild(delicious.settings.createDropDown(
-                'ABTorrentsYenTimeFrame',
-                'Yen time frame',
-                'Shows yen generated in this amount of time.',
-                [['Hour', '1'],
-                    ['Day', '24'],
-                    ['Week', '168']],
-                {default: '24'}
-            ));
-            s.appendChild(delicious.settings.createCheckbox(
-                'ABTorrentsReqTime',
-                'Show required seeding time',
-                'Shows minimal required seeding time for torrents in their description and when size is hovered.'
-            ));
-            s.appendChild(delicious.settings.createCheckbox(
-                'ABTorrentsFilter',
-                'Filter torrents',
-                'Shows a box above torrent tables, where you can filter the torrents from that table.'
-            ));
-            s.appendChild(delicious.settings.createCheckbox(
-                'ABSortTorrents',
-                'Sort torrents',
-                'Allows torrent tables to be sorted.'
-            ));
-            s.appendChild(delicious.settings.createCheckbox(
-                'ABHistDynLoad',
-                'Dynamic history tables',
-                'Dynamically load more pages into the transfer history page.'
-            ));
+            s.appendChild(delicious.settings.createCheckbox('ABTorrentsShowYen', 'Show yen generation', 'Show yen generation for torrents, with detailed information when hovered.'));
+            s.appendChild(delicious.settings.createDropDown('ABTorrentsYenTimeFrame', 'Yen time frame', 'Shows yen generated in this amount of time.', [['Hour', '1'], ['Day', '24'], ['Week', '168']], { default: '24' }));
+            s.appendChild(delicious.settings.createCheckbox('ABTorrentsReqTime', 'Show required seeding time', 'Shows minimal required seeding time for torrents in their description and when size is hovered.'));
+            s.appendChild(delicious.settings.createCheckbox('ABTorrentsFilter', 'Filter torrents', 'Shows a box above torrent tables, where you can filter the torrents from that table.'));
+            s.appendChild(delicious.settings.createCheckbox('ABSortTorrents', 'Sort torrents', 'Allows torrent tables to be sorted.'));
+            s.appendChild(delicious.settings.createCheckbox('ABHistDynLoad', 'Dynamic history tables', 'Dynamically load more pages into the transfer history page.'));
             delicious.settings.insertSection(section);
         }
-    
+
         var _debug = false;
-    
+
         var days_per_year = 365.256363;
         var show_yen = GM_getValue('ABTorrentsShowYen', 'true') === 'true';
         var show_required_time = GM_getValue('ABTorrentsReqTime', 'true') === 'true';
@@ -87,11 +163,9 @@
         var time_frame_string = time_frame + ' hours';
         if (time_frame === 1) {
             time_frame_string = 'hour';
-        }
-        else if (time_frame === 24) {
+        } else if (time_frame === 24) {
             time_frame_string = 'day';
-        }
-        else if (time_frame === 168) {
+        } else if (time_frame === 168) {
             time_frame_string = 'week';
         }
         // How many digits to show for Yen over time_frame, see yen_to_string
@@ -99,7 +173,7 @@
         var size_RegExp = /^([\d\.]+)\s(?:([a-zA-Z])i)?B(?:\s\(([\d\.]+)%\))?$/;
         var ratio_RegExp = /^(∞|\-\-|[\d\.]+)$/;
         var and_RegExp = /(and|\s)/ig;
-        var duration_RegExp = /^(?:(\d+)years?)?(?:(\d+)months?)?(?:(\d+)weeks?)?(?:(\d+)days?)?(?:(\d+)hours?)?(?:(\d+)minutes?)?(?:(\d+)seconds?)?(?:ago)?(?:\s*\([^)]*\)\s*)*$/;
+        var duration_RegExp = /^(?:(\d+)years?)?(?:(\d+)months?)?(?:(\d+)weeks?)?(?:(\d+)days?)?(?:(\d+)hours?)?(?:(\d+)minutes?)?(?:(\d+)seconds?)?(?:\s*\([^)]*\)\s*)*$/;
         var datetime_RegExp = /^(\d+)\-(\d{1,2})\-(\d{1,2})\s+(\d{1,2}):(\d{1,2})$/;
         var currency_RegExp = /^(?:[¥|€|£|\$]\s*)([\d\.]+)$/;
         function unit_prefix(prefix) {
@@ -108,22 +182,22 @@
             if (typeof prefix === 'undefined') return 1 / 1073741824;
             // This is called with only the prefix of the byte unit
             switch (prefix.toUpperCase()) {
-            case '':
-                return 1 / 1073741824;
-            case 'K':
-                return 1 / 1048576;
-            case 'M':
-                return 1 / 1024;
-            case 'G':
-                return 1;
-            case 'T':
-                return 1024;
-            case 'P':
-                return 1048576;
-            case 'E':
-                return 1073741824;
-            default:
-                return 0;
+                case '':
+                    return 1 / 1073741824;
+                case 'K':
+                    return 1 / 1048576;
+                case 'M':
+                    return 1 / 1024;
+                case 'G':
+                    return 1;
+                case 'T':
+                    return 1024;
+                case 'P':
+                    return 1048576;
+                case 'E':
+                    return 1073741824;
+                default:
+                    return 0;
             }
         }
         function get_column(row, cell) {
@@ -151,7 +225,7 @@
             return null;
         }
         function get_next_separator_element_sibling(row) {
-            while ((row != null) && row.id.indexOf('group_') !== 0 && row.className.indexOf('edition_info') === -1) {
+            while (row != null && row.id.indexOf('group_') !== 0 && row.className.indexOf('edition_info') === -1) {
                 row = row.nextElementSibling;
             }
             return row;
@@ -174,7 +248,7 @@
         function duration_to_string(duration) {
             var days = Math.floor(duration / 24);
             var hours = Math.floor(duration % 24);
-            var minutes = Math.ceil((duration * 60) % 60);
+            var minutes = Math.ceil(duration * 60 % 60);
             var res = days + ' days';
             if (hours > 0) {
                 res += minutes === 0 ? ' and ' : ', ';
@@ -195,14 +269,13 @@
         // when displaying yen/week.
         //var f_interest = 24 * days_per_year / time_frame * (Math.pow(2, time_frame / (24 * days_per_year)) - 1) / Math.log(2);
         var f_interest = 1;
-    
-    
+
         // The duration factor for yen generation
         // seeding duration is only available on the "Seeding Torrents" page. Assumes 0 on any other.
         // duration is in hours.
         function f_duration(duration) {
             // user_age in hours
-            var user_age = ((new Date()).getTime() - parseInt(GM_getValue('creation', '0'), 10)) / 1000 / 60 / 60;
+            var user_age = (new Date().getTime() - parseInt(GM_getValue('creation', '0'), 10)) / 1000 / 60 / 60;
             _debug && console.log('age: ' + user_age);
             _debug && console.log('duration: ' + duration);
             // number of years + 2
@@ -228,11 +301,11 @@
         // 'creation' is milliseconds. 1728000000 is 20 days in ms.
         // Calculates how old the account is, then divides that by 20 days (in ms).
         // Logistics function starting at 2 then declining to approach 1 over time.
-        var f_age = 2 - 1 / (1 + Math.exp(5 - ((new Date()).getTime() - parseInt(GM_getValue('creation', '0'), 10)) / 1728000000));
+        var f_age = 2 - 1 / (1 + Math.exp(5 - (new Date().getTime() - parseInt(GM_getValue('creation', '0'), 10)) / 1728000000));
         if (isNaN(f_age)) {
             f_age = 1;
         }
-    
+
         // Compound function for yen generation
         function f(size, seeders, duration) {
             //console.log("size: " + size + " seed: " + seeders + " dur: " + duration + " f_age: " + f_age + " time_f: " + time_frame + " int: " + f_interest);
@@ -242,7 +315,7 @@
         // Creates title when hovering over yen generation to break down factors
         function yen_generation_title(size, seeders, duration) {
             var title = 'Click to toggle between Yen per ' + time_frame_string + '\nand Yen per ' + time_frame_string + ' per GB of size.\n\n';
-    
+
             // Added f_duration(0) and f_seeders(1) to account for 2017 yen changes.
             // The changes altered the initial values of these and hence altered the 'base' yen/h here.
             title += '¥' + (f_seeders(1) * f_duration(0) * time_frame * f_size(size)).toPrecision(6) + ' \tbase for size';
@@ -267,7 +340,7 @@
             title += '\n\n¥ per ' + time_frame_string + ' \t¥ per ' + time_frame_string + ' per GB\t#seeders\n';
             var start = Math.max(seeders - 1, 3);
             var end = Math.max(seeders + 1, 3);
-    
+
             // edited to <= 3, 2017.
             for (var i = start; i <= end; i++) {
                 title += '¥' + f(size, i, duration).toPrecision(6) + '  \t';
@@ -285,7 +358,9 @@
         // Toggle yen generation per time and per time and size
         var yen_per_GB = false;
         function toggle_yen(toggle) {
-            if (toggle === void 0) { toggle = true; }
+            if (toggle === void 0) {
+                toggle = true;
+            }
             return function () {
                 if (toggle) {
                     yen_per_GB = yen_per_GB !== true;
@@ -295,19 +370,17 @@
                     var cell = cells[i];
                     if (yen_per_GB) {
                         cell.style.display = '';
-                    }
-                    else {
+                    } else {
                         cell.style.display = 'none';
                     }
                 }
                 cells = document.querySelectorAll('th.UserScriptToggleYen,td.UserScriptToggleYen');
-                for (let i = 0, length = cells.length; i < length; i++) {
-                    let cell = cells[i];
+                for (var _i3 = 0, _length = cells.length; _i3 < _length; _i3++) {
+                    var _cell = cells[_i3];
                     if (yen_per_GB) {
-                        cell.style.display = 'none';
-                    }
-                    else {
-                        cell.style.display = '';
+                        _cell.style.display = 'none';
+                    } else {
+                        _cell.style.display = '';
                     }
                 }
             };
@@ -317,7 +390,7 @@
             var text_content = cell.textContent.trim();
             var text_content_no_comma = text_content.replace(/,/g, '').trim();
             var image = cell.querySelector('img');
-            if (cell.textContent === '' && (image !== null)) {
+            if (cell.textContent === '' && image !== null) {
                 return image.alt.toUpperCase();
             }
             var match = text_content_no_comma.match(size_RegExp);
@@ -336,8 +409,7 @@
                     var num = match[i];
                     if (num !== undefined) {
                         durations.push(parseInt(num, 10));
-                    }
-                    else {
+                    } else {
                         durations.push(0);
                     }
                 }
@@ -353,20 +425,19 @@
             match = text_content_no_comma.match(ratio_RegExp);
             if (match !== null) {
                 switch (match[1]) {
-                case '∞':
-                    return Infinity;
-                case '--':
-                    return -0.2;
-                case '0':
-                    return -0.1;
-                default:
-                    return parseFloat(match[1]);
+                    case '∞':
+                        return Infinity;
+                    case '--':
+                        return -0.2;
+                    case '0':
+                        return -0.1;
+                    default:
+                        return parseFloat(match[1]);
                 }
             }
             if (/^Never(\s*\([^)]*\)\s*)*$/i.test(text_content_no_comma)) {
                 return 0;
-            }
-            else {
+            } else {
                 return text_content.toUpperCase();
             }
         }
@@ -375,9 +446,9 @@
             var size_cell = get_cell(row, size_index);
             var seeders_cell = get_cell(row, seeders_index);
             var duration_cell = get_cell(row, duration_index);
-            var size = (size_index !== null && size_cell !== null) ? parse_cell(size_cell) : 1;
-            var seeders = (seeders_index !== null && seeders_cell !== null) ? parse_cell(seeders_cell) : 6;
-            var duration = (duration_index !== null && duration_cell !== null) ? parse_cell(duration_cell) : 0;
+            var size = size_index !== null && size_cell !== null ? parse_cell(size_cell) : 1;
+            var seeders = seeders_index !== null && seeders_cell !== null ? parse_cell(seeders_cell) : 6;
+            var duration = duration_index !== null && duration_cell !== null ? parse_cell(duration_cell) : 0;
             var torrent_row = get_corresponding_torrent_row(row);
             // Add required time to size_cell and blockquote in torrent_row
             if (size_index !== null && show_required_time) {
@@ -425,18 +496,17 @@
             }
             // Replace H&R row content by remaining seed time if available in duration row
             if (hr_index !== null && duration_index !== null) {
-                let cell = get_cell(row, duration_index);
-                var match = cell.textContent.replace(/^[^(]*(\(|$)/, '').replace(/\s*left\s*\)[^)]*$/, '').replace(and_RegExp, '').match(duration_RegExp);
+                var _cell2 = get_cell(row, duration_index);
+                var match = _cell2.textContent.replace(/^[^(]*(\(|$)/, '').replace(/\s*left\s*\)[^)]*$/, '').replace(and_RegExp, '').match(duration_RegExp);
                 var remaining = 0.0.toFixed(4);
                 if (match !== null) {
                     var durations = [];
                     // Starting at 1 because 0 is full matched string
-                    for (let i = 1, length = match.length; i < length; i++) {
-                        var num = match[i];
+                    for (var _i4 = 1, _length2 = match.length; _i4 < _length2; _i4++) {
+                        var num = match[_i4];
                         if (num !== undefined) {
                             durations.push(parseInt(num, 10));
-                        }
-                        else {
+                        } else {
                             durations.push(0);
                         }
                     }
@@ -461,7 +531,7 @@
             for (var i = 0, length = cells.length; i < length; i++) {
                 var cell = cells[i];
                 //console.log(cell);
-    
+
                 // Get rid of non-breakable spaces -.-
                 var text_content = cell.textContent.replace(/\u00a0/g, ' ').trim().toLowerCase();
                 var title = cell.title.trim().toLowerCase();
@@ -496,8 +566,8 @@
                 headers.appendChild(td1);
                 // Increase colSpan of non-torrent rows in the table
                 var non_torrents = table.querySelectorAll('tr.edition_info,tr.pad,tr[id^="group_"]');
-                for (let i = 0, length = non_torrents.length; i < length; i++) {
-                    var non_torrent = non_torrents[i];
+                for (var _i5 = 0, _length3 = non_torrents.length; _i5 < _length3; _i5++) {
+                    var non_torrent = non_torrents[_i5];
                     var cells_1 = non_torrent.cells;
                     var last_cell = cells_1[cells_1.length - 1];
                     last_cell.colSpan += 1;
@@ -506,8 +576,8 @@
             // Parse table data
             var table_data = [];
             var real_torrents = table.querySelectorAll('tr.torrent,tr.group_torrent');
-            for (let i = 0, length = real_torrents.length; i < length; i++) {
-                var row = real_torrents[i];
+            for (var _i6 = 0, _length4 = real_torrents.length; _i6 < _length4; _i6++) {
+                var row = real_torrents[_i6];
                 table_data.push(parse_row(row, size_index, seeders_index, duration_index, hr_index));
             }
             // Sorting...
@@ -516,30 +586,27 @@
             var sort_descending = true;
             function sort_function(index) {
                 return function (a, b) {
-                    if ((a[index + 2] !== null) && (b[index + 2] !== null)) {
+                    if (a[index + 2] !== null && b[index + 2] !== null) {
                         if (a[index + 2] > b[index + 2]) {
                             return -1;
-                        }
-                        else if (a[index + 2] < b[index + 2]) {
+                        } else if (a[index + 2] < b[index + 2]) {
                             return 1;
-                        }
-                        else {
+                        } else {
                             return 0;
                         }
-                    }
-                    else if ((a[index + 2] !== null) && (b[index + 2] === null)) {
+                    } else if (a[index + 2] !== null && b[index + 2] === null) {
                         return -1;
-                    }
-                    else if ((b[index + 2] !== null) && (a[index + 2] === null)) {
+                    } else if (b[index + 2] !== null && a[index + 2] === null) {
                         return 1;
-                    }
-                    else {
+                    } else {
                         return 0;
                     }
                 };
             }
             function sort_by_index(index, toggle) {
-                if (toggle === void 0) { toggle = true; }
+                if (toggle === void 0) {
+                    toggle = true;
+                }
                 return function (event) {
                     if (event !== null) {
                         event.stopPropagation();
@@ -549,8 +616,7 @@
                         if (sort_index === index && toggle) {
                             sort_descending = sort_descending !== true;
                             table_data.reverse();
-                        }
-                        else {
+                        } else {
                             if (toggle) {
                                 sort_descending = true;
                             }
@@ -569,8 +635,7 @@
                             if (row[1] !== null) {
                                 table_body.insertBefore(row[1], next_separator_element);
                             }
-                        }
-                        else {
+                        } else {
                             table_body.appendChild(row[0]);
                             if (row[1] !== null && row[0] !== row[1]) {
                                 table_body.appendChild(row[1]);
@@ -581,18 +646,20 @@
             }
             if (sort_rows && table_data.length > 1) {
                 // Add * to headers which will trigger sort
-                for (let i = 0, length = cells.length; i < length; i++) {
-                    let cell = cells[i];
-                    var index = get_column(headers, cell);
+                for (var _i7 = 0, _length5 = cells.length; _i7 < _length5; _i7++) {
+                    var _cell3 = cells[_i7];
+                    var index = get_column(headers, _cell3);
                     var a = document.createElement('a');
                     a.href = '#';
                     a.textContent = '*';
                     a.addEventListener('click', sort_by_index(index));
-                    cell.appendChild(a);
+                    _cell3.appendChild(a);
                 }
             }
             function load_history_page(prev) {
-                if (prev === void 0) { prev = false; }
+                if (prev === void 0) {
+                    prev = false;
+                }
                 return function (event) {
                     if (event !== null) {
                         event.stopPropagation();
@@ -610,16 +677,15 @@
                         }
                     }
                     if (new_page === last_page) {
-                        for (let i = 0, length = next_anchors.length; i < length; i++) {
-                            let pagenum = next_anchors[i];
-                            pagenum.parentNode.removeChild(pagenum);
+                        for (var _i8 = 0, _length6 = next_anchors.length; _i8 < _length6; _i8++) {
+                            var _pagenum = next_anchors[_i8];
+                            _pagenum.parentNode.removeChild(_pagenum);
                         }
                     }
                     var url = document.URL.split('#')[0];
                     if (url.indexOf('page=') >= 0) {
                         url = url.replace(/page=(\d+)/i, 'page=' + new_page);
-                    }
-                    else {
+                    } else {
                         url = url + '&page=' + new_page;
                     }
                     var xhr = new XMLHttpRequest();
@@ -654,54 +720,53 @@
                     }
                 }
                 if (table.nextElementSibling !== null) {
-                    let pagenum = table.nextElementSibling.querySelector('div.pagenums');
-                    if (pagenum !== null) {
-                        pagenums.push(pagenum);
+                    var _pagenum2 = table.nextElementSibling.querySelector('div.pagenums');
+                    if (_pagenum2 !== null) {
+                        pagenums.push(_pagenum2);
                     }
                 }
                 var previous_anchors = [];
                 var next_anchors = [];
                 // Loads the previous or next page into tableData, triggered by MouseEvent
-                for (let i = 0, length = pagenums.length; i < length; i++) {
-                    let pagenum = pagenums[i];
+                for (var _i9 = 0, _length7 = pagenums.length; _i9 < _length7; _i9++) {
+                    var _pagenum3 = pagenums[_i9];
                     // Figure out what the last page is
-                    var last_child = pagenum.lastElementChild;
+                    var last_child = _pagenum3.lastElementChild;
                     if (last_child !== null && last_child.href !== null) {
                         var lastPageMatch = last_child.href.match(/page=(\d+)/i);
                         last_page = lastPageMatch !== null ? parseInt(lastPageMatch[1], 10) : 1;
-                    }
-                    else {
+                    } else {
                         last_page = parseInt(last_child.textContent.trim(), 10);
                         if (isNaN(last_page)) {
                             last_page = 1;
                         }
                     }
-                    var clone = pagenum.parentNode.cloneNode(true);
+                    var clone = _pagenum3.parentNode.cloneNode(true);
                     var new_pagenum = clone.querySelector('div.pagenums');
                     while (new_pagenum.hasChildNodes()) {
                         new_pagenum.removeChild(new_pagenum.lastChild);
                     }
                     // Add buttons to dynamically load previous or next page
                     if (current_page > 1) {
-                        let a = document.createElement('a');
-                        a.href = '#';
-                        a.className = 'next-prev';
-                        a.textContent = '← Load previous page dynamically';
-                        a.addEventListener('click', load_history_page(true), true);
-                        new_pagenum.appendChild(a);
-                        previous_anchors.push(a);
+                        var _a = document.createElement('a');
+                        _a.href = '#';
+                        _a.className = 'next-prev';
+                        _a.textContent = '← Load previous page dynamically';
+                        _a.addEventListener('click', load_history_page(true), true);
+                        new_pagenum.appendChild(_a);
+                        previous_anchors.push(_a);
                     }
                     if (current_page < last_page) {
-                        let a = document.createElement('a');
-                        a.href = '#';
-                        a.className = 'next-prev';
-                        a.textContent = 'Load next page dynamically →';
-                        a.addEventListener('click', load_history_page(false), true);
-                        new_pagenum.appendChild(a);
-                        next_anchors.push(a);
+                        var _a2 = document.createElement('a');
+                        _a2.href = '#';
+                        _a2.className = 'next-prev';
+                        _a2.textContent = 'Load next page dynamically →';
+                        _a2.addEventListener('click', load_history_page(false), true);
+                        new_pagenum.appendChild(_a2);
+                        next_anchors.push(_a2);
                     }
                     // Insert new pagenum after old pagenum
-                    pagenum.parentNode.parentNode.insertBefore(clone, pagenum.parentNode.nextSibling);
+                    _pagenum3.parentNode.parentNode.insertBefore(clone, _pagenum3.parentNode.nextSibling);
                 }
             }
             // Function to filter torrent tables with deselected tags
@@ -726,8 +791,8 @@
                 var dual_audio = 0;
                 var freeleech = 0;
                 var remastered = 0;
-                for (let i = 0, length = real_torrents.length; i < length; i++) {
-                    var torrent = real_torrents[i];
+                for (var _i10 = 0, _length8 = real_torrents.length; _i10 < _length8; _i10++) {
+                    var torrent = real_torrents[_i10];
                     var is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
                     var is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
                     var is_dual_audio = /Dual Audio/.test(torrent.cells[0].lastElementChild.textContent);
@@ -735,27 +800,29 @@
                     freeleech |= is_freeleech ? 1 : 2;
                     remastered |= is_remastered ? 1 : 2;
                 }
-                for (let i = 0, length = real_torrents.length; i < length; i++) {
-                    let torrent = real_torrents[i];
-                    var corresponding = get_corresponding_torrent_row(torrent);
-                    let is_freeleech = /freeleech/.test(torrent.className) || torrent.querySelector('img[alt="Freeleech!"]') !== null;
-                    let is_remastered = torrent.querySelector('img[alt="Remastered"]') !== null;
+                for (var _i11 = 0, _length9 = real_torrents.length; _i11 < _length9; _i11++) {
+                    var _torrent = real_torrents[_i11];
+                    var corresponding = get_corresponding_torrent_row(_torrent);
+                    var _is_freeleech = /freeleech/.test(_torrent.className) || _torrent.querySelector('img[alt="Freeleech!"]') !== null;
+                    var _is_remastered = _torrent.querySelector('img[alt="Remastered"]') !== null;
                     // Check for deselected tags in cleaned textContent of first cell
-                    var text = torrent.cells[0].lastElementChild.textContent;
-                    let is_dual_audio = /Dual Audio/i.test(text);
+                    var text = _torrent.cells[0].lastElementChild.textContent;
+                    var _is_dual_audio = /Dual Audio/i.test(text);
                     // Remove » from beginning, format, Dual Audio, end empty tags (images, will handle them separately down below)
                     text = text.replace(/^\s*»/i, '').replace(/\d+:\d+/g, '').replace(/Dual Audio/ig, '').replace(/\|(\s*\|)+/g, '|').replace(/^\s*\|/, '').replace(/\|\s*$/, '');
                     // Split text content to get tags
-                    var torrent_tags = (text.indexOf('|') >= 0 ? text.split('|') : text.split('/')).map(function (e) { return e.trim(); });
+                    var torrent_tags = (text.indexOf('|') >= 0 ? text.split('|') : text.split('/')).map(function (e) {
+                        return e.trim();
+                    });
                     // Add Dual Audio, Freeleech, and Remastered status, only if torrents with yes and no are available
                     if (dual_audio === 3) {
-                        torrent_tags.push(is_dual_audio ? 'Dual Audio' : 'No Dual Audio');
+                        torrent_tags.push(_is_dual_audio ? 'Dual Audio' : 'No Dual Audio');
                     }
                     if (freeleech === 3) {
-                        torrent_tags.push(is_freeleech ? 'Freeleech' : 'No Freeleech');
+                        torrent_tags.push(_is_freeleech ? 'Freeleech' : 'No Freeleech');
                     }
                     if (remastered === 3) {
-                        torrent_tags.push(is_remastered ? 'Remastered' : 'Not Remastered');
+                        torrent_tags.push(_is_remastered ? 'Remastered' : 'Not Remastered');
                     }
                     // Keep track of tags and whether this element needs to be hidden
                     var to_be_collapsed = false;
@@ -766,36 +833,35 @@
                             break;
                         }
                     }
-                    for (let j = 0; j < torrent_tags.length; j++) {
-                        let tag = torrent_tags[j];
+                    for (var _j = 0; _j < torrent_tags.length; _j++) {
+                        var _tag = torrent_tags[_j];
                         // Fucking ISOs...
-                        if (tag.indexOf('ISO') === 0) {
-                            torrent_tags.splice(j + 1, 0, '');
+                        if (_tag.indexOf('ISO') === 0) {
+                            torrent_tags.splice(_j + 1, 0, '');
                         }
-                        if (tag !== '') {
-                            if (!available_tags.hasOwnProperty(tag)) {
-                                available_tags[tag] = 0;
+                        if (_tag !== '') {
+                            if (!available_tags.hasOwnProperty(_tag)) {
+                                available_tags[_tag] = 0;
                             }
                             if (!to_be_collapsed) {
-                                available_tags[tag] = 1;
+                                available_tags[_tag] = 1;
                             }
-                            while (values_by_column.length <= j) {
+                            while (values_by_column.length <= _j) {
                                 values_by_column.push({});
                             }
-                            if (!values_by_column[j].hasOwnProperty(tag)) {
-                                values_by_column[j][tag] = 1;
+                            if (!values_by_column[_j].hasOwnProperty(_tag)) {
+                                values_by_column[_j][_tag] = 1;
                             }
                         }
                     }
                     // Hide or show torrent row and corresponding row if deselected tags are found
                     if (to_be_collapsed) {
-                        torrent.style.display = 'none';
+                        _torrent.style.display = 'none';
                         if (corresponding !== null) {
                             corresponding.style.display = 'none';
                         }
-                    }
-                    else {
-                        torrent.style.display = '';
+                    } else {
+                        _torrent.style.display = '';
                         if (corresponding !== null) {
                             corresponding.style.display = '';
                         }
@@ -805,31 +871,27 @@
                 if (values_by_column.length > 0 || Object.keys(deselected).length > 0) {
                     // Only show each tag once, even across multiple columns, so keep track
                     var shown_values = {};
-                    for (let i = 0, length = values_by_column.length; i < length; i++) {
-                        var index = values_by_column[i];
+                    for (var _i12 = 0, _length10 = values_by_column.length; _i12 < _length10; _i12++) {
+                        var index = values_by_column[_i12];
                         var sorted_tags = Object.keys(index).sort(function (a, b) {
-                            if (a.toUpperCase() > b.toUpperCase())
-                                return 1;
-                            else
-                                return -1;
+                            if (a.toUpperCase() > b.toUpperCase()) return 1;else return -1;
                         });
-                        for (let j = 0, len = sorted_tags.length; j < len; j++) {
-                            let tag = sorted_tags[j];
-                            if (shown_values.hasOwnProperty(tag)) {
+                        for (var _j2 = 0, len = sorted_tags.length; _j2 < len; _j2++) {
+                            var _tag2 = sorted_tags[_j2];
+                            if (shown_values.hasOwnProperty(_tag2)) {
                                 // Skip values we have already shown
                                 continue;
-                            }
-                            else {
-                                shown_values[tag] = 1;
+                            } else {
+                                shown_values[_tag2] = 1;
                             }
                             var label = document.createElement('label');
-                            label.innerHTML = '<input type="checkbox" ' + (deselected[tag] != null ? '' : 'checked="checked"') + '> ' + tag;
+                            label.innerHTML = '<input type="checkbox" ' + (deselected[_tag2] != null ? '' : 'checked="checked"') + '> ' + _tag2;
                             var input = label.querySelector('input');
-                            input.value = tag;
+                            input.value = _tag2;
                             label.style.marginRight = '1em';
                             label.style.display = 'inline-block';
                             // No visible torrents have this property, but it's also not deselected
-                            if (available_tags[tag] === 0 && !deselected.hasOwnProperty(tag)) {
+                            if (available_tags[_tag2] === 0 && !deselected.hasOwnProperty(_tag2)) {
                                 label.style.opacity = '0.25';
                             }
                             // Only one option, grey it out slightly
@@ -851,8 +913,7 @@
                     // Replace old_form with new_form
                     if (filter_body.hasChildNodes()) {
                         filter_body.replaceChild(new_form, filter_body.firstElementChild);
-                    }
-                    else {
+                    } else {
                         filter_body.appendChild(new_form);
                     }
                 }
@@ -866,8 +927,7 @@
                 if (body.style.display !== 'none') {
                     body.style.display = 'none';
                     span.className = 'triangle-right-md';
-                }
-                else {
+                } else {
                     filter_torrent_table(body);
                     body.style.display = '';
                     span.className = 'triangle-down-md';
@@ -897,23 +957,22 @@
                 parse_table(table);
             }
         }
-    
+
         // If yen should be shown and user creation is not yet saved, try to get and save it
         if (show_yen && (GM_getValue('creation', '0').toString() === '0' || GM_getValue('creation', '0') === 'null')) {
-    
-    
+
             // no longer works because header profile link uses username.
             //var user_id = document.querySelector('div#header div#userinfo li#username_menu a.username');
-    
+
             // checks if the current page's URL matches the profile page
             // of the logged in user.
             // var user_id_re = new RegExp('/user\\.php\\?id=' + CURRENT_USER["userId"]);
             //console.log(CURRENT_USER["userId"]);
             //console.log();
             //if (document.URL.match(user_id_re) !== null) {
-    
+
             // ^ broken on some browsers if CURRENT_USER isn't passed.
-    
+
             // checks if the username link in navbar is the same as the current heading.
             // if it is, we are on a profile page.
             // hopefully no edge cases
@@ -921,33 +980,33 @@
             var user_link = document.querySelector('div#header div#userinfo li#username_menu a.username');
             var user_heading = document.querySelector('div#content h2 a');
             var user_profile_re = /\/user\.php\?id=/i;
-    
+
             if (document.URL.match(user_profile_re) !== null && user_link !== null && user_heading !== null && user_link.href === user_heading.href) {
-    
+
                 var user_stats = document.querySelector('div#content div#user_rightcol div.userstatsleft dl.userprofile_list');
                 var children = user_stats.children;
                 //console.log(children);
-                for (let i = 0, length = children.length; i < length; i++) {
-    
-                    var child = children[i];
+                for (var _i13 = 0, _length11 = children.length; _i13 < _length11; _i13++) {
+
+                    var child = children[_i13];
                     //console.log(child);
                     if (child.textContent.indexOf("Join") !== -1) {
                         try {
                             var join_date = child.nextElementSibling.firstElementChild.title;
-    
+
                             // deletes timezone because it was causing issues with Date.parse()
                             // worst case is +/- 12 hours anyway
                             var timezone_re = /( \d\d:\d\d) [A-Z]+$/;
                             GM_setValue('creation', JSON.stringify(Date.parse(join_date.replace(timezone_re, '$1'))));
+                        } catch (error) {
+                            console.error(error);
                         }
-                        catch (error) { console.error(error);}
                     }
                 }
             }
         }
     }).call(this);
     /* End src/ab_enhanced_torrent_view.user.js */
-
 
     /* Begin src/ab_fl_status.user.js */
     // ==UserScript==
@@ -961,13 +1020,13 @@
     // @grant       GM_setValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     // Freeleech Pool Status by Megure, inspired by Lemma, Alpha, NSC
     // Shows current freeleech pool status in navbar with a pie-chart
     // Updates only once every hour or when pool site is visited, showing a pie-chart on pool site
     (function ABFLStatus() {
         delicious.settings._migrateStringSetting('deliciousflpoolposition');
-    
+
         delicious.settings.init('deliciousflpoolposition', 'after #userinfo_minor');
         delicious.settings.init('deliciousfreeleechpool', true);
         delicious.settings.init('deliciousnavbarpiechart', true);
@@ -975,41 +1034,22 @@
             'navbar': delicious.settings.get('deliciousnavbarpiechart'),
             'profile': delicious.settings.get('deliciousnavbarpiechart')
         });
-    
+
         if (delicious.settings.ensureSettingsInserted()) {
             var section = delicious.settings.createCollapsibleSection('Delicious Freeleech Pool');
             var s = section.querySelector('.settings_section_body');
-            s.appendChild(delicious.settings.createCheckbox(
-                'deliciousfreeleechpool',
-                'Enable/Disable',
-                'Shows current freeleech pool progress in the navbar and on user pages'
-                + ' (updated once an hour or when freeleech pool site is visited).'));
-            s.appendChild(delicious.settings.createDropDown(
-                'deliciousflpoolposition',
-                'Navbar Position',
-                'Select position of freeleech pool progress in the navbar or disable it.',
-                [['Before user info', 'before #userinfo_minor'],
-                    ['After user info', 'after #userinfo_minor'],
-                    ['Before menu', 'before .main-menu.nobullet'],
-                    ['After menu', 'after .main-menu.nobullet'],
-                    ['Don\'t display', 'none']],
-                {default: 'after #userinfo_minor'}
-            ));
-            s.appendChild(delicious.settings.createFieldSetSetting(
-                'deliciousflpiepositions',
-                'FL Pie Chart Locations',
-                [['Navbar dropdown', 'navbar'], ['User profile', 'profile']]
-            ));
+            s.appendChild(delicious.settings.createCheckbox('deliciousfreeleechpool', 'Enable/Disable', 'Shows current freeleech pool progress in the navbar and on user pages' + ' (updated once an hour or when freeleech pool site is visited).'));
+            s.appendChild(delicious.settings.createDropDown('deliciousflpoolposition', 'Navbar Position', 'Select position of freeleech pool progress in the navbar or disable it.', [['Before user info', 'before #userinfo_minor'], ['After user info', 'after #userinfo_minor'], ['Before menu', 'before .main-menu.nobullet'], ['After menu', 'after .main-menu.nobullet'], ['Don\'t display', 'none']], { default: 'after #userinfo_minor' }));
+            s.appendChild(delicious.settings.createFieldSetSetting('deliciousflpiepositions', 'FL Pie Chart Locations', [['Navbar dropdown', 'navbar'], ['User profile', 'profile']]));
             delicious.settings.insertSection(section);
         }
-    
-        if (!delicious.settings.get('deliciousfreeleechpool'))
-            return;
-    
+
+        if (!delicious.settings.get('deliciousfreeleechpool')) return;
+
         function niceNumber(num) {
             var res = '';
             while (num >= 1000) {
-                res = ',' + ('00' + (num % 1000)).slice(-3) + res;
+                res = ',' + ('00' + num % 1000).slice(-3) + res;
                 num = Math.floor(num / 1000);
             }
             return num + res;
@@ -1020,7 +1060,7 @@
                 var boxes = elem.querySelectorAll('#content .box.pad');
                 //console.log(boxes);
                 if (boxes.length < 3) return;
-    
+
                 // The first box holds the current amount, the max amount and the user's individual all-time contribution
                 var match = boxes[0].textContent.match(/have ¥([0-9,]+) \/ ¥([0-9,]+)/i),
                     max = parseInt(GM_getValue('FLPoolMax', '50000000'), 10),
@@ -1029,8 +1069,7 @@
                     // Updated 2018-02-23 according to oregano's suggestion
                     match = boxes[0].textContent.match(/You must wait for freeleech to be over before donating/i);
                     if (match != null) current = max;
-                }
-                else {
+                } else {
                     current = parseInt(match[1].replace(/,/g, ''), 10);
                     max = parseInt(match[2].replace(/,/g, ''), 10);
                 }
@@ -1040,25 +1079,28 @@
                 }
                 // Check first box for user's individual all-time contribution
                 match = boxes[0].textContent.match(/you've donated ¥([0-9,]+)/i);
-                if (match != null)
-                    GM_setValue('FLPoolContribution', parseInt(match[1].replace(/,/g, ''), 10));
-    
+                if (match != null) GM_setValue('FLPoolContribution', parseInt(match[1].replace(/,/g, ''), 10));
+
                 // The third box holds the top 10 donators for the current box
                 var box = boxes[2],
                     tr = box.querySelector('table').querySelectorAll('tbody > tr');
-    
-                var titles = [], hrefs = [], amounts = [], colors = [], sum = 0;
+
+                var titles = [],
+                    hrefs = [],
+                    amounts = [],
+                    colors = [],
+                    sum = 0;
                 for (var i = 0; i < tr.length; i++) {
                     var el = tr[i],
                         td = el.querySelectorAll('td');
-    
+
                     titles[i] = td[0].textContent;
                     hrefs[i] = td[0].querySelector('a').href;
                     amounts[i] = parseInt(td[1].textContent.replace(/[,¥]/g, ''), 10);
                     colors[i] = 'red';
                     sum += amounts[i];
                 }
-    
+
                 // Updated 2018-02-23. Properly draw full pie when FL active.
                 if (current === max && sum === 0) {
                     titles[0] = "Freeleech!";
@@ -1066,8 +1108,7 @@
                     amounts[0] = current;
                     colors[0] = 'red';
                     sum = current;
-                }
-                else {
+                } else {
                     // Also add others and missing to the arrays
                     // 2018-02-23 But only if FL isn't active.
                     var next_index = titles.length;
@@ -1075,24 +1116,22 @@
                     hrefs[next_index] = 'https://animebytes.tv/konbini/pool';
                     amounts[next_index] = current - sum;
                     colors[next_index] = 'lightgrey';
-    
+
                     titles[next_index + 1] = 'Missing';
                     hrefs[next_index + 1] = 'https://animebytes.tv/konbini/pool';
                     amounts[next_index + 1] = max - current;
                     colors[next_index + 1] = 'black';
                 }
-    
+
                 GM_setValue('FLPoolLastUpdate', Date.now());
                 GM_setValue('FLPoolTitles', JSON.stringify(titles));
                 GM_setValue('FLPoolHrefs', JSON.stringify(hrefs));
                 GM_setValue('FLPoolAmounts', JSON.stringify(amounts));
                 GM_setValue('FLPoolColors', JSON.stringify(colors));
             }
-    
+
             // Either parse document or retrieve freeleech pool site 60*60*1000 ms after last retrieval
-            if (/konbini\/pool$/i.test(document.URL))
-                parseFLInfo(document);
-            else if (Date.now() - parseInt(GM_getValue('FLPoolLastUpdate', '0'), 10) > 3600000 && locked === false) {
+            if (/konbini\/pool$/i.test(document.URL)) parseFLInfo(document);else if (Date.now() - parseInt(GM_getValue('FLPoolLastUpdate', '0'), 10) > 3600000 && locked === false) {
                 locked = true;
                 // Fix suggested by https://animebytes.tv/user/profile/oregano
                 // https://discourse.mozilla.org/t/webextension-xmlhttprequest-issues-no-cookies-or-referrer-solved/11224/18
@@ -1113,18 +1152,19 @@
                 };
             }
         }
-    
+
         function getPieChart() {
             function circlePart(diff, title, href, color) {
                 if (diff == 0) return '';
-                var x = Math.sin(phi), y = Math.cos(phi);
+                var x = Math.sin(phi),
+                    y = Math.cos(phi);
                 phi -= 2 * Math.PI * diff / max;
-                var v = Math.sin(phi), w = Math.cos(phi);
+                var v = Math.sin(phi),
+                    w = Math.cos(phi);
                 var z = 0;
-                if (2 * diff > max)
-                    z = 1; // use long arc
+                if (2 * diff > max) z = 1; // use long arc
                 var perc = (100 * diff / max).toFixed(1) + '%\n' + niceNumber(diff) + ' ¥';
-    
+
                 // 2018-02-23 Hardcoded since rounding errors were making the pie a thin strip when it was a single
                 // slice at 100%.
                 if (diff === max) {
@@ -1138,20 +1178,14 @@
                     z = 1;
                     x = 0;
                     y = -1;
-    
                 }
-                return '<a xlink:href="' + href + '" xlink:title="' + title + '\n' + perc + '"><path title="' + title + '\n' + perc +
-                    '" stroke-width="0.01" stroke="grey" fill="' + color + '" d="M0,0 L' + v + ',' + w + ' A1,1 0 ' + z + ',0 ' + x + ',' + y + 'z">\n' +
-    
-                    '<animate begin="mouseover" attributeName="d" to="M0,0 L' + 1.1 * v + ',' + 1.1 * w + ' A1.1,1.1 0 ' + z + ',0 ' + 1.1 * x + ',' + 1.1 * y + 'z" dur="0.3s" fill="freeze" />\n' +
-                    '<animate begin="mouseout"  attributeName="d" to="M0,0 L' + v + ',' + w + ' A1,1 0 ' + z + ',0 ' + x + ',' + y + 'z" dur="0.3s" fill="freeze" />\n' +
-                    '</path></a>\n\n';
+                return '<a xlink:href="' + href + '" xlink:title="' + title + '\n' + perc + '"><path title="' + title + '\n' + perc + '" stroke-width="0.01" stroke="grey" fill="' + color + '" d="M0,0 L' + v + ',' + w + ' A1,1 0 ' + z + ',0 ' + x + ',' + y + 'z">\n' + '<animate begin="mouseover" attributeName="d" to="M0,0 L' + 1.1 * v + ',' + 1.1 * w + ' A1.1,1.1 0 ' + z + ',0 ' + 1.1 * x + ',' + 1.1 * y + 'z" dur="0.3s" fill="freeze" />\n' + '<animate begin="mouseout"  attributeName="d" to="M0,0 L' + v + ',' + w + ' A1,1 0 ' + z + ',0 ' + x + ',' + y + 'z" dur="0.3s" fill="freeze" />\n' + '</path></a>\n\n';
             }
-    
-            var str = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-1.11 -1.11 2.22 2.22" height="200px" width="100%">' +
-                '<title>Most Donated To This Box Pie-Chart</title>';
+
+            var str = '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-1.11 -1.11 2.22 2.22" height="200px" width="100%">' + '<title>Most Donated To This Box Pie-Chart</title>';
             try {
-                var phi = Math.PI, max = parseInt(GM_getValue('FLPoolMax', '50000000'), 10),
+                var phi = Math.PI,
+                    max = parseInt(GM_getValue('FLPoolMax', '50000000'), 10),
                     titles = JSON.parse(GM_getValue('FLPoolTitles', '[]')),
                     hrefs = JSON.parse(GM_getValue('FLPoolHrefs', '[]')),
                     amounts = JSON.parse(GM_getValue('FLPoolAmounts', '[]')),
@@ -1159,10 +1193,12 @@
                 for (var i = 0; i < titles.length; i++) {
                     str += circlePart(amounts[i], titles[i], hrefs[i], colors[i]);
                 }
-            } catch (e) {console.error(e); }
+            } catch (e) {
+                console.error(e);
+            }
             return str + '</svg>';
         }
-    
+
         function updatePieChart() {
             var pieChart = getPieChart();
             p.innerHTML = pieChart;
@@ -1177,13 +1213,13 @@
             a.textContent = 'FL: ' + (100 * parseInt(GM_getValue('FLPoolCurrent', '0'), 10) / parseInt(GM_getValue('FLPoolMax', '50000000'), 10)).toFixed(1) + '%';
             nav.replaceChild(a, nav.firstChild);
         }
-    
+
         var pos = delicious.settings.get('deliciousflpoolposition');
-    
+
         // // prevents global click handler from immediately closing the menu
         // event.stopPropagation();
         // return false;
-    
+
         if (pos !== 'none' || /user\.php\?id=/i.test(document.URL) || /konbini\/pool/i.test(document.URL)) {
             var p = document.createElement('p'),
                 p2 = document.createElement('center'),
@@ -1199,10 +1235,10 @@
                 outerSpan.className += "dropit hover clickmenu";
                 outerSpan.addEventListener('click', delicious.utilities.toggleSubnav);
                 outerSpan.innerHTML += '<span class="stext">▼</span>';
-    
+
                 // nav is the li.navmenu
                 nav.appendChild(outerSpan);
-    
+
                 // this ul contains the pie (somehow)
                 ul.appendChild(li);
                 ul.className = 'subnav nobullet';
@@ -1216,19 +1252,20 @@
                 var parent = document.querySelector(pos[1]);
                 if (parent !== null) {
                     getFLInfo();
-                    if (pos[0] === 'after')
-                        parent.appendChild(nav);
-                    if (pos[0] === 'before')
-                        parent.insertBefore(nav, parent.firstChild);
+                    if (pos[0] === 'after') parent.appendChild(nav);
+                    if (pos[0] === 'before') parent.insertBefore(nav, parent.firstChild);
                 }
             }
-    
+
             updatePieChart();
-    
+
             if (pieLocations['profile'] && /user\.php\?id=/i.test(document.URL)) {
                 var userstats = document.querySelector('#user_rightcol > .box');
                 if (userstats != null) {
-                    var tw = document.createTreeWalker(userstats, NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /Yen per day/i.test(node.data); } });
+                    var tw = document.createTreeWalker(userstats, NodeFilter.SHOW_TEXT, { acceptNode: function acceptNode(node) {
+                            return (/Yen per day/i.test(node.data)
+                            );
+                        } });
                     if (tw.nextNode() != null) {
                         getFLInfo();
                         var cNode = document.querySelector('.userstatsleft');
@@ -1240,17 +1277,19 @@
                     }
                 }
             }
-    
+
             if (/konbini\/pool/i.test(document.URL)) {
-                let tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Most Donated to This Box\s*$/i.test(node.data); } });
-                if (tw.nextNode() !== null) {
-                    tw.currentNode.parentNode.insertBefore(p, tw.currentNode.nextSibling);
+                var _tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function acceptNode(node) {
+                        return (/^\s*Most Donated to This Box\s*$/i.test(node.data)
+                        );
+                    } });
+                if (_tw.nextNode() !== null) {
+                    _tw.currentNode.parentNode.insertBefore(p, _tw.currentNode.nextSibling);
                 }
             }
         }
     })();
     /* End src/ab_fl_status.user.js */
-
 
     /* Begin src/ab_forum_search_enhancement.user.js */
     // ==UserScript==
@@ -1265,90 +1304,68 @@
     // @icon        http://animebytes.tv/favicon.ico
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     //import '../delicious-library/src/ab_delicious_library'
-    
+
     (function ForumSearchEnhancement() {
         delicious.settings.init('ABForumSearchWorkInFS', true);
         delicious.settings.init('ABForumSearchWorkInRest', true);
-    
-        var textSettings = ['ABForumSearchHighlightBG', 'ABForumSearchHighlightFG',
-            'ABForumLoadText', 'ABForumLoadingText', 'ABForumToggleText'];
+
+        var textSettings = ['ABForumSearchHighlightBG', 'ABForumSearchHighlightFG', 'ABForumLoadText', 'ABForumLoadingText', 'ABForumToggleText'];
         for (var k = 0; k < textSettings.length; k++) {
             delicious.settings._migrateStringSetting(textSettings[k]);
         }
-    
-        if (delicious.settings.get('ABForumSearchHighlightBG') === 'none')
-            delicious.settings.set('ABForumSearchHighlightBG', null);
-        if (delicious.settings.get('ABForumSearchHighlightFG') === 'none')
-            delicious.settings.set('ABForumSearchHighlightFG', null);
-    
+
+        if (delicious.settings.get('ABForumSearchHighlightBG') === 'none') delicious.settings.set('ABForumSearchHighlightBG', null);
+        if (delicious.settings.get('ABForumSearchHighlightFG') === 'none') delicious.settings.set('ABForumSearchHighlightFG', null);
+
         if (delicious.settings.ensureSettingsInserted()) {
             var section = delicious.settings.createCollapsibleSection('Forum Search Enhancements');
             var s = section.querySelector('.settings_section_body');
-            s.appendChild(delicious.settings.createCheckbox(
-                'ABForumSearchWorkInFS',
-                'Load posts into search results',
-                'Allows you to load posts and threads into search results, slide through posts and filter for authors.'
-            ));
-    
-            s.appendChild(delicious.settings.createColourSetting('ABForumSearchHighlightBG',
-                'Color for search terms', 'Background color for search terms within posts and headers.',
-                {default: '#FFC000'}));
-            s.appendChild(delicious.settings.createColourSetting('ABForumSearchHighlightFG',
-                'Color for search terms', 'Text color for search terms within posts and headers.',
-                {default: '#000000'}));
-    
-            s.appendChild(delicious.settings.createCheckbox('ABForumEnhWorkInRest',
-                'Load posts into forum view', 'Allows you to load posts and threads into the general forum view.',
-                {default: false}));
-            s.appendChild(delicious.settings.createTextSetting('ABForumLoadText',
-                'Text for links to be loaded', 'The text to be shown for forum links that have not been loaded yet.',
-                {default: '(Load) ', width: '8em'}));
-            s.appendChild(delicious.settings.createTextSetting('ABForumLoadingText', 'Text for loading links',
-                'The text to be shown for forum links that are currently being loaded.',
-                {default: '(Loading) ', width: '8em'}));
-            s.appendChild(delicious.settings.createTextSetting('ABForumToggleText', 'Text for loaded links',
-                'The text to be shown for forum links that have been loaded and can now be toggled.',
-                {default: '(Toggle) ', width: '8em'}));
-    
+            s.appendChild(delicious.settings.createCheckbox('ABForumSearchWorkInFS', 'Load posts into search results', 'Allows you to load posts and threads into search results, slide through posts and filter for authors.'));
+
+            s.appendChild(delicious.settings.createColourSetting('ABForumSearchHighlightBG', 'Color for search terms', 'Background color for search terms within posts and headers.', { default: '#FFC000' }));
+            s.appendChild(delicious.settings.createColourSetting('ABForumSearchHighlightFG', 'Color for search terms', 'Text color for search terms within posts and headers.', { default: '#000000' }));
+
+            s.appendChild(delicious.settings.createCheckbox('ABForumEnhWorkInRest', 'Load posts into forum view', 'Allows you to load posts and threads into the general forum view.', { default: false }));
+            s.appendChild(delicious.settings.createTextSetting('ABForumLoadText', 'Text for links to be loaded', 'The text to be shown for forum links that have not been loaded yet.', { default: '(Load) ', width: '8em' }));
+            s.appendChild(delicious.settings.createTextSetting('ABForumLoadingText', 'Text for loading links', 'The text to be shown for forum links that are currently being loaded.', { default: '(Loading) ', width: '8em' }));
+            s.appendChild(delicious.settings.createTextSetting('ABForumToggleText', 'Text for loaded links', 'The text to be shown for forum links that have been loaded and can now be toggled.', { default: '(Toggle) ', width: '8em' }));
+
             delicious.settings.insertSection(section);
         }
-    
-        if (!( (/^http.*:\/\/animebytes\.tv\/forums\.php/i.test(document.URL))
-            && !/action=viewthread/i.test(document.URL) ))
-            return;
-    
-    
-        var a, allResults, background_color, button, cb, filterPost, forumIds, forumid, getFirstTagParent, hideSubSelection, i, j, input, len, linkbox1, loadPost, loadText, loadThreadPage, loadingText, myCell, myLINK, newCheckbox, newLinkBox, patt, processThreadPage, quickLink, quickLinkSubs, result, sR, searchForums, searchForumsCB, searchForumsNew, showFastSearchLinks, showPost, strong, tP, textReplace, text_color, toggleText, toggleVisibility, user_filter, user_td, user_tr, workInForumSearch, workInRestOfForum;
-    
+
+        if (!(/^http.*:\/\/animebytes\.tv\/forums\.php/i.test(document.URL) && !/action=viewthread/i.test(document.URL))) return;
+
+        var a, allResults, background_color, button, cb, filterPost, forumIds, forumid, getFirstTagParent, hideSubSelection, i, j, input, len, linkbox1, loadPost, loadText, loadThreadPage, loadingText, myCell, myLINK, newCheckbox, newLinkBox, patt, processThreadPage, quickLink, quickLinkSubs, result, sR, searchForums, searchForumsCB, searchForumsNew, showFastSearchLinks, _showPost, strong, tP, textReplace, text_color, toggleText, toggleVisibility, user_filter, user_td, user_tr, workInForumSearch, workInRestOfForum;
+
         background_color = delicious.settings.get('ABForumSearchHighlightBG', '#FFC000');
-    
+
         text_color = delicious.settings.get('ABForumSearchHighlightFG', '#000000');
-    
+
         toggleText = delicious.settings.get('ABForumToggleText', '(Toggle) ');
-    
+
         loadText = delicious.settings.get('ABForumLoadText', '(Load) ');
-    
+
         loadingText = delicious.settings.get('ABForumLoadingText', '(Loading) ');
-    
+
         hideSubSelection = delicious.settings.get('ABForumSearchHideSubfor', true);
-    
+
         workInForumSearch = delicious.settings.get('ABForumSearchWorkInFS', true) && document.URL.indexOf('action=search') >= 0;
-    
+
         workInRestOfForum = delicious.settings.get('ABForumEnhWorkInRest', false) && (document.URL.indexOf('action=viewforum') >= 0 || document.URL.indexOf('?') === -1);
-    
+
         showFastSearchLinks = delicious.settings.get('ABForumEnhFastSearch', true) && document.URL.indexOf('action=viewforum') >= 0;
-    
+
         user_filter = [];
-    
+
         sR = [];
-    
+
         tP = [];
-    
+
         cb = [];
-    
-        getFirstTagParent = function (elem, tag) {
+
+        getFirstTagParent = function getFirstTagParent(elem, tag) {
             while (elem !== null && elem.tagName !== 'BODY' && elem.tagName !== tag) {
                 elem = elem.parentNode;
             }
@@ -1358,8 +1375,8 @@
                 return elem;
             }
         };
-    
-        textReplace = function (elem) {
+
+        textReplace = function textReplace(elem) {
             var node, regExp, walk;
             if (patt !== '' && (background_color !== 'none' || text_color !== 'none')) {
                 walk = document.createTreeWalker(elem, NodeFilter.SHOW_TEXT, null, false);
@@ -1387,8 +1404,8 @@
                 }
             }
         };
-    
-        processThreadPage = function (id, threadid, page, parent, link) {
+
+        processThreadPage = function processThreadPage(id, threadid, page, parent, link) {
             return function () {
                 var _i, cell, i, j, len, len1, linkbox, myColsp, nextPost, pagenums, post, prevPost, ref, ref1, td, threadPage, tr, user_id;
                 threadPage = "threadid=" + threadid + "&page=" + page;
@@ -1425,8 +1442,8 @@
                 pagenums.appendChild(prevPost);
                 pagenums.appendChild(nextPost);
                 linkbox.appendChild(pagenums);
-                prevPost.addEventListener('click', showPost(id, true), true);
-                nextPost.addEventListener('click', showPost(id, false), true);
+                prevPost.addEventListener('click', _showPost(id, true), true);
+                nextPost.addEventListener('click', _showPost(id, false), true);
                 tr = document.createElement('tr');
                 td = document.createElement('td');
                 myColsp = 0;
@@ -1443,8 +1460,8 @@
                 sR[id].parent.parentNode.insertBefore(tr, sR[id].parent.nextSibling);
             };
         };
-    
-        loadThreadPage = function (threadid, page) {
+
+        loadThreadPage = function loadThreadPage(threadid, page) {
             var threadPage, xhr;
             threadPage = "threadid=" + threadid + "&page=" + page;
             tP[threadPage] = 'Loading';
@@ -1456,7 +1473,7 @@
                 var callback, i, j, len, len1, parser, post, ref, ref1;
                 if (xhr.readyState === 4) {
                     parser = new DOMParser();
-                    tP[threadPage] = (parser.parseFromString(xhr.responseText, 'text/html')).querySelectorAll('div[id^="post"]');
+                    tP[threadPage] = parser.parseFromString(xhr.responseText, 'text/html').querySelectorAll('div[id^="post"]');
                     ref = tP[threadPage];
                     for (i = 0, len = ref.length; i < len; i++) {
                         post = ref[i];
@@ -1471,8 +1488,8 @@
                 }
             };
         };
-    
-        loadPost = function (link, index, filtered) {
+
+        loadPost = function loadPost(link, index, filtered) {
             return function (event) {
                 var cell, id, match, newLink, node, page, threadPage, threadid;
                 if (event != null) {
@@ -1523,19 +1540,19 @@
                 }
             };
         };
-    
-        toggleVisibility = function (id) {
+
+        toggleVisibility = function toggleVisibility(id) {
             var elem;
             elem = sR[id];
             if (elem.td.parentNode.style.visibility === 'collapse') {
-                showPost(id, null)();
+                _showPost(id, null)();
                 return elem.td.parentNode.style.visibility = 'visible';
             } else {
                 return elem.td.parentNode.style.visibility = 'collapse';
             }
         };
-    
-        showPost = function (id, prev) {
+
+        _showPost = function showPost(id, prev) {
             return function (event) {
                 var elem, nextTP, prevTP, threadPage;
                 elem = sR[id];
@@ -1550,7 +1567,7 @@
                     if (elem.index === 0 && elem.page > 1) {
                         if (prevTP in tP) {
                             if (tP[prevTP] === 'Loading') {
-                                cb[prevTP].push(showPost(id, prev));
+                                cb[prevTP].push(_showPost(id, prev));
                             } else {
                                 elem.page = elem.page - 1;
                                 elem.index = tP[prevTP].length - 1;
@@ -1558,7 +1575,7 @@
                             }
                         } else {
                             loadThreadPage(elem.threadid, elem.page - 1);
-                            cb[prevTP].push(showPost(id, prev));
+                            cb[prevTP].push(_showPost(id, prev));
                         }
                     } else {
                         elem.index = Math.max(elem.index - 1, 0);
@@ -1572,7 +1589,7 @@
                     if (elem.index === 24) {
                         if (nextTP in tP) {
                             if (tP[nextTP] === 'Loading') {
-                                cb[prevTP].push(showPost(id, prev));
+                                cb[prevTP].push(_showPost(id, prev));
                             } else {
                                 if (tP[nextTP].length > 0) {
                                     elem.page = elem.page + 1;
@@ -1582,7 +1599,7 @@
                             }
                         } else {
                             loadThreadPage(elem.threadid, elem.page + 1);
-                            cb[nextTP].push(showPost(id, prev));
+                            cb[nextTP].push(_showPost(id, prev));
                         }
                     } else {
                         elem.index = Math.min(elem.index + 1, tP[threadPage].length - 1);
@@ -1601,8 +1618,8 @@
                 }
             };
         };
-    
-        filterPost = function (id) {
+
+        filterPost = function filterPost(id) {
             return function () {
                 var elem, i, len, toFilter, user_name;
                 elem = sR[id];
@@ -1620,7 +1637,7 @@
                 }
             };
         };
-    
+
         if (workInRestOfForum || workInForumSearch) {
             patt = document.querySelector('form[action=""] input[name="search"]');
             if (patt != null) {
@@ -1640,7 +1657,7 @@
                 myCell.insertBefore(a, result);
             }
         }
-    
+
         if (workInForumSearch) {
             user_tr = document.createElement('tr');
             user_td = [];
@@ -1665,7 +1682,7 @@
             button.addEventListener('click', function (event) {
                 var j, len1, results, userName;
                 if (input.value.replace(/[,\s]/g, '') !== '') {
-                    user_filter = (function () {
+                    user_filter = function () {
                         var j, len1, ref, results;
                         ref = input.value.trim().replace(/[,\s]+/g, ',').split(',');
                         results = [];
@@ -1674,7 +1691,7 @@
                             results.push(userName.trim());
                         }
                         return results;
-                    })();
+                    }();
                     button.disabled = 'disabled';
                     results = [];
                     for (j = j = 0, len1 = allResults.length; j < len1; j = ++j) {
@@ -1688,7 +1705,6 @@
     }).call(this);
     /* End src/ab_forum_search_enhancement.user.js */
 
-
     /* Begin src/ab_hide_pmstaff.user.js */
     // ==UserScript==
     // @name        AB - Hide PM staff
@@ -1701,22 +1717,16 @@
     // @grant       GM_getValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     // Bassed on Hide treats by Alpha
     (function ABHidePMstaff() {
-        var _enabled = delicious.settings.basicScriptCheckbox(
-            'hidepmstaff',
-            'PM the staff',
-            'Hide/Unhide PM the Staff link on the main menu'
-        );
-        if (!_enabled)
-            return;
-    
+        var _enabled = delicious.settings.basicScriptCheckbox('hidepmstaff', 'PM the staff', 'Hide/Unhide PM the Staff link on the main menu');
+        if (!_enabled) return;
+
         var pmstaffnode = document.evaluate('//*[@id="nav_staffpm"]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
         if (pmstaffnode) pmstaffnode.style.display = "none";
     })();
     /* End src/ab_hide_pmstaff.user.js */
-
 
     /* Begin src/ab_hide_treats.user.js */
     // ==UserScript==
@@ -1730,23 +1740,17 @@
     // @grant       GM_getValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     // Hide treats by Alpha
     // Hide treats on profile.
-    (function ABHideTreats(){
-        var _enabled = delicious.settings.basicScriptCheckbox(
-            'delicioustreats',
-            'Disgusting Treats',
-            'Hide those hideous treats on profile pages!'
-        );
-        if (!_enabled)
-            return;
-    
+    (function ABHideTreats() {
+        var _enabled = delicious.settings.basicScriptCheckbox('delicioustreats', 'Disgusting Treats', 'Hide those hideous treats on profile pages!');
+        if (!_enabled) return;
+
         var treatsnode = document.evaluate('//*[@id="user_leftcol"]/div[@class="box" and div[@class="head" and .="Treats"]]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
         if (treatsnode) treatsnode.style.display = "none";
     })();
     /* End src/ab_hide_treats.user.js */
-
 
     /* Begin src/ab_hoverin.user.js */
     // ==UserScript==
@@ -1768,17 +1772,11 @@
         style.innerHTML = css;
         head.appendChild(style);
     }
-    var _enabled = delicious.settings.basicScriptCheckbox(
-        'hoverdrop',
-        'Hoverin',
-        'Enable/Disable Auto dropdown menus when hovering.'
-    );
-    if (!_enabled)
-        return;
-    
+    var _enabled = delicious.settings.basicScriptCheckbox('hoverdrop', 'Hoverin', 'Enable/Disable Auto dropdown menus when hovering.');
+    if (!_enabled) return;
+
     Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
     /* End src/ab_hoverin.user.js */
-
 
     /* Begin src/ab_hyper_quote.user.js */
     // ==UserScript==
@@ -1792,35 +1790,27 @@
     // @grant       GM_getValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     //import '../delicious-library/src/ab_delicious_library';
-    
+
     /* global delicious */
-    
+
     (function ABHyperQuote() {
-        var _enabled = delicious.settings.basicScriptCheckbox(
-            'delicioushyperquote',
-            'Delicious Hyper Quote',
-            'Select text and press Ctrl+V to instantly quote it.'
-        );
-        if (!_enabled)
-            return;
-    
-        if (document.getElementById('quickpost') === null)
-            return;
+        var _enabled = delicious.settings.basicScriptCheckbox('delicioushyperquote', 'Delicious Hyper Quote', 'Select text and press Ctrl+V to instantly quote it.');
+        if (!_enabled) return;
+
+        if (document.getElementById('quickpost') === null) return;
         /** Debug flag. */
         var _debug = false;
-    
+
         function formattedUTCString(date, timezone) {
             var creation = new Date(date);
-            if (isNaN(creation.getTime()))
-                return date;
-            else {
+            if (isNaN(creation.getTime())) return date;else {
                 creation = creation.toUTCString().split(' ');
                 return creation[1] + ' ' + creation[2] + ' ' + creation[3] + ', ' + creation[4].substring(0, 5) + (timezone !== false ? ' ' + creation[5] : '');
             }
         }
-    
+
         /**
          * Quotes the entire selection.
          *
@@ -1853,18 +1843,14 @@
                 // Start at 2nd range, because we have already set startRange
                 // and previousRange above. Also, first range has no previous
                 // range to compare to.
-                for (var i = 1; i < sel.rangeCount+1; i++) {
-                    if (i < sel.rangeCount)
-                        thisRange = sel.getRangeAt(i);
-                    else
-                        thisRange = null;
+                for (var i = 1; i < sel.rangeCount + 1; i++) {
+                    if (i < sel.rangeCount) thisRange = sel.getRangeAt(i);else thisRange = null;
                     // If this range starts at the beginning and picks up
                     // exactly where the previous range left off.
                     // After trial/error, this code should work.
                     // endOffset+1 is to get the childNode _after_ the previous
                     // range ends, since ranges don't overlap (hopefully)
-                    if (thisRange !== null && thisRange.startOffset === 0 &&
-                        previousRange.endContainer.childNodes[previousRange.endOffset+1] === thisRange.startContainer) {
+                    if (thisRange !== null && thisRange.startOffset === 0 && previousRange.endContainer.childNodes[previousRange.endOffset + 1] === thisRange.startContainer) {
                         // Store this range as the previous and continue looping.
                         previousRange = thisRange;
                     } else {
@@ -1891,7 +1877,7 @@
                 }
             }
         }
-    
+
         /**
          * Quotes many posts.
          *
@@ -1910,13 +1896,11 @@
              */
             function removeChildren(node, prev) {
                 if (node === null || node.parentNode === null) return;
-                if (prev === true)
-                    while (node.parentNode.firstChild !== node)
-                        node.parentNode.removeChild(node.parentNode.firstChild);
-                else
-                    while (node.parentNode.lastChild !== node)
-                        node.parentNode.removeChild(node.parentNode.lastChild);
-                removeChildren(node.parentNode, prev);
+                if (prev === true) while (node.parentNode.firstChild !== node) {
+                    node.parentNode.removeChild(node.parentNode.firstChild);
+                } else while (node.parentNode.lastChild !== node) {
+                    node.parentNode.removeChild(node.parentNode.lastChild);
+                }removeChildren(node.parentNode, prev);
             }
             /**
              * Essentailly indexOf for any array-like object.
@@ -1926,15 +1910,14 @@
              */
             function inArray(arr, elem) {
                 for (var i = 0; i < arr.length; i++) {
-                    if (arr[i] === elem)
-                        return i;
+                    if (arr[i] === elem) return i;
                 }
                 _debug && console.log(elem);
                 return -1;
             }
-    
+
             // TODO: refactor bbcodeChildren to use these functions.
-    
+
             /**
              *
              * @param {HTMLElement} quoteNode
@@ -1945,33 +1928,22 @@
                     var link = colon.previousSibling;
                     var span = link.firstElementChild;
                     var strong = link.previousElementSibling;
-                    return (colon.nodeValue === ':\n'
-                        && span.tagName.toUpperCase() === 'SPAN'
-                        && span.title
-                        && link.tagName.toUpperCase() === 'A'
-                        && link.textContent.slice(0, 6) === 'wrote '
-                        && strong.tagName.toUpperCase() === 'STRONG'
-                        && strong.firstElementChild.href.indexOf('/user.php?id=') !== -1);
+                    return colon.nodeValue === ':\n' && span.tagName.toUpperCase() === 'SPAN' && span.title && link.tagName.toUpperCase() === 'A' && link.textContent.slice(0, 6) === 'wrote ' && strong.tagName.toUpperCase() === 'STRONG' && strong.firstElementChild.href.indexOf('/user.php?id=') !== -1;
                 } catch (e) {
                     return false;
                 }
             }
-    
+
             function isUsernameQuote(quoteNode) {
                 try {
                     var wrote = quoteNode.previousSibling;
                     var strong = wrote.previousSibling;
-                    return (wrote.nodeValue === ' wrote:\n'
-                        && strong.nodeType === Node.ELEMENT_NODE
-                        && strong.tagName.toUpperCase() === 'STRONG'
-                        && strong.childNodes.length === 1
-                        && strong.firstChild.nodeType === Node.TEXT_NODE
-                    );
+                    return wrote.nodeValue === ' wrote:\n' && strong.nodeType === Node.ELEMENT_NODE && strong.tagName.toUpperCase() === 'STRONG' && strong.childNodes.length === 1 && strong.firstChild.nodeType === Node.TEXT_NODE;
                 } catch (e) {
                     return false;
                 }
             }
-    
+
             /**
              * Returns a new documentFragment containing 'num' many nodes
              * which are previous siblings of 'node', cloned.
@@ -1984,12 +1956,11 @@
                 var docFrag = document.createDocumentFragment();
                 var index = inArray(node.parentNode.childNodes, node);
                 for (var q = 0; q < num; q++) {
-                    docFrag.appendChild(
-                        node.parentNode.childNodes[index-num+q].cloneNode(true));
+                    docFrag.appendChild(node.parentNode.childNodes[index - num + q].cloneNode(true));
                 }
                 return docFrag;
             }
-    
+
             /**
              * Array of [number, docFrag] pairs where number is a
              * data-hyper-quote value referencing a unique node
@@ -2007,15 +1978,11 @@
              */
             function preserveIfNeeded(node) {
                 var numToSave = 0;
-                if (isSmartQuote(node))
-                    numToSave = 4;
-                else if (isUsernameQuote(node))
-                    numToSave = 2;
-    
+                if (isSmartQuote(node)) numToSave = 4;else if (isUsernameQuote(node)) numToSave = 2;
+
                 if (numToSave) {
                     var num;
-                    if (savedPreviousNodes.length) num = savedPreviousNodes.slice(-1)[0] + 1;
-                    else num = 1;
+                    if (savedPreviousNodes.length) num = savedPreviousNodes.slice(-1)[0] + 1;else num = 1;
                     var pair = [num, savePreviousNodes(numToSave, node)];
                     node.dataset['hyperQuote'] = num;
                     savedPreviousNodes.push(pair);
@@ -2023,7 +1990,7 @@
                 }
                 return null;
             }
-    
+
             /**
              * Traverses upwards from 'node' to the topmost element in the document.
              *
@@ -2037,13 +2004,12 @@
                 var path = [];
                 while (bottomNode.parentNode !== null) {
                     path.push(inArray(bottomNode.parentNode.childNodes, bottomNode));
-                    if (preserve)
-                        preserveIfNeeded(bottomNode);
+                    if (preserve) preserveIfNeeded(bottomNode);
                     bottomNode = bottomNode.parentNode;
                 }
                 return [bottomNode, path];
             }
-    
+
             /**
              * Reverse of traverseUpwards,
              * descending to the element in the original position using a known
@@ -2059,51 +2025,46 @@
                 }
                 return topNode;
             }
-    
+
             if (range.collapsed === true) return;
-    
+
             // Goes from the startContainer to root document node, storing its
             // path in 'start'.
             var html1 = range.startContainer;
             var t = traverseUpwards(html1, true);
             html1 = t[0];
             var start = t[1];
-    
+
             // Similarly for the endContainer.
             var html2 = range.endContainer;
             var u = traverseUpwards(html2, false);
             html2 = u[0];
             var end = u[1];
-    
+
             // These should be equal as they originate from the same <html> tag.
             if (html1 !== html2 || html1 === null) return;
             // Take a copy which we can edit as we need.
             var htmlCopy = html1.cloneNode(true);
-    
+
             // Descends the copied HTML tree to get to the startContainer
             // and endContainer, using the indexes stored previously.
             var startNode = traverseDownwards(htmlCopy, start);
             var endNode = traverseDownwards(htmlCopy, end);
-    
+
             // Slices the start and end containers so they contain only
             // the selected text.
-            if (endNode.nodeType === 3)
-                endNode.data = endNode.data.substr(0, range.endOffset);
-            else if (endNode.nodeType === 1)
-                for (var i = endNode.childNodes.length; i > range.endOffset; i--)
-                    endNode.removeChild(endNode.lastChild);
-            if (range.startOffset > 0) {
-                if (startNode.nodeType === 3)
-                    startNode.data = startNode.data.substr(range.startOffset);
-                else if (startNode.nodeType === 1)
-                    for (var j = 0; j < range.startOffset; j++)
-                        startNode.removeChild(startNode.firstChild);
+            if (endNode.nodeType === 3) endNode.data = endNode.data.substr(0, range.endOffset);else if (endNode.nodeType === 1) for (var i = endNode.childNodes.length; i > range.endOffset; i--) {
+                endNode.removeChild(endNode.lastChild);
+            }if (range.startOffset > 0) {
+                if (startNode.nodeType === 3) startNode.data = startNode.data.substr(range.startOffset);else if (startNode.nodeType === 1) for (var j = 0; j < range.startOffset; j++) {
+                    startNode.removeChild(startNode.firstChild);
+                }
             }
-    
+
             // Removes all elements before startNode and after endNode.
             removeChildren(startNode, true);
             removeChildren(endNode, false);
-    
+
             // Finds the bottommost element which is a parent of both
             // startNode and endNode. This is done to find the deepest quote
             // which was quoted.
@@ -2113,17 +2074,11 @@
             var rootQuote = null;
             var secondChild = null; // Set in 'while' conditional.
             while ( // I'm really sorry about this code ;-;
-                (commonRoot.childNodes.length === 1) // If only one child, the result is obvious.
-                || (
-                    commonRoot.childNodes.length === 2 // If 2 children.
-                    && (secondChild = commonRoot.childNodes[1])
-                    && ( // If second child is a text node, we require it be whitespace.
-                        (secondChild.nodeType === Node.TEXT_NODE && !secondChild.nodeValue.trim())
-                        || // If it is an element, we require it to be <br>.
-                        (secondChild.tagName && secondChild.tagName.toUpperCase() === 'BR')
-                    )
-                )
-            ) {
+            commonRoot.childNodes.length === 1 || // If only one child, the result is obvious.
+            commonRoot.childNodes.length === 2 // If 2 children.
+            && (secondChild = commonRoot.childNodes[1]) && ( // If second child is a text node, we require it be whitespace.
+            secondChild.nodeType === Node.TEXT_NODE && !secondChild.nodeValue.trim() || // If it is an element, we require it to be <br>.
+            secondChild.tagName && secondChild.tagName.toUpperCase() === 'BR')) {
                 // If these conditions hold, the child is a common parent of both
                 // startNode and endNode, as other elements were deleted earlier.
                 commonRoot = commonRoot.firstChild;
@@ -2133,24 +2088,24 @@
                     rootQuote = commonRoot;
                 }
             }
-    
+
             // Restores extra nodes before a quote such as username and link.
             // Must be done after the common root checking otherwise it will
             // mess up the process.
             for (var k = 0; k < savedPreviousNodes.length; k++) {
                 // Use selectors on the copied HTML tree to find the corresponding
                 // nodes.
-                var selector = '[data-hyper-quote="'+savedPreviousNodes[k][0]+'"]';
+                var selector = '[data-hyper-quote="' + savedPreviousNodes[k][0] + '"]';
                 var copyNode = htmlCopy.querySelector(selector);
                 copyNode.parentNode.insertBefore(savedPreviousNodes[k][1], copyNode);
-    
+
                 // Delete original document's data-hyper-quote attribute.
                 // We don't care about htmlCopy's attributes as it gets reset
                 // every time.
                 delete document.querySelector(selector).dataset['hyperQuote'];
             }
             savedPreviousNodes = [];
-    
+
             // If there is a [quote] common to start and end. In other worse,
             // the selection is contained entirely within one quote.
             if (rootQuote) {
@@ -2161,14 +2116,14 @@
                 sel.scrollIntoView();
                 return;
             }
-    
+
             // Otherwise, quote as usual.
             var posts = htmlCopy.querySelectorAll('div[id^="post"],div[id^="msg"]');
             for (var l = 0; l < posts.length; l++) {
                 QUOTEONE(posts[l]);
             }
         }
-    
+
         /**
          * Returns BBCode of one whole div.post.
          *
@@ -2177,7 +2132,7 @@
         function bbcodeChildrenTrim(postDiv) {
             return bbcodeChildren(postDiv).trim();
         }
-    
+
         /**
          * Returns BBCode of parentNode's children.
          *
@@ -2192,8 +2147,7 @@
         function bbcodeChildren(parentNode) {
             _debug && console.log('parentNode: ');
             _debug && console.log(parentNode);
-            if (!(parentNode.childNodes && parentNode.childNodes.length))
-                return '';
+            if (!(parentNode.childNodes && parentNode.childNodes.length)) return '';
             var bbcodeString = '';
             for (var i = 0; i < parentNode.childNodes.length; i++) {
                 var thisNode = parentNode.childNodes[i];
@@ -2202,19 +2156,14 @@
                     var text = thisNode.nodeValue;
                     // If this isn't the first child and previous is a <br>,
                     // collapse leading space.
-                    if (i > 0 && parentNode.childNodes[i-1].nodeType === Node.ELEMENT_NODE
-                        && parentNode.childNodes[i-1].tagName.toUpperCase() === 'BR')
-                        text = text.replace(/^\s+/, '');
+                    if (i > 0 && parentNode.childNodes[i - 1].nodeType === Node.ELEMENT_NODE && parentNode.childNodes[i - 1].tagName.toUpperCase() === 'BR') text = text.replace(/^\s+/, '');
                     // If this isn't the last child and next is a <br>,
                     // collapse trailing space.
-                    if (i+1 < parentNode.childNodes.length
-                        && parentNode.childNodes[i+1].nodeType === Node.ELEMENT_NODE
-                        && parentNode.childNodes[i+1].tagName.toUpperCase() === 'BR')
-                        text = text.replace(/\s+$/, '');
+                    if (i + 1 < parentNode.childNodes.length && parentNode.childNodes[i + 1].nodeType === Node.ELEMENT_NODE && parentNode.childNodes[i + 1].tagName.toUpperCase() === 'BR') text = text.replace(/\s+$/, '');
                     bbcodeString += text;
                     continue;
                 }
-    
+
                 /**
                  * Whether this element represents the start of a
                  * post number (e.g. `[quote=#1559283]`) quote.
@@ -2225,33 +2174,28 @@
                     // is not a quote block, as the surrounding structure
                     // will not be there.
                     //debugger;
-                    isSmartQuote = (
-                        (i+4 < parentNode.childNodes.length)
-                        // thisNode is a <strong></strong> node containing the
-                        // user link.
-                        && thisNode.nodeType === Node.ELEMENT_NODE
-                        && thisNode.tagName.toUpperCase() === 'STRONG'
-                        && thisNode.firstElementChild.href.indexOf('user.php?id=') !== -1
-                        // i+1 is a " " text node.
-                        && !parentNode.childNodes[i+1].nodeValue.trim()
-                        // i+2 is the <a> node linking to the post.
-                        && parentNode.childNodes[i+2].textContent.indexOf('wrote') !== -1
-                        && parentNode.childNodes[i+2].firstElementChild.tagName.toUpperCase() === 'SPAN'
-                        && parentNode.childNodes[i+2].firstElementChild.title
-                        // i+3 is the :
-                        && parentNode.childNodes[i+3].nodeValue.indexOf(':') !== -1
-                        // i+4 is the quote.
-                        && parentNode.childNodes[i+4].classList.contains('blockquote')
-                    );
-                } catch (exception) { _debug && console.log(exception); }
+                    isSmartQuote = i + 4 < parentNode.childNodes.length &&
+                    // thisNode is a <strong></strong> node containing the
+                    // user link.
+                    thisNode.nodeType === Node.ELEMENT_NODE && thisNode.tagName.toUpperCase() === 'STRONG' && thisNode.firstElementChild.href.indexOf('user.php?id=') !== -1
+                    // i+1 is a " " text node.
+                    && !parentNode.childNodes[i + 1].nodeValue.trim()
+                    // i+2 is the <a> node linking to the post.
+                    && parentNode.childNodes[i + 2].textContent.indexOf('wrote') !== -1 && parentNode.childNodes[i + 2].firstElementChild.tagName.toUpperCase() === 'SPAN' && parentNode.childNodes[i + 2].firstElementChild.title
+                    // i+3 is the :
+                    && parentNode.childNodes[i + 3].nodeValue.indexOf(':') !== -1
+                    // i+4 is the quote.
+                    && parentNode.childNodes[i + 4].classList.contains('blockquote');
+                } catch (exception) {
+                    _debug && console.log(exception);
+                }
                 _debug && console.log('isSmartQuote: ' + isSmartQuote);
                 if (isSmartQuote) {
-                    bbcodeString += bbcodeSmartQuote(thisNode,
-                        parentNode.childNodes[i+2], parentNode.childNodes[i+4]);
+                    bbcodeString += bbcodeSmartQuote(thisNode, parentNode.childNodes[i + 2], parentNode.childNodes[i + 4]);
                     i += 4; // Skip the next 4 nodes.
                     continue;
                 }
-    
+
                 /**
                  * Whether this element represents the start of a
                  * `[quote=username]` quote.
@@ -2262,57 +2206,40 @@
                     // handling it with the generic code
                     // (i.e. [b]username[/b] wrote ...)
                     // results in identical rendered output.
-                    isBasicQuote = (
-                        // Similar logic as above.
-                        (i+2 < parentNode.childNodes.length)
-                        && thisNode.nodeType === Node.ELEMENT_NODE
-                        && thisNode.tagName.toUpperCase() === 'STRONG'
-                        && thisNode.childNodes.length === 1
-                        && thisNode.firstChild.nodeType === Node.TEXT_NODE
-                        && parentNode.childNodes[i+1].nodeValue.trim() === 'wrote:'
-                        && parentNode.childNodes[i+2].classList.contains('blockquote')
-                    );
-                } catch (exception) { _debug && console.log(exception); }
+                    isBasicQuote =
+                    // Similar logic as above.
+                    i + 2 < parentNode.childNodes.length && thisNode.nodeType === Node.ELEMENT_NODE && thisNode.tagName.toUpperCase() === 'STRONG' && thisNode.childNodes.length === 1 && thisNode.firstChild.nodeType === Node.TEXT_NODE && parentNode.childNodes[i + 1].nodeValue.trim() === 'wrote:' && parentNode.childNodes[i + 2].classList.contains('blockquote');
+                } catch (exception) {
+                    _debug && console.log(exception);
+                }
                 if (isBasicQuote) {
-                    bbcodeString += bbcodeQuote(thisNode.firstChild.nodeValue, parentNode.childNodes[i+2]);
+                    bbcodeString += bbcodeQuote(thisNode.firstChild.nodeValue, parentNode.childNodes[i + 2]);
                     i += 2;
                     continue;
                 }
-    
+
                 var isMediainfo = false;
                 try {
-                    isMediainfo = (
-                        // Spoiler button
-                        thisNode.classList.contains('hideContainer')
-                        && (
-                            (// Either followed by a .mediainfo table
-                                (i+1 < parentNode.childNodes.length)
-                                && parentNode.childNodes[i+1].tagName.toUpperCase() === 'TABLE'
-                                && parentNode.childNodes[i+1].classList.contains('mediainfo'))
-                            || ( // OR, which was originally followed by a mediainfo table.
-                                (i+1 === parentNode.childNodes.length)
-                                && thisNode.firstElementChild.value.length > 4
-                                && thisNode.firstElementChild.value.indexOf('.') !== -1
-                                && document.querySelector(
-                                    '.hideContainer > .spoilerButton[value="'
-                                    + thisNode.firstElementChild.value+'"]'
-                                ).parentNode.nextElementSibling.classList.contains('mediainfo'))
-                        )
-                    );
-                } catch (exception) { _debug && console.log(exception); }
+                    isMediainfo =
+                    // Spoiler button
+                    thisNode.classList.contains('hideContainer') && ( // Either followed by a .mediainfo table
+                    i + 1 < parentNode.childNodes.length && parentNode.childNodes[i + 1].tagName.toUpperCase() === 'TABLE' && parentNode.childNodes[i + 1].classList.contains('mediainfo') || // OR, which was originally followed by a mediainfo table.
+                    i + 1 === parentNode.childNodes.length && thisNode.firstElementChild.value.length > 4 && thisNode.firstElementChild.value.indexOf('.') !== -1 && document.querySelector('.hideContainer > .spoilerButton[value="' + thisNode.firstElementChild.value + '"]').parentNode.nextElementSibling.classList.contains('mediainfo'));
+                } catch (exception) {
+                    _debug && console.log(exception);
+                }
                 if (isMediainfo) {
-                    bbcodeString += bbcodeMediainfo(thisNode,
-                        parentNode.childNodes[i+1]);
+                    bbcodeString += bbcodeMediainfo(thisNode, parentNode.childNodes[i + 1]);
                     i += 1;
                     continue;
                 }
-    
+
                 // Otherwise, we handle it as a normal node.
                 bbcodeString += bbcodeOneElement(thisNode);
             }
             return bbcodeString;
         }
-    
+
         /**
          * Returns a quote BBCode, with quoteName as the = parameter, containing
          * the contents of quoteNode.
@@ -2322,12 +2249,9 @@
          */
         function bbcodeQuote(quoteName, quoteNode) {
             var contents = bbcodeChildrenTrim(quoteNode);
-            return (
-                '[quote'+(quoteName?'='+quoteName:'')+']\n'
-                +contents
-                +'\n[/quote]\n');
+            return '[quote' + (quoteName ? '=' + quoteName : '') + ']\n' + contents + '\n[/quote]\n';
         }
-    
+
         /**
          * Returns an appropriate [quote] tag using a post number.
          *
@@ -2338,22 +2262,17 @@
         function bbcodeSmartQuote(strongNode, wroteLink, quoteNode) {
             var quoteType = '';
             var href = wroteLink.href;
-            if (href.indexOf('/forums.php') !== -1) quoteType = '#';
-            else if (href.indexOf('/user.php') !== -1) quoteType = '*';
-            else if (href.indexOf('/torrents.php') !== -1) quoteType = '-1';
-            else if (href.indexOf('/torrents2.php') !== -1) quoteType = '-2';
+            if (href.indexOf('/forums.php') !== -1) quoteType = '#';else if (href.indexOf('/user.php') !== -1) quoteType = '*';else if (href.indexOf('/torrents.php') !== -1) quoteType = '-1';else if (href.indexOf('/torrents2.php') !== -1) quoteType = '-2';
             if (quoteType !== '') {
                 var id = /#(?:msg|post)?(\d+)$/.exec(href); // post number
                 // We have to be careful with newlines otherwise too much whitespace
                 // will be added.
-                if (id)
-                    return bbcodeQuote(quoteType + id[1], quoteNode);
+                if (id) return bbcodeQuote(quoteType + id[1], quoteNode);
             }
             // We shouldn't ever reach this.
-            return ('[url='+wroteLink.href+']Unknown quote[/url][quote]'
-                +bbcodeChildren(quoteNode)+'[/quote]');
+            return '[url=' + wroteLink.href + ']Unknown quote[/url][quote]' + bbcodeChildren(quoteNode) + '[/quote]';
         }
-    
+
         /**
          * Returns BBCode of one <strong> node.
          *
@@ -2361,21 +2280,19 @@
          */
         function bbcodeStrong(strongNode) {
             // Special case of "Added on ..." text.
-            if (strongNode.childNodes.length === 1
-            && strongNode.firstChild.nodeType === Node.TEXT_NODE
-            && strongNode.firstChild.nodeValue.slice(0, 9) === 'Added on ') {
+            if (strongNode.childNodes.length === 1 && strongNode.firstChild.nodeType === Node.TEXT_NODE && strongNode.firstChild.nodeValue.slice(0, 9) === 'Added on ') {
                 var dateString = strongNode.firstChild.nodeValue.slice(9);
                 var end = '';
                 if (dateString.slice(-1) === ':') {
                     dateString = dateString.slice(0, -1);
                     end = ':';
                 }
-                return '[b]Added on '+formattedUTCString(dateString)+end+'[/b]';
+                return '[b]Added on ' + formattedUTCString(dateString) + end + '[/b]';
             } else {
-                return '[b]'+bbcodeChildren(strongNode)+'[/b]';
+                return '[b]' + bbcodeChildren(strongNode) + '[/b]';
             }
         }
-    
+
         /**
          * Returns BBCode of a div element.
          *
@@ -2390,10 +2307,10 @@
         function bbcodeDiv(divNode) {
             if (divNode.style.textAlign) {
                 var align = divNode.style.textAlign;
-                return '[align='+align+']'+bbcodeChildren(divNode)+'[/align]';
+                return '[align=' + align + ']' + bbcodeChildren(divNode) + '[/align]';
             }
             if (divNode.classList.contains('codeBox')) {
-                return '[code]'+divNode.firstElementChild.firstChild.nodeValue+'[/code]';
+                return '[code]' + divNode.firstElementChild.firstChild.nodeValue + '[/code]';
             }
             if (divNode.classList.contains('spoilerContainer')) {
                 return bbcodeSpoiler(divNode);
@@ -2401,7 +2318,7 @@
             // This fallback shouldn't ever occur.
             return bbcodeChildren(divNode);
         }
-    
+
         /**
          * Returns BBCode of a spoiler element, considering for
          * custom button text.
@@ -2412,7 +2329,7 @@
             var isSpoiler = !spoilerDiv.classList.contains('hideContainer');
             // [hide] or [spoiler]
             var bbcodeTag = isSpoiler ? 'spoiler' : 'hide';
-    
+
             // If we have less than 2 children, then this is an abnormal spoiler.
             if (spoilerDiv.children.length < 2) {
                 // If the only child of this div isn't the spoiler's contents,
@@ -2422,7 +2339,7 @@
                 }
                 // Otherwise, only the inside of a spoiler is selected.
                 // In this case, we have no button to work with. Compromise.
-                return '['+bbcodeTag+']'+bbcodeChildren(spoilerDiv.firstElementChild)+'[/'+bbcodeTag+']';
+                return '[' + bbcodeTag + ']' + bbcodeChildren(spoilerDiv.firstElementChild) + '[/' + bbcodeTag + ']';
             }
             var label = spoilerDiv.firstElementChild.value.replace(/^(Hide|Show)/, '');
             if (isSpoiler) // ' spoiler' is appended automatically to spoiler buttons
@@ -2430,23 +2347,21 @@
             if (label) {
                 label = label.slice(1); // slice space.
             }
-            return '['+bbcodeTag + (label ? '='+label : '') + ']\n' +
-                bbcodeChildrenTrim(spoilerDiv.children[1]) + '\n[/'+bbcodeTag+']';
+            return '[' + bbcodeTag + (label ? '=' + label : '') + ']\n' + bbcodeChildrenTrim(spoilerDiv.children[1]) + '\n[/' + bbcodeTag + ']';
         }
-    
-    
+
         /**
          * Returns BBCode for a [mediainfo] tag.
          *
          * @param {HTMLDivElement} buttonDiv Div containing the button and spoiler.
          * @param {HTMLTableElement} mediainfoTable
          */
-        function bbcodeMediainfo(buttonDiv, mediainfoTable) { // eslint-disable-line no-unused-vars
+        function bbcodeMediainfo(buttonDiv, mediainfoTable) {
+            // eslint-disable-line no-unused-vars
             if (buttonDiv.children.length < 2) return '';
             return '[mediainfo]' + bbcodeChildren(buttonDiv.children[1]) + '[/mediainfo]';
         }
-    
-    
+
         /**
          * Returns BBCode of a <ol> or <ul> tag.
          *
@@ -2464,7 +2379,7 @@
             }
             return str;
         }
-    
+
         /**
          * Returns BBCode of an image element, possibly a smiley.
          *
@@ -2477,9 +2392,9 @@
             // Note: AB proxies images, so quoted images will not
             // necessarily use the same URL as the original did.
             // Original URL is b64 encoded within the CDN URL.
-            return '[img]'+imgNode.src+'[/img]';
+            return '[img]' + imgNode.src + '[/img]';
         }
-    
+
         /**
          * Returns a string containing the hex representation of a number,
          * padded to 2 hex digits.
@@ -2488,11 +2403,11 @@
          */
         function numToHex(num) {
             var h = num.toString(16);
-            while (h.length < 2)
+            while (h.length < 2) {
                 h = '0' + h;
-            return h;
+            }return h;
         }
-    
+
         /** Regex matching colour in rgb(x, y, z) format. */
         var rgbRegex = /^rgb\((\d{1,3}), (\d{1,3}), (\d{1,3})\)$/i;
         /**
@@ -2515,15 +2430,12 @@
             if (colour) {
                 var rgbMatch = rgbRegex.exec(colour);
                 // Check for rgb() format colours.
-                if (rgbMatch)
-                    colour = ('#' + numToHex(parseInt(rgbMatch[1]))
-                    +numToHex(parseInt(rgbMatch[2]))
-                    +numToHex(parseInt(rgbMatch[3])));
-                return '[color='+colour+']' + bbcodeChildren(spanNode) + '[/color]';
+                if (rgbMatch) colour = '#' + numToHex(parseInt(rgbMatch[1])) + numToHex(parseInt(rgbMatch[2])) + numToHex(parseInt(rgbMatch[3]));
+                return '[color=' + colour + ']' + bbcodeChildren(spanNode) + '[/color]';
             }
             if (spanNode.className.slice(0, 4) === 'size') {
                 var size = spanNode.className.replace('size', '');
-                return '[size='+size+']'+bbcodeChildren(spanNode)+'[/size]';
+                return '[size=' + size + ']' + bbcodeChildren(spanNode) + '[/size]';
             }
             if (spanNode.className === 'last-edited') {
                 return '';
@@ -2531,11 +2443,10 @@
             if (spanNode.classList.contains('secret')) {
                 return '[secret]' + bbcodeChildren(spanNode) + '[/secret]';
             }
-            if (spanNode.title)
-                return formattedUTCString(spanNode.title);
+            if (spanNode.title) return formattedUTCString(spanNode.title);
             return bbcodeChildren(spanNode);
         }
-    
+
         /**
          * Given a HTML span element representing a smiley, finds and returns
          * the smiley's BBCode.
@@ -2545,27 +2456,20 @@
         function bbcodeSmiley(smileySpan) {
             var smiley = smileySpan.title;
             var smileyNode = document.querySelector('span[alt="' + smiley + '"]');
-            if (smileyNode === null)
-                smileyNode = document.querySelector('span[style*="/' + smiley + '.png"]');
-            if (smileyNode === null)
-                smileyNode = document.querySelector('span[style*="/' + smiley.replace(/-/g, '_') + '.png"]');
-            if (smileyNode === null)
-                smileyNode = document.querySelector('span[style*="/' +
-                    smiley.replace(/-/g, '_').toLowerCase() + '.png"]');
-            if (smileyNode === null)
-                smileyNode = document.querySelector('span[style*="/' + smiley.replace(/face/g, '~_~') + '.png"]');
+            if (smileyNode === null) smileyNode = document.querySelector('span[style*="/' + smiley + '.png"]');
+            if (smileyNode === null) smileyNode = document.querySelector('span[style*="/' + smiley.replace(/-/g, '_') + '.png"]');
+            if (smileyNode === null) smileyNode = document.querySelector('span[style*="/' + smiley.replace(/-/g, '_').toLowerCase() + '.png"]');
+            if (smileyNode === null) smileyNode = document.querySelector('span[style*="/' + smiley.replace(/face/g, '~_~') + '.png"]');
             if (smileyNode !== null && smileyNode.parentNode !== null) {
                 smileyNode = smileyNode.getAttribute('onclick').match(/'(.+?)'/i);
-                if (smileyNode !== null)
-                    return smileyNode[1];
+                if (smileyNode !== null) return smileyNode[1];
             }
             return ':' + smiley + ':';
         }
-    
-    
+
         var userRegex = /^\/user\.php\?id=(\d+)$/;
         var torrentRegex = /^torrents2?\.php\?id=\d+&torrentid=(\d+)$/;
-    
+
         /**
          *
          * @param {HTMLAnchorElement} linkElement
@@ -2579,27 +2483,23 @@
             var href = linkElement.href;
             /** Actual href as typed into HTML */
             var realHref = linkElement.getAttribute('href');
-    
+
             var userMatch = userRegex.exec(realHref);
-            if (userMatch)
-                return '[user='+href+']'+bbcodeChildren(linkElement)+'[/user]';
+            if (userMatch) return '[user=' + href + ']' + bbcodeChildren(linkElement) + '[/user]';
             var torrentMatch = torrentRegex.exec(realHref);
             if (torrentMatch) {
                 // If the link's text contains &nbsp; we assume it is a torrent
                 // link.
-                if (linkElement.textContent.indexOf('\xa0\xa0[') !== -1)
-                    return '[torrent]'+href+'[/torrent]';
-                else
-                    return '[torrent='+href+']'+bbcodeChildren(linkElement)+'[/torrent]';
+                if (linkElement.textContent.indexOf('\xa0\xa0[') !== -1) return '[torrent]' + href + '[/torrent]';else return '[torrent=' + href + ']' + bbcodeChildren(linkElement) + '[/torrent]';
             }
             // Actually, torrent and user links could be written using [url=]
             // and the rendered output would be the same.
-            return ('[url='+realHref+']'+ bbcodeChildren(linkElement) + '[/url]');
+            return '[url=' + realHref + ']' + bbcodeChildren(linkElement) + '[/url]';
         }
-    
+
         var youtubeRegex = /\/embed\/([^?]+)\?/i;
         var soundcloudRegex = /\/player\/\?url=([^&]+)&/i;
-    
+
         /**
          * Returns BBCode for embedded media.
          *
@@ -2608,16 +2508,16 @@
         function bbcodeIframe(iframeNode) {
             var src = iframeNode.src;
             if (src.indexOf('youtube.com/embed') !== -1) {
-                return '[youtube]https://youtube.com/watch?v='+youtubeRegex.exec(src)[1]+'[/youtube]';
+                return '[youtube]https://youtube.com/watch?v=' + youtubeRegex.exec(src)[1] + '[/youtube]';
             }
             if (src.indexOf('soundcloud.com/player') !== -1) {
                 // The original soundcloud URL is encoded and forms a part of the
                 // embed URL.
-                return '[soundcloud]'+decodeURIComponent(soundcloudRegex.exec(src)[1])+'[/soundcloud]';
+                return '[soundcloud]' + decodeURIComponent(soundcloudRegex.exec(src)[1]) + '[/soundcloud]';
             }
             return 'Embedded media: ' + src;
         }
-    
+
         /**
          * Returns BBCode for one element.
          *
@@ -2629,38 +2529,56 @@
         function bbcodeOneElement(node) {
             if (node.nodeType !== Node.ELEMENT_NODE) {
                 // Text nodes should be handled in bbcodeChildren.
-                if (node.nodeType === Node.TEXT_NODE)
-                    return node.nodeValue;
-                if (node.nodeType === Node.COMMENT_NODE && node.nodeValue === 'n')
-                    return '[n]';
+                if (node.nodeType === Node.TEXT_NODE) return node.nodeValue;
+                if (node.nodeType === Node.COMMENT_NODE && node.nodeValue === 'n') return '[n]';
                 return '';
             }
             switch (node.tagName.toUpperCase()) {
-            case 'DIV': return bbcodeDiv(node);
-            case 'SPAN': return bbcodeSpan(node);
-            case 'BR': return '\n';
-            case 'STRONG': return bbcodeStrong(node);
-            case 'EM': return '[i]'+bbcodeChildren(node)+'[/i]';
-            case 'U': return '[u]'+bbcodeChildren(node)+'[/u]';
-            case 'S': return '[s]'+bbcodeChildren(node)+'[/s]';
-            case 'OL': return bbcodeList(node, '[#] ');
-            case 'UL': return bbcodeList(node, '[*] ');
-            case 'A': return bbcodeLink(node);
-            case 'IMG': return bbcodeImage(node);
-            case 'IFRAME': return bbcodeIframe(node);
-            case 'BLOCKQUOTE': return bbcodeQuote('', node);
-            case 'HR': return '[hr]';
-            case 'TABLE': return bbcodeChildren(node); // crude representation of a table
-            case 'CAPTION': return '[b]'+bbcodeChildren(node)+'[/b]\n';
-            case 'TBODY': return bbcodeChildren(node);
-            case 'TH': return bbcodeChildren(node) + '\n';
-            case 'TR': return bbcodeChildren(node) + '\n';
-            case 'TD': return bbcodeChildren(node) + '\t';
-            default:
-                return '<'+node.tagName+'>' + bbcodeChildren(node) + '</'+node.tagName+'>';
+                case 'DIV':
+                    return bbcodeDiv(node);
+                case 'SPAN':
+                    return bbcodeSpan(node);
+                case 'BR':
+                    return '\n';
+                case 'STRONG':
+                    return bbcodeStrong(node);
+                case 'EM':
+                    return '[i]' + bbcodeChildren(node) + '[/i]';
+                case 'U':
+                    return '[u]' + bbcodeChildren(node) + '[/u]';
+                case 'S':
+                    return '[s]' + bbcodeChildren(node) + '[/s]';
+                case 'OL':
+                    return bbcodeList(node, '[#] ');
+                case 'UL':
+                    return bbcodeList(node, '[*] ');
+                case 'A':
+                    return bbcodeLink(node);
+                case 'IMG':
+                    return bbcodeImage(node);
+                case 'IFRAME':
+                    return bbcodeIframe(node);
+                case 'BLOCKQUOTE':
+                    return bbcodeQuote('', node);
+                case 'HR':
+                    return '[hr]';
+                case 'TABLE':
+                    return bbcodeChildren(node); // crude representation of a table
+                case 'CAPTION':
+                    return '[b]' + bbcodeChildren(node) + '[/b]\n';
+                case 'TBODY':
+                    return bbcodeChildren(node);
+                case 'TH':
+                    return bbcodeChildren(node) + '\n';
+                case 'TR':
+                    return bbcodeChildren(node) + '\n';
+                case 'TD':
+                    return bbcodeChildren(node) + '\t';
+                default:
+                    return '<' + node.tagName + '>' + bbcodeChildren(node) + '</' + node.tagName + '>';
             }
         }
-    
+
         /**
          * Quotes one post, with post number.
          *
@@ -2670,58 +2588,47 @@
             //_debug && console.log(post.querySelector('div.post,div.body').innerHTML);
             //var res = HTMLtoBB(post.querySelector('div.post,div.body').innerHTML),
             var res = bbcodeChildrenTrim(post.querySelector('div.post, div.body'));
-            var author, creation, postid, type = '';
+            var author,
+                creation,
+                postid,
+                type = '';
             if (res === '') return;
-    
+
             postid = post.id.match(/(?:msg|post)(\d+)/i);
-            if (postid === null)
-                return;
-    
+            if (postid === null) return;
+
             if (window.location.pathname === '/forums.php') type = '#';
             if (window.location.pathname === '/user.php') type = '*';
             if (window.location.pathname === '/torrents.php') type = '-1';
             if (window.location.pathname === '/torrents2.php') type = '-2';
-            if (type !== '')
-                res = '[quote=' + type + postid[1] + ']' + res + '[/quote]\n';
-            else {
+            if (type !== '') res = '[quote=' + type + postid[1] + ']' + res + '[/quote]\n';else {
                 author = post.className.match(/user_(\d+)/i);
-                if (author !== null)
-                    author = '[b][user]' + author[1] + '[/user][/b] ';
-                else {
+                if (author !== null) author = '[b][user]' + author[1] + '[/user][/b] ';else {
                     author = document.querySelector('#' + postid[0] + ' a[href^="/user.php?"]');
                     if (author !== null) {
                         author = author.href.match(/id=(\d+)/i);
-                        author = (author !== null ? '[b][user]' + author[1] + '[/user][/b] ' : '');
-                    }
-                    else
-                        author = '';
+                        author = author !== null ? '[b][user]' + author[1] + '[/user][/b] ' : '';
+                    } else author = '';
                 }
-    
+
                 creation = document.querySelector('div#' + postid[0] + ' > div > div > p.posted_info > span');
-                if (creation === null)
-                    creation = document.querySelector('div#' + postid[0] + ' > div > span > span.usercomment_posttime');
-                if (creation !== null)
-                    creation = ' on ' + formattedUTCString(creation.title.replace(/-/g, '/'));
-                else
-                    creation = '';
-    
+                if (creation === null) creation = document.querySelector('div#' + postid[0] + ' > div > span > span.usercomment_posttime');
+                if (creation !== null) creation = ' on ' + formattedUTCString(creation.title.replace(/-/g, '/'));else creation = '';
+
                 res = author + '[url=' + window.location.pathname + window.location.search + '#' + postid[0] + ']wrote' + creation + '[/url]:\n[quote]' + res + '[/quote]\n\n';
             }
-    
+
             document.getElementById('quickpost').value += res;
-    
+
             var sel = document.getElementById('quickpost');
-            if (sel !== null)
-                sel.scrollIntoView();
+            if (sel !== null) sel.scrollIntoView();
         }
-    
+
         document.addEventListener('keydown', function (e) {
-            if ((e.ctrlKey) && (e.keyCode === 'V'.charCodeAt(0)))
-                QUOTEALL();
+            if (e.ctrlKey && e.keyCode === 'V'.charCodeAt(0)) QUOTEALL();
         });
     })();
     /* End src/ab_hyper_quote.user.js */
-
 
     /* Begin src/ab_keyboard_shortcuts.user.js */
     // ==UserScript==
@@ -2735,23 +2642,17 @@
     // @grant       GM_getValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
-    
+
+
     // Keyboard shortcuts by Alpha, mod by Megure
     // Enables keyboard shortcuts for forum (new post and edit) and PM
     (function ABKeyboardShortcuts() {
         var _debug = false;
-    
-        var _enabled = delicious.settings.basicScriptCheckbox(
-            'deliciouskeyboard',
-            'Delicious Keyboard Shortcuts',
-            'Keyboard shortcuts to make typing BBCode easier.'
-        );
-        if (!_enabled)
-            return;
-        if (document.querySelector('textarea') === null)
-            return;
-    
+
+        var _enabled = delicious.settings.basicScriptCheckbox('deliciouskeyboard', 'Delicious Keyboard Shortcuts', 'Keyboard shortcuts to make typing BBCode easier.');
+        if (!_enabled) return;
+        if (document.querySelector('textarea') === null) return;
+
         function custom_insert_text(open, close) {
             var sel;
             var elem = document.activeElement;
@@ -2761,10 +2662,7 @@
                 elem.value = elem.value.substring(0, startPos) + open + elem.value.substring(startPos, endPos) + close + elem.value.substring(endPos, elem.value.length);
                 elem.selectionStart = elem.selectionEnd = endPos + open.length + close.length;
                 elem.focus();
-                if (close.length == 0)
-                    elem.setSelectionRange(startPos + open.length, startPos + open.length);
-                else
-                    elem.setSelectionRange(startPos + open.length, endPos + open.length);
+                if (close.length == 0) elem.setSelectionRange(startPos + open.length, startPos + open.length);else elem.setSelectionRange(startPos + open.length, endPos + open.length);
             } else if (document.selection && document.selection.createRange) {
                 elem.focus();
                 sel = document.selection.createRange();
@@ -2780,10 +2678,10 @@
                 elem.value += close;
             }
         }
-    
-        var ctrlorcmd = (navigator.appVersion.indexOf('Mac') != -1) ? '⌘' : 'Ctrl';
+
+        var ctrlorcmd = navigator.appVersion.indexOf('Mac') != -1 ? '⌘' : 'Ctrl';
         var insertedQueries = [];
-    
+
         function insert(e, key, ctrl, alt, shift, open, close, query) {
             /* Function to handle detecting key combinations and inserting the
             shortcut text onto the relevent buttons. */
@@ -2798,27 +2696,23 @@
             // Javascript has some discrepancies with symbols and their keycodes.
             var keyCode;
             switch (key) {
-            case '.':
-                keyCode = 190;
-                break;
-            case '/':
-                keyCode = 191;
-                break;
-            default:
-                keyCode = key.charCodeAt(0);
+                case '.':
+                    keyCode = 190;
+                    break;
+                case '/':
+                    keyCode = 191;
+                    break;
+                default:
+                    keyCode = key.charCodeAt(0);
             }
-    
+
             // Checks if correct modifiers are pressed
-            if (document.activeElement.tagName.toLowerCase() === 'textarea' &&
-            (ctrl === (e.ctrlKey || e.metaKey)) &&
-            (alt === e.altKey) &&
-            (shift === e.shiftKey) &&
-            (e.keyCode === keyCode)) {
+            if (document.activeElement.tagName.toLowerCase() === 'textarea' && ctrl === (e.ctrlKey || e.metaKey) && alt === e.altKey && shift === e.shiftKey && e.keyCode === keyCode) {
                 e.preventDefault();
                 custom_insert_text(open, close);
                 return false;
             }
-    
+
             if (query !== undefined) {
                 if (insertedQueries.indexOf(query) === -1) {
                     insertedQueries.push(query);
@@ -2834,7 +2728,7 @@
                 }
             }
         }
-    
+
         function keydownHandler(e) {
             // Used as a keydown event handler.
             // Defines all keyboard shortcuts.
@@ -2867,7 +2761,7 @@
             // URL
             insert(e, 'K', true, false, false, '[url=]', '[/url]', '#bbcode img[title="URL"]');
         }
-    
+
         var textAreas = document.querySelectorAll('textarea');
         // inserts shortcuts into title text on load, rather than
         // doing it when first key is pressed.
@@ -2875,7 +2769,7 @@
         for (var i = 0; i < textAreas.length; i++) {
             textAreas[i].addEventListener('keydown', keydownHandler, false);
         }
-    
+
         function mutationHandler(mutations, observer) {
             _debug && console.log(mutations);
             if (mutations[0].addedNodes.length) {
@@ -2885,13 +2779,12 @@
                 }
             }
         }
-    
+
         // Watch for new textareas (e.g. forum edit post)
         var mutationObserver = new MutationObserver(mutationHandler);
         mutationObserver.observe(document.querySelector('body'), { childList: true, subtree: true });
     })();
     /* End src/ab_keyboard_shortcuts.user.js */
-
 
     /* Begin src/ab_title_inverter.user.js */
     // ==UserScript==
@@ -2906,24 +2799,18 @@
     // @grant       GM_getValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     // Forums title inverter by Potatoe
     // Inverts the forums titles.
     (function ABTitleInverter() {
-        var _enabled = delicious.settings.basicScriptCheckbox(
-            'delicioustitleflip',
-            'Delicious Title Flip',
-            'Flips the tab title.'
-        );
-        if (!_enabled)
-            return;
-    
+        var _enabled = delicious.settings.basicScriptCheckbox('delicioustitleflip', 'Delicious Title Flip', 'Flips the tab title.');
+        if (!_enabled) return;
+
         if (document.title.indexOf(' > ') !== -1) {
             document.title = document.title.split(" :: ")[0].split(" > ").reverse().join(" < ") + " :: AnimeBytes";
         }
     })();
     /* End src/ab_title_inverter.user.js */
-
 
     /* Begin src/ab_title_notifications.user.js */
     // ==UserScript==
@@ -2937,29 +2824,25 @@
     // @grant       GM_getValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     // Title Notifications by Megure
     // Will prepend the number of notifications to the title
     (function ABTitleNotifications() {
-        var _enabled = delicious.settings.basicScriptCheckbox(
-            'delicioustitlenotifications',
-            'Delicious Title Notifications',
-            'Display number of notifications in the tab title.'
-        );
-        if (!_enabled)
-            return;
-    
-        var new_count = 0, _i, cnt, notifications = document.querySelectorAll('#alerts .new_count'), _len = notifications.length;
+        var _enabled = delicious.settings.basicScriptCheckbox('delicioustitlenotifications', 'Delicious Title Notifications', 'Display number of notifications in the tab title.');
+        if (!_enabled) return;
+
+        var new_count = 0,
+            _i,
+            cnt,
+            notifications = document.querySelectorAll('#alerts .new_count'),
+            _len = notifications.length;
         for (_i = 0; _i < _len; _i++) {
             cnt = parseInt(notifications[_i].textContent, 10);
-            if (!isNaN(cnt))
-                new_count += cnt;
+            if (!isNaN(cnt)) new_count += cnt;
         }
-        if (new_count > 0)
-            document.title = '(' + new_count + ') ' + document.title;
+        if (new_count > 0) document.title = '(' + new_count + ') ' + document.title;
     })();
     /* End src/ab_title_notifications.user.js */
-
 
     /* Begin src/ab_unread_index.user.js */
     // ==UserScript==
@@ -2978,39 +2861,26 @@
     // @grant       GM_getValue
     // @require https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     delicious.settings.init('ABGamesForum', false);
     delicious.settings.init('unreadindx', false);
     delicious.settings.init('ABNoT', 5);
     if (delicious.settings.ensureSettingsInserted()) {
         var section = delicious.settings.createCollapsibleSection('Unread Index');
         var s = section.querySelector('.settings_section_body');
-        s.appendChild(delicious.settings.createCheckbox(
-            'unreadindx',
-            'Enable',
-            'Enable/Disable Unread Index script.'
-        ));
-        s.appendChild(delicious.settings.createCheckbox(
-            'ABGamesForum',
-            'Unread forums in index(News Page)',
-            'Hide those hideous "Forum Games" on your unread index page!'
-        ));
-    
-        s.appendChild(delicious.settings.createNumberInput(
-            'ABNoT',
-            'Number of threads',
-            'set the number of threads to show'
-        ));
+        s.appendChild(delicious.settings.createCheckbox('unreadindx', 'Enable', 'Enable/Disable Unread Index script.'));
+        s.appendChild(delicious.settings.createCheckbox('ABGamesForum', 'Unread forums in index(News Page)', 'Hide those hideous "Forum Games" on your unread index page!'));
+
+        s.appendChild(delicious.settings.createNumberInput('ABNoT', 'Number of threads', 'set the number of threads to show'));
         delicious.settings.insertSection(section);
     }
     var _enabled = delicious.settings.get('unreadindx');
-    if (!_enabled)
-        return;
+    if (!_enabled) return;
     var unread_tablenode;
     var dividernode = document.createElement('div');
     dividernode.className = 'divider';
     var newsnode = document.getElementById('news');
-    function ABUnreadIndex () {
+    function ABUnreadIndex() {
         var unread_doc = document.implementation.createHTMLDocument('');
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
@@ -3018,20 +2888,22 @@
                 unread_doc.documentElement.innerHTML = xmlhttp.responseText;
                 unread_tablenode = unread_doc.evaluate("//div[@id='content']/div[@class='thin']/table[@width='100%']", unread_doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
                 var unread_posts = 0;
-                for (let j = 0; j < 2; j++) unread_tablenode.rows[0].cells[j].style.padding = '8px';
-                unread_tablenode.rows[0].cells[0].style.width = '30%';
+                for (var j = 0; j < 2; j++) {
+                    unread_tablenode.rows[0].cells[j].style.padding = '8px';
+                }unread_tablenode.rows[0].cells[0].style.width = '30%';
                 unread_tablenode.rows[0].cells[1].style.width = '70%';
                 unread_tablenode.rows[0].deleteCell(2);
                 var row = unread_tablenode.rows[1];
-                for (let i = 1; row; i++) {
+                for (var i = 1; row; i++) {
                     row = unread_tablenode.rows[i];
                     if (row == null) break;
-                    if ((delicious.settings.get('ABGamesForum') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === delicious.settings.get('ABNoT'))){
+                    if (delicious.settings.get('ABGamesForum') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games" || unread_posts === delicious.settings.get('ABNoT')) {
                         unread_tablenode.deleteRow(i);
                         i--;
                     } else if (unread_posts < delicious.settings.get('ABNoT')) {
-                        for (let j = 0; j < 2; j++) row.cells[j].style.padding = '0px';
-                        //row.cells[0].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>&nbsp;</div>";
+                        for (var _j3 = 0; _j3 < 2; _j3++) {
+                            row.cells[_j3].style.padding = '0px';
+                        } //row.cells[0].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>&nbsp;</div>";
                         row.cells[1].getElementsByTagName('p')[0].innerHTML += "<div style='font-size: 8px;'>" + row.cells[2].getElementsByTagName('p')[0].innerHTML + '</div>';
                         row.deleteCell(2);
                         unread_posts++;
@@ -3044,13 +2916,11 @@
         };
         xmlhttp.open('GET', '/forums.php?action=viewunread', true);
         xmlhttp.send();
-    
     }
     if (newsnode !== null) {
         ABUnreadIndex();
     }
     /* End src/ab_unread_index.user.js */
-
 
     /* Begin src/ab_yen_stats.user.js */
     // ==UserScript==
@@ -3064,29 +2934,26 @@
     // @grant       GM_getValue
     // @require     https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
-    
+
     // Yen per X and ratio milestones, by Megure, Lemma, NSC, et al.
     (function ABYenStats() {
         var _debug = false;
         delicious.settings.init('deliciousyenperx', true);
         delicious.settings.init('deliciousratio', true);
-        delicious.settings.basicScriptCheckbox('deliciousyenperx', 'Delicious Yen Per X',
-            'Shows how much yen you receive per X and as upload equivalent.');
-        delicious.settings.basicScriptCheckbox('deliciousratio', 'Delicious Ratio',
-            'Shows ratio, raw ratio and how much upload/download you need for certain ratio milestones.');
-    
+        delicious.settings.basicScriptCheckbox('deliciousyenperx', 'Delicious Yen Per X', 'Shows how much yen you receive per X and as upload equivalent.');
+        delicious.settings.basicScriptCheckbox('deliciousratio', 'Delicious Ratio', 'Shows ratio, raw ratio and how much upload/download you need for certain ratio milestones.');
+
         var _debug = false;
-    
-        if (!/user\.php\?id=/i.test(document.URL))
-            return;
-    
+
+        if (!/user\.php\?id=/i.test(document.URL)) return;
+
         function compoundInterest(years) {
             return (Math.pow(2, years) - 1) / Math.log(2);
         }
         function formatInteger(num) {
             var res = '';
             while (num >= 1000) {
-                res = ',' + ('00' + (num % 1000)).slice(-3) + res;
+                res = ',' + ('00' + num % 1000).slice(-3) + res;
                 num = Math.floor(num / 1000);
             }
             return num + res;
@@ -3096,26 +2963,26 @@
             // by the original author, but newer KiB style prefixes have
             // a lowercase. Keeping both for compatibility.
             switch (unit) {
-            case 'B':
-                return num * Math.pow(1024, 0);
-            case 'KiB':
-            case 'KIB':
-                return num * Math.pow(1024, 1);
-            case 'MiB':
-            case 'MIB':
-                return num * Math.pow(1024, 2);
-            case 'GiB':
-            case 'GIB':
-                return num * Math.pow(1024, 3);
-            case 'TiB':
-            case 'TIB':
-                return num * Math.pow(1024, 4);
-            case 'PiB':
-            case 'PIB':
-                return num * Math.pow(1024, 5);
-            case 'EiB':
-            case 'EIB':
-                return num * Math.pow(1024, 6);
+                case 'B':
+                    return num * Math.pow(1024, 0);
+                case 'KiB':
+                case 'KIB':
+                    return num * Math.pow(1024, 1);
+                case 'MiB':
+                case 'MIB':
+                    return num * Math.pow(1024, 2);
+                case 'GiB':
+                case 'GIB':
+                    return num * Math.pow(1024, 3);
+                case 'TiB':
+                case 'TIB':
+                    return num * Math.pow(1024, 4);
+                case 'PiB':
+                case 'PIB':
+                    return num * Math.pow(1024, 5);
+                case 'EiB':
+                case 'EIB':
+                    return num * Math.pow(1024, 6);
             }
         }
         function humancount(num) {
@@ -3123,22 +2990,22 @@
             var i = Math.floor(Math.log(Math.abs(num)) / Math.log(1024));
             num = (num / Math.pow(1024, i)).toFixed(2);
             switch (i) {
-            case 0:
-                return num + ' B';
-            case 1:
-                return num + ' KiB';
-            case 2:
-                return num + ' MiB';
-            case 3:
-                return num + ' GiB';
-            case 4:
-                return num + ' TiB';
-            case 5:
-                return num + ' PiB';
-            case 6:
-                return num + ' EiB';
-            default:
-                return num + ' × 1024^' + i + ' B';
+                case 0:
+                    return num + ' B';
+                case 1:
+                    return num + ' KiB';
+                case 2:
+                    return num + ' MiB';
+                case 3:
+                    return num + ' GiB';
+                case 4:
+                    return num + ' TiB';
+                case 5:
+                    return num + ' PiB';
+                case 6:
+                    return num + ' EiB';
+                default:
+                    return num + ' × 1024^' + i + ' B';
             }
         }
         var dt, dd;
@@ -3163,24 +3030,40 @@
             return dt;
         }
         function addRawStats() {
-            var tw, regExp = /([0-9,.]+)\s*([A-Z]+)\s*\(([^)]*)\)/i;
+            var tw,
+                regExp = /([0-9,.]+)\s*([A-Z]+)\s*\(([^)]*)\)/i;
             // Find text with raw stats
-            tw = document.createTreeWalker(document, NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^Raw Uploaded:/i.test(node.data); } });
+            tw = document.createTreeWalker(document, NodeFilter.SHOW_TEXT, { acceptNode: function acceptNode(node) {
+                    return (/^Raw Uploaded:/i.test(node.data)
+                    );
+                } });
             if (tw.nextNode() == null) return;
             var rawUpMatch = tw.currentNode.data.match(regExp);
-            tw = document.createTreeWalker(tw.currentNode.parentNode.parentNode, NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^Raw Downloaded:/i.test(node.data); } });
+            tw = document.createTreeWalker(tw.currentNode.parentNode.parentNode, NodeFilter.SHOW_TEXT, { acceptNode: function acceptNode(node) {
+                    return (/^Raw Downloaded:/i.test(node.data)
+                    );
+                } });
             if (tw.nextNode() == null) return;
             var rawDownMatch = tw.currentNode.data.match(regExp);
-            tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Ratio/i.test(node.data); } });
+            tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function acceptNode(node) {
+                    return (/^\s*Ratio/i.test(node.data)
+                    );
+                } });
             if (tw.nextNode() == null) return;
             var ratioNode = tw.currentNode.parentNode;
-            tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Uploaded/i.test(node.data); } });
+            tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function acceptNode(node) {
+                    return (/^\s*Uploaded/i.test(node.data)
+                    );
+                } });
             if (tw.nextNode() == null) return;
             var ulNode = tw.currentNode.parentNode;
-            tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /^\s*Downloaded/i.test(node.data); } });
+            tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function acceptNode(node) {
+                    return (/^\s*Downloaded/i.test(node.data)
+                    );
+                } });
             if (tw.nextNode() == null) return;
             var dlNode = tw.currentNode.parentNode;
-    
+
             var ul = ulNode.nextElementSibling.textContent.match(regExp);
             var dl = dlNode.nextElementSibling.textContent.match(regExp);
             _debug && console.log(ul);
@@ -3190,18 +3073,12 @@
             var rawuploaded = bytecount(parseFloat(rawUpMatch[1].replace(/,/g, '')), rawUpMatch[2].toUpperCase());
             var rawdownloaded = bytecount(parseFloat(rawDownMatch[1].replace(/,/g, '')), rawDownMatch[2].toUpperCase());
             var rawRatio = Infinity;
-            if (bytecount(parseFloat(rawDownMatch[1].replace(/,/g, '')), rawDownMatch[2].toUpperCase()) > 0)
-                rawRatio = (bytecount(parseFloat(rawUpMatch[1].replace(/,/g, '')), rawUpMatch[2].toUpperCase()) / bytecount(parseFloat(rawDownMatch[1].replace(/,/g, '')), rawDownMatch[2].toUpperCase())).toFixed(2);
-    
+            if (bytecount(parseFloat(rawDownMatch[1].replace(/,/g, '')), rawDownMatch[2].toUpperCase()) > 0) rawRatio = (bytecount(parseFloat(rawUpMatch[1].replace(/,/g, '')), rawUpMatch[2].toUpperCase()) / bytecount(parseFloat(rawDownMatch[1].replace(/,/g, '')), rawDownMatch[2].toUpperCase())).toFixed(2);
+
             // Color ratio
             var color = 'r99';
-            if (rawRatio < 1)
-                color = 'r' + ('0' + Math.ceil(10 * rawRatio)).slice(-2);
-            else if (rawRatio < 5)
-                color = 'r20';
-            else if (rawRatio < 99)
-                color = 'r50';
-    
+            if (rawRatio < 1) color = 'r' + ('0' + Math.ceil(10 * rawRatio)).slice(-2);else if (rawRatio < 5) color = 'r20';else if (rawRatio < 99) color = 'r50';
+
             // Add to user stats after ratio
             var hr = document.createElement('hr');
             hr.style.clear = 'both';
@@ -3211,12 +3088,9 @@
             addDefinitionAfter(ratioNode, 'Raw Uploaded:', rawUpMatch[0]);
             ratioNode.nextElementSibling.title = 'Ratio\t  Buffer';
             rawRatioNode.nextElementSibling.title = 'Raw ratio\t Raw Buffer';
-    
+
             function printBuffer(u, d, r) {
-                if (u / r - d >= 0)
-                    return '\n' + r.toFixed(1) + '\t' + (humancount(u / r - d)).slice(-10) + '    \tcan be downloaded';
-                else
-                    return '\n' + r.toFixed(1) + '\t' + (humancount(d * r - u)).slice(-10) + '    \tmust be uploaded';
+                if (u / r - d >= 0) return '\n' + r.toFixed(1) + '\t' + humancount(u / r - d).slice(-10) + '    \tcan be downloaded';else return '\n' + r.toFixed(1) + '\t' + humancount(d * r - u).slice(-10) + '    \tmust be uploaded';
             }
             for (var i = 0; i < 10; i++) {
                 var myRatio = [0.2, 0.5, 0.7, 0.8, 0.9, 1.0, 1.5, 2.0, 5.0, 10.0][i];
@@ -3226,7 +3100,10 @@
         }
         function addYenPerStats() {
             var dpy = 365.256363; // days per year
-            var tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function (node) { return /Yen per day/i.test(node.data); } });
+            var tw = document.createTreeWalker(document.getElementById('content'), NodeFilter.SHOW_TEXT, { acceptNode: function acceptNode(node) {
+                    return (/Yen per day/i.test(node.data)
+                    );
+                } });
             if (tw.nextNode() == null) return;
             var ypdNode = tw.currentNode.parentNode;
             var ypy = parseInt(ypdNode.nextElementSibling.textContent, 10) * dpy; // Yen per year
@@ -3238,19 +3115,20 @@
             hr.style.clear = 'both';
             ypdNode.parentNode.insertBefore(hr, ypdNode);
             addDefinitionBefore(ypdNode, 'Yen as upload:', humancount(Math.pow(1024, 2) * ypy * compoundInterest(1 / dpy / 24 / 60 / 60)) + '/s');
-            addDefinitionBefore(ypdNode, 'Yen per seconds:', (ypy * compoundInterest(1 / dpy / 24)/3600).toFixed(4));
-            addDefinitionBefore(ypdNode, 'Yen per minutes:', (ypy * compoundInterest(1 / dpy / 24)/60).toFixed(2));
+            addDefinitionBefore(ypdNode, 'Yen per seconds:', (ypy * compoundInterest(1 / dpy / 24) / 3600).toFixed(4));
+            addDefinitionBefore(ypdNode, 'Yen per minutes:', (ypy * compoundInterest(1 / dpy / 24) / 60).toFixed(2));
             addDefinitionBefore(ypdNode, 'Yen per hour:', (ypy * compoundInterest(1 / dpy / 24)).toFixed(1));
         }
-        if (delicious.settings.get('deliciousratio')){
+        if (delicious.settings.get('deliciousratio')) {
             addRawStats();
         }
-        if (delicious.settings.get('deliciousyenperx')){
+        if (delicious.settings.get('deliciousyenperx')) {
             addYenPerStats();
         }
-    
     })();
     /* End src/ab_yen_stats.user.js */
-
-
 })();
+
+/***/ })
+/******/ ]);
+//# sourceMappingURL=abs.user.js.map
