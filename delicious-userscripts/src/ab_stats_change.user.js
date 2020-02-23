@@ -17,7 +17,6 @@
     (function ABStatsChange() {
         delicious.settings.init('ABStatsChange', true);
         delicious.settings.init('unreadindx', true);
-        delicious.settings.init('uid', null);
         delicious.settings.init('psc', true);
         delicious.settings.init('st', 5);
         if (delicious.settings.ensureSettingsInserted()) {
@@ -27,11 +26,6 @@
                 'ABStatsChange',
                 'Enable',
                 'Enable/Disable Stats Change script.'
-            ));
-            s.appendChild(delicious.settings.createTextSetting(
-                'uid',
-                'User id',
-                ''
             ));
             s.appendChild(delicious.settings.createCheckbox(
                 'psc',
@@ -46,9 +40,7 @@
             delicious.settings.insertSection(section);
         }
         var _enabled = delicious.settings.get('ABStatsChange');
-        if (!_enabled)
-            return;
-        if (parseInt(window.location.search.match(/\d+/)) != delicious.settings.get('uid'))
+        if (!_enabled || window.location.pathname != "/user.php" && document.getElementsByClassName("username")[0].innerText == document.getElementsByClassName("thin")[0].firstElementChild.innerText)
             return;
         'use strict';
         var currentStats = {};
