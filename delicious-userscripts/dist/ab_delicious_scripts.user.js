@@ -2923,6 +2923,7 @@
     
     (function ABStatsChange() {
         delicious.settings.init('ABStatsChange', true);
+        delicious.settings.init('srs', true);
         delicious.settings.init('psc', false);
         delicious.settings.init('st', 2);
         if (delicious.settings.ensureSettingsInserted()) {
@@ -2932,6 +2933,11 @@
                 'ABStatsChange',
                 'Enable',
                 'Enable/Disable Stats Change script.'
+            ));
+            s.appendChild(delicious.settings.createCheckbox(
+                'srs',
+                'Show Raw stat Changes',
+                ''
             ));
             s.appendChild(delicious.settings.createCheckbox(
                 'psc',
@@ -2999,7 +3005,7 @@
             displayStats(change);
             change.time = (new Date()) * 1;
             window.localStorage.lastChange = JSON.stringify(change);
-        } else if ((delicious.settings.get('psc') && currentStats.time - JSON.parse(window.localStorage.lastChange).time < delicious.settings.get('st') * 60000 ) && (oldchange.up != 0 || oldchange.down != 0 || oldchange.ratio != 0 || oldchange.rup != 0 || oldchange.rdown != 0 || oldchange.rratio != 0)) {
+        } else if ((delicious.settings.get('psc') && currentStats.time - JSON.parse(window.localStorage.lastChange).time < delicious.settings.get('st') * 60000) && (oldchange.up != 0 || oldchange.down != 0 || oldchange.ratio != 0 || oldchange.rup != 0 || oldchange.rdown != 0 || oldchange.rratio != 0)) {
             displayStats(oldchange);
         }
         window.localStorage.lastStats = JSON.stringify(currentStats);
@@ -3008,7 +3014,11 @@
     function displayStats(change) {
         userscriptInfo = document.createElement("div");
         userscriptInfo.id = "userscript-statchange";
-        userscriptInfo.innerHTML = `<h3>Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio + `<br>` + 'rUp: ' + renderStats(change.rup) + ', rDown: ' + renderStats(change.rdown) + ', rBuffer: ' + renderStats(change.rup - change.rdown) + ', rRatio: ' + change.rratio;
+        if (delicious.settings.get('srs')) {
+            userscriptInfo.innerHTML = `<h3>Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio + `<br>` + 'rUp: ' + renderStats(change.rup) + ', rDown: ' + renderStats(change.rdown) + ', rBuffer: ' + renderStats(change.rup - change.rdown) + ', rRatio: ' + change.rratio;
+        } else {
+            userscriptInfo.innerHTML = `<h3>Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio
+        }
         userscriptInfo.style.setProperty("border", "1px solid black", "important");
         userscriptInfo.style.setProperty("padding", "10px", "important");
         userscriptInfo.style.setProperty("background", "#1A1A1A", "important");
