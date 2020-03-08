@@ -2952,7 +2952,7 @@
             delicious.settings.insertSection(section);
         }
         var _enabled = delicious.settings.get('ABStatsChange');
-        if (!_enabled || window.location.pathname != "/user.php" && document.getElementsByClassName("username")[0].innerText == document.getElementsByClassName("thin")[0].firstElementChild.innerText)
+        if (!_enabled || !(document.getElementsByClassName("username")[0].innerText == document.getElementsByClassName("thin")[0].firstElementChild.innerText))
             return;
         'use strict';
         var currentStats = {};
