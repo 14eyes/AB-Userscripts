@@ -3,7 +3,7 @@
 // @namespace   Megure@AnimeBytes.tv
 // @description Shows how much yen you would receive if you seeded torrents; shows required seeding time; allows sorting and filtering of torrent tables; dynamic loading of transfer history tables
 // @include     http*://animebytes.tv*
-// @version     1.03
+// @version     1.04
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @icon        http://animebytes.tv/favicon.ico
@@ -143,20 +143,26 @@
         return row;
     }
     function get_corresponding_torrent_row(row) {
-        var anchor = row.querySelector('a[title="Download"]');
-        if (anchor !== null) {
-            //console.log(anchor.href);
-            var match = anchor.href.match(/torrent\/(\d+)\/download/i);
-            if (match !== null) {
-                var new_row = document.getElementById('torrent_' + match[1]);
-                if (new_row !== row) {
-                    return new_row;
-                }
-            }
+        var anchor = row.querySelector('a[href*="/download/"]');
+        if (anchor == null) {
+            console.error("Unable to find download link for torrent row: ", row);
+            return;
+        }
+        var match = anchor.href.match(/torrent\/(\d+)\/download/i);
+        if (match === null) {
+            console.error("Unable to torrent ID within href: ", anchor);
+            return;
+        }
+        var new_row = document.getElementById('torrent_' + match[1]);
+        if (new_row !== row) {
+            return new_row;
         }
         return null;
+        //console.error("Unable to find distinct torrent row for", row);
+        // couldn't find extra torrent info row. happens on search pages.
     }
     // Converts a duration of hours into a string, like 3 days, 4 hours and 17 minutes
+    // 'duration' is given in number of hours.
     function duration_to_string(duration) {
         var days = Math.floor(duration / 24);
         var hours = Math.floor(duration % 24);
@@ -368,6 +374,7 @@
         // Add required time to size_cell and blockquote in torrent_row
         if (size_index !== null && show_required_time) {
             var seeding_time = Math.max(0, size - 10) * 5 + 72;
+            seeding_time = Math.min(21*24, seeding_time); // seeding time is capped at 21 days.
             size_cell.title = 'You need to seed this torrent for at least\n' + duration_to_string(seeding_time) + '\nor it will become a hit and run!';
             if (torrent_row !== null) {
                 var block_quote = torrent_row.querySelector('blockquote');
@@ -395,7 +402,7 @@
             row.appendChild(td2);
             row.appendChild(td1);
 
-            if (location.pathname.indexOf('/torrents2') != -1 
+            if (location.pathname.indexOf('/torrents2') != -1
                 && !document.getElementById('torrents2_fix')) {
                 var style = document.createElement('style');
                 style.id = 'torrents2_fix';
@@ -574,6 +581,7 @@
                         }
                     }
                 }
+                console.log(table_data);
             };
         }
         if (sort_rows && table_data.length > 1) {
@@ -875,6 +883,9 @@
             var head = document.createElement('div');
             var body = document.createElement('div');
             box.className = 'box torrent_filter_box';
+            box.style.width = '100%'; // fix overlap of thumbnail image on search pages.
+            box.style.float = 'left';
+            box.style.marginBottom = '10px';
             head.className = 'head colhead strong';
             body.className = 'body pad';
             body.style.display = 'none';
@@ -897,49 +908,15 @@
 
     // If yen should be shown and user creation is not yet saved, try to get and save it
     if (show_yen && (GM_getValue('creation', '0').toString() === '0' || GM_getValue('creation', '0') === 'null')) {
-
-
-        // no longer works because header profile link uses username.
-        //var user_id = document.querySelector('div#header div#userinfo li#username_menu a.username');
-
-        // checks if the current page's URL matches the profile page
-        // of the logged in user.
-        // var user_id_re = new RegExp('/user\\.php\\?id=' + CURRENT_USER["userId"]);
-        //console.log(CURRENT_USER["userId"]);
-        //console.log();
-        //if (document.URL.match(user_id_re) !== null) {
-
-        // ^ broken on some browsers if CURRENT_USER isn't passed.
-
-        // checks if the username link in navbar is the same as the current heading.
-        // if it is, we are on a profile page.
-        // hopefully no edge cases
-        // - TFM 2017-12-28
-        var user_link = document.querySelector('div#header div#userinfo li#username_menu a.username');
-        var user_heading = document.querySelector('div#content h2 a');
-        var user_profile_re = /\/user\.php\?id=/i;
-
-        if (document.URL.match(user_profile_re) !== null && user_link !== null && user_heading !== null && user_link.href === user_heading.href) {
-
-            var user_stats = document.querySelector('div#content div#user_rightcol div.userstatsleft dl.userprofile_list');
-            var children = user_stats.children;
-            //console.log(children);
-            for (let i = 0, length = children.length; i < length; i++) {
-
-                var child = children[i];
-                //console.log(child);
-                if (child.textContent.indexOf("Join") !== -1) {
-                    try {
-                        var join_date = child.nextElementSibling.firstElementChild.title;
-
-                        // deletes timezone because it was causing issues with Date.parse()
-                        // worst case is +/- 12 hours anyway
-                        var timezone_re = /( \d\d:\d\d) [A-Z]+$/;
-                        GM_setValue('creation', JSON.stringify(Date.parse(join_date.replace(timezone_re, '$1'))));
-                    }
-                    catch (error) { console.error(error);}
+        // check if we are on a profile page by looking for the "Edit my profile" link.
+        if (document.querySelector('.linkbox a[href$="/user.php?action=edit"]') != null) {
+            const TIMEZONE_RE = /( \d\d:\d\d) [A-Z]+$/;
+            document.querySelector('.userprofile_list').querySelectorAll('dt').forEach(dt => {
+                if (dt.textContent.trim().toLowerCase().indexOf('joined:') != -1) {
+                    const join_date = dt.nextElementSibling.querySelector('[title]').title.trim();
+                    GM_setValue('creation', JSON.stringify(Date.parse(join_date.replace(TIMEZONE_RE, '$1'))));
                 }
-            }
+            });
         }
     }
 }).call(this);
