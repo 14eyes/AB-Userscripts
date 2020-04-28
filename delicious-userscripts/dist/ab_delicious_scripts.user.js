@@ -78,9 +78,6 @@
             ));
             delicious.settings.insertSection(section);
         }
-    
-        var _debug = false;
-    
         var days_per_year = 365.256363;
         var show_yen = GM_getValue('ABTorrentsShowYen', 'true') === 'true';
         var show_required_time = GM_getValue('ABTorrentsReqTime', 'true') === 'true';
@@ -2919,9 +2916,9 @@
     
     (function ABStatsChange() {
         delicious.settings.init('ABStatsChange', true);
-        delicious.settings.init('srs', true);
-        delicious.settings.init('psc', false);
-        delicious.settings.init('st', 2);
+        delicious.settings.init('showRaw', true);
+        delicious.settings.init('persist', false);
+        delicious.settings.init('keepTime', 2);
         if (delicious.settings.ensureSettingsInserted()) {
             var section = delicious.settings.createCollapsibleSection('Stats Change');
             var s = section.querySelector('.settings_section_body');
@@ -2931,17 +2928,17 @@
                 'Enable/Disable Stats Change script.'
             ));
             s.appendChild(delicious.settings.createCheckbox(
-                'srs',
+                'showRaw',
                 'Show Raw stat Changes',
                 ''
             ));
             s.appendChild(delicious.settings.createCheckbox(
-                'psc',
+                'persist',
                 'Persistant stat Changes',
                 'Keep showing last stat changes(Unless other changes occur)'
             ));
             s.appendChild(delicious.settings.createNumberInput(
-                'st',
+                'keepTime',
                 'Time to keep last changes',
                 'Minutes'
             ));
@@ -3001,27 +2998,27 @@
             displayStats(change);
             change.time = (new Date()) * 1;
             window.localStorage.lastChange = JSON.stringify(change);
-        } else if ((delicious.settings.get('psc') && currentStats.time - JSON.parse(window.localStorage.lastChange).time < delicious.settings.get('st') * 60000) && (oldchange.up != 0 || oldchange.down != 0 || oldchange.ratio != 0 || oldchange.rup != 0 || oldchange.rdown != 0 || oldchange.rratio != 0)) {
+        } else if ((delicious.settings.get('persist') && currentStats.time - JSON.parse(window.localStorage.lastChange).time < delicious.settings.get('keepTime') * 60000) && (oldchange.up != 0 || oldchange.down != 0 || oldchange.ratio != 0 || oldchange.rup != 0 || oldchange.rdown != 0 || oldchange.rratio != 0)) {
             displayStats(oldchange);
         }
         window.localStorage.lastStats = JSON.stringify(currentStats);
     })();
     
     function displayStats(change) {
-        userscriptInfo = document.createElement("div");
-        userscriptInfo.id = "userscript-statchange";
-        if (delicious.settings.get('srs')) {
-            userscriptInfo.innerHTML = `<h3>Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio + `<br>` + 'rUp: ' + renderStats(change.rup) + ', rDown: ' + renderStats(change.rdown) + ', rBuffer: ' + renderStats(change.rup - change.rdown) + ', rRatio: ' + change.rratio;
+        var statChangePanel = document.createElement("div");
+        statChangePanel.id = "userscript-statchange";
+        if (delicious.settings.get('showRaw')) {
+            statChangePanel.innerHTML = `<h3>Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio + `<br>` + 'rUp: ' + renderStats(change.rup) + ', rDown: ' + renderStats(change.rdown) + ', rBuffer: ' + renderStats(change.rup - change.rdown) + ', rRatio: ' + change.rratio;
         } else {
-            userscriptInfo.innerHTML = `<h3>Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio
+            statChangePanel.innerHTML = `<h3>Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio;
         }
-        userscriptInfo.style.setProperty("border", "1px solid black", "important");
-        userscriptInfo.style.setProperty("padding", "10px", "important");
-        userscriptInfo.style.setProperty("background", "#1A1A1A", "important");
-        userscriptInfo.style.setProperty("margin-bottom", "5px", "important");
-        userscriptInfo.style.setProperty("text-align", "center", "important");
+        statChangePanel.style.setProperty("border", "1px solid black", "important");
+        statChangePanel.style.setProperty("padding", "10px", "important");
+        statChangePanel.style.setProperty("background", "#1A1A1A", "important");
+        statChangePanel.style.setProperty("margin-bottom", "5px", "important");
+        statChangePanel.style.setProperty("text-align", "center", "important");
         const content = document.getElementById("user_rightcol");
-        content.insertBefore(userscriptInfo, content.childNodes[1]);
+        content.insertBefore(statChangePanel, content.childNodes[1]);
     }
     
     function renderStats(number) {
@@ -3140,6 +3137,7 @@
     // @require https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
     // ==/UserScript==
     
+    delicious.settings.init('ABidc', false);
     delicious.settings.init('ABGamesForum', false);
     delicious.settings.init('unreadindx', false);
     delicious.settings.init('ABNoT', 5);
@@ -3151,16 +3149,20 @@
             'Enable',
             'Enable/Disable Unread Index script.'
         ));
-        s.appendChild(delicious.settings.createCheckbox(
-            'ABGamesForum',
-            'Unread forums in index(News Page)',
-            'Hide those hideous "Forum Games" on your unread index page!'
-        ));
-    
         s.appendChild(delicious.settings.createNumberInput(
             'ABNoT',
             'Number of threads',
             'set the number of threads to show'
+        ));
+        s.appendChild(delicious.settings.createCheckbox(
+            'ABGamesForum',
+            'Hide Forum Games threads',
+            ''
+        ));
+        s.appendChild(delicious.settings.createCheckbox(
+            'ABidc',
+            'Hide IDC threads',
+            ''
         ));
         delicious.settings.insertSection(section);
     }
@@ -3171,7 +3173,8 @@
     var dividernode = document.createElement('div');
     dividernode.className = 'divider';
     var newsnode = document.getElementById('news');
-    function ABUnreadIndex () {
+    
+    function ABUnreadIndex() {
         var unread_doc = document.implementation.createHTMLDocument('');
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
@@ -3187,7 +3190,10 @@
                 for (let i = 1; row; i++) {
                     row = unread_tablenode.rows[i];
                     if (row == null) break;
-                    if ((delicious.settings.get('ABGamesForum') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === delicious.settings.get('ABNoT'))){
+                    if ((delicious.settings.get('ABidc') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "IDC - hard bods") || (unread_posts === delicious.settings.get('ABNoT'))) {
+                        unread_tablenode.deleteRow(i);
+                        i--;
+                    } else if ((delicious.settings.get('ABGamesForum') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === delicious.settings.get('ABNoT'))) {
                         unread_tablenode.deleteRow(i);
                         i--;
                     } else if (unread_posts < delicious.settings.get('ABNoT')) {
@@ -3236,7 +3242,6 @@
         delicious.settings.basicScriptCheckbox('deliciousratio', 'Delicious Ratio',
             'Shows ratio, raw ratio and how much upload/download you need for certain ratio milestones.');
     
-        var _debug = false;
     
         if (!/user\.php\?id=/i.test(document.URL))
             return;
