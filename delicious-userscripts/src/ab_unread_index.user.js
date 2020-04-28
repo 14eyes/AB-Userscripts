@@ -15,6 +15,7 @@
 // @require https://github.com/momentary0/AB-Userscripts/raw/master/delicious-library/src/ab_delicious_library.js
 // ==/UserScript==
 
+delicious.settings.init('ABidc', false);
 delicious.settings.init('ABGamesForum', false);
 delicious.settings.init('unreadindx', false);
 delicious.settings.init('ABNoT', 5);
@@ -26,16 +27,20 @@ if (delicious.settings.ensureSettingsInserted()) {
         'Enable',
         'Enable/Disable Unread Index script.'
     ));
-    s.appendChild(delicious.settings.createCheckbox(
-        'ABGamesForum',
-        'Unread forums in index(News Page)',
-        'Hide those hideous "Forum Games" on your unread index page!'
-    ));
-
     s.appendChild(delicious.settings.createNumberInput(
         'ABNoT',
         'Number of threads',
         'set the number of threads to show'
+    ));
+    s.appendChild(delicious.settings.createCheckbox(
+        'ABGamesForum',
+        'Hide Forum Games threads',
+        ''
+    ));
+    s.appendChild(delicious.settings.createCheckbox(
+        'ABidc',
+        'Hide IDC threads',
+        ''
     ));
     delicious.settings.insertSection(section);
 }
@@ -46,7 +51,8 @@ var unread_tablenode;
 var dividernode = document.createElement('div');
 dividernode.className = 'divider';
 var newsnode = document.getElementById('news');
-function ABUnreadIndex () {
+
+function ABUnreadIndex() {
     var unread_doc = document.implementation.createHTMLDocument('');
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
@@ -62,7 +68,10 @@ function ABUnreadIndex () {
             for (let i = 1; row; i++) {
                 row = unread_tablenode.rows[i];
                 if (row == null) break;
-                if ((delicious.settings.get('ABGamesForum') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === delicious.settings.get('ABNoT'))){
+                if ((delicious.settings.get('ABidc') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "IDC - hard bods") || (unread_posts === delicious.settings.get('ABNoT'))) {
+                    unread_tablenode.deleteRow(i);
+                    i--;
+                } else if ((delicious.settings.get('ABGamesForum') === true && row.cells[0].getElementsByTagName('a')[0].textContent.trim() === "Forum Games") || (unread_posts === delicious.settings.get('ABNoT'))) {
                     unread_tablenode.deleteRow(i);
                     i--;
                 } else if (unread_posts < delicious.settings.get('ABNoT')) {
