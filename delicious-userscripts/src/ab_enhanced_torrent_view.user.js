@@ -62,9 +62,6 @@
         ));
         delicious.settings.insertSection(section);
     }
-
-    var _debug = false;
-
     var days_per_year = 365.256363;
     var show_yen = GM_getValue('ABTorrentsShowYen', 'true') === 'true';
     var show_required_time = GM_getValue('ABTorrentsReqTime', 'true') === 'true';
