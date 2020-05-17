@@ -2995,22 +2995,22 @@
             rratio: Math.round((currentStats.rratio - oldStats.rratio) * 100) / 100,
         };
         if (change.up != 0 || change.down != 0 || change.ratio != 0 || change.rup != 0 || change.rdown != 0 || change.rratio != 0) {
-            displayStats(change);
+            displayStats(change, `New`);
             change.time = (new Date()) * 1;
             window.localStorage.lastChange = JSON.stringify(change);
         } else if ((delicious.settings.get('persist') && currentStats.time - JSON.parse(window.localStorage.lastChange).time < delicious.settings.get('keepTime') * 60000) && (oldchange.up != 0 || oldchange.down != 0 || oldchange.ratio != 0 || oldchange.rup != 0 || oldchange.rdown != 0 || oldchange.rratio != 0)) {
-            displayStats(oldchange);
+            displayStats(oldchange, `Old `);
         }
         window.localStorage.lastStats = JSON.stringify(currentStats);
     })();
     
-    function displayStats(change) {
+    function displayStats(change, type) {
         var statChangePanel = document.createElement("div");
         statChangePanel.id = "userscript-statchange";
         if (delicious.settings.get('showRaw')) {
-            statChangePanel.innerHTML = `<h3>Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio + `<br>` + 'rUp: ' + renderStats(change.rup) + ', rDown: ' + renderStats(change.rdown) + ', rBuffer: ' + renderStats(change.rup - change.rdown) + ', rRatio: ' + change.rratio;
+            statChangePanel.innerHTML = `<h3>` + type + `Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio + `<br>` + 'rUp: ' + renderStats(change.rup) + ', rDown: ' + renderStats(change.rdown) + ', rBuffer: ' + renderStats(change.rup - change.rdown) + ', rRatio: ' + change.rratio;
         } else {
-            statChangePanel.innerHTML = `<h3>Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio;
+            statChangePanel.innerHTML = `<h3>` + type + `Stat Changes</h3>` + 'Up: ' + renderStats(change.up) + ', Down: ' + renderStats(change.down) + ', Buffer: ' + renderStats(change.up - change.down) + ', Ratio: ' + change.ratio;
         }
         statChangePanel.style.setProperty("border", "1px solid black", "important");
         statChangePanel.style.setProperty("padding", "10px", "important");
