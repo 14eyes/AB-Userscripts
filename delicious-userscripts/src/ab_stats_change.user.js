@@ -95,7 +95,7 @@
         rratio: Math.round((currentStats.rratio - oldStats.rratio) * 100) / 100,
     };
     if (change.up != 0 || change.down != 0 || change.ratio != 0 || change.rup != 0 || change.rdown != 0 || change.rratio != 0) {
-        displayStats(change, `New`);
+        displayStats(change, `New `);
         change.time = (new Date()) * 1;
         window.localStorage.lastChange = JSON.stringify(change);
     } else if ((delicious.settings.get('persist') && currentStats.time - JSON.parse(window.localStorage.lastChange).time < delicious.settings.get('keepTime') * 60000) && (oldchange.up != 0 || oldchange.down != 0 || oldchange.ratio != 0 || oldchange.rup != 0 || oldchange.rdown != 0 || oldchange.rratio != 0)) {
