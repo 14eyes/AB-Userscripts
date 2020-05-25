@@ -1791,10 +1791,9 @@
         'Hoverin',
         'Enable/Disable Auto dropdown menus when hovering.'
     );
-    if (!_enabled)
-        return;
-    
-    Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
+    if (_enabled){
+        Hoverin('.navmenu:hover .subnav {' + ' display: block !important;' + '}');
+    }
     /* End src/ab_hoverin.user.js */
 
 
